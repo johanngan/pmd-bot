@@ -4,9 +4,9 @@ require 'statemodel'
 
 stateinfo = {}
 
+-- Rough indicator of whether or not the game is accepting input
 function stateinfo.canAct()
-    print('canAct()')
-    return true
+    return memory.readbyte(0x021BA62B) == 0
 end
 
 function stateinfo.loadState()
