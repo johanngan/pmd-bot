@@ -29,7 +29,7 @@ end
 
 -- Reads a little-endian byte range and converts it to a signed int
 function memoryrange.readbytesSigned(address, length)
-    return memoryrange.bytesToSigned(memory.readbyterange(address, length), length)
+    return memoryrange.bytesToSigned(memory.readbyterange(address, length))
 end
 
 return memoryrange
