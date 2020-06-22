@@ -70,27 +70,6 @@ local menuCodes = {
 }
 setmetatable(menuCodes, {__index = function(table, key) return 'Unknown' end})
 
--- Maximum number of positions in each menu, if applicable
-local menuLengths = {
-    [MENU.Main] = 7,
-    [MENU.Moves] = 4,
-    [MENU.MoveAction] = 6,
-    [MENU.Bag] = 8,
-    [MENU.ItemAction] = 6,
-    [MENU.ItemFor] = 4,
-    [MENU.Team] = 4,
-    [MENU.LeaderAction] = 5,
-    [MENU.TeammateAction] = 7,
-    [MENU.IQ] = 8,
-    [MENU.IQAction] = 3,
-    [MENU.Tactics] = 8,
-    [MENU.TacticsAction] = 3,
-    [MENU.Others] = 7,
-    [MENU.Ground] = 6,
-    [MENU.Stairs] = 3,
-    [MENU.Rest] = 2,
-}
-
 -- The cursor index for many menus is stored in a volatile location, but in this case
 -- there's a reliable double pointer that points to where the cursor index is stored
 -- In fact, pretty much all menu indexes are stored this way...except the Moves menu
@@ -116,6 +95,26 @@ local volatileCursorInfo = {
 
 ---- END INTERNAL TABLES ----
 
+-- Maximum number of positions in each menu, if applicable
+menuinfo.maxMenuLengths = {
+    [MENU.Main] = 7,
+    [MENU.Moves] = 4,
+    [MENU.MoveAction] = 6,
+    [MENU.Bag] = 8,
+    [MENU.ItemAction] = 6,
+    [MENU.ItemFor] = 4,
+    [MENU.Team] = 4,
+    [MENU.LeaderAction] = 5,
+    [MENU.TeammateAction] = 7,
+    [MENU.IQ] = 8,
+    [MENU.IQAction] = 3,
+    [MENU.Tactics] = 8,
+    [MENU.TacticsAction] = 3,
+    [MENU.Others] = 7,
+    [MENU.Ground] = 6,
+    [MENU.Stairs] = 3,
+    [MENU.Rest] = 2,
+}
 
 -- Rough indicator of whether or not the game is in a
 -- (typically short) menu transition sequence
