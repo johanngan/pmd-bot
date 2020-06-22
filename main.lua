@@ -1,13 +1,14 @@
 -- Main dispatcher for the bot
 
-require 'table'
-
 require 'statemodel'
 require 'stateinfo'
+require 'menuinfo'
 require 'actions'
 require 'decisions'
+require 'utils/execute'
 
 -- Convenience function for reporting messages on screen
+-- emu.message crashes the emulator for some reason
 function report_message(message)
     local MESSAGE_X = 0
     local MESSAGE_Y = -190
@@ -23,6 +24,9 @@ report_message('Dungeon state successfully loaded. Bot engaged.')
 currentFloor = 0
 -- Queue of actions for the bot the execute
 actionQueue = {}
+-- Pause of a few frames after completing an action; to give time for internal stuff
+-- in memory to update right after input
+local ACTION_COOLDOWN_FRAMES = 20
 
 -- Main execution loop for the bot
 while true do
@@ -45,6 +49,10 @@ while true do
         emu.frameadvance()
 
         -- Execute the next action in the queue
-        table.remove(actionQueue, 1)()
+        actionQueue = execute.stepActionQueue(actionQueue)
+        -- Cooldown
+        for i=1,ACTION_COOLDOWN_FRAMES do
+            emu.frameadvance()
+        end
     end
 end
