@@ -114,7 +114,7 @@ local function readMonster(address)
     monster.yPosition = memory.readwordsigned(address + 0x06)
 
     -- The original address ends in a pointer to a table with many important values
-    local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4)
+    local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4, 4)
     monster.species = memory.readword(infoTableStart + 0x002)
     monster.isEnemy = memory.readbyteunsigned(infoTableStart + 0x006) == 1
     monster.isLeader = memory.readbyteunsigned(infoTableStart + 0x007) == 1
@@ -126,7 +126,7 @@ local function readMonster(address)
     monster.specialAttack = memory.readbyteunsigned(infoTableStart + 0x01B)
     monster.defense = memory.readbyteunsigned(infoTableStart + 0x01C)
     monster.specialDefense = memory.readbyteunsigned(infoTableStart + 0x01D)
-    monster.experience = memoryrange.readbytesSigned(infoTableStart + 0x020)
+    monster.experience = memoryrange.readbytesSigned(infoTableStart + 0x020, 4)
     -- 0x024-0x043: stat boosts/drops
     monster.direction = memory.readbyteunsigned(infoTableStart + 0x04C)
     monster.heldItemQuantity = memory.readwordunsigned(infoTableStart + 0x064)
@@ -187,7 +187,7 @@ local function readItem(address)
     item.yPosition = memory.readwordsigned(address + 0x06)
 
     -- The original address ends in a pointer to a table with important values
-    local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4)
+    local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4, 4)
     item.itemState = memory.readwordunsigned(infoTableStart)
     item.amount = memory.readwordunsigned(infoTableStart + 0x02)
     item.itemType = memory.readwordunsigned(infoTableStart + 0x04)
@@ -214,7 +214,7 @@ local function readTrap(address)
     trap.isRevealed = memory.readbyteunsigned(address + 0x20) ~= 0
 
     -- The original address ends in a pointer to a table with important values
-    local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4)
+    local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4, 4)
     trap.trapType = memory.readbyteunsigned(infoTableStart)
     -- Not sure if isActive is really a meaningful value, or if it will always be true...
     trap.isActive = memory.readbyteunsigned(infoTableStart + 0x01)
