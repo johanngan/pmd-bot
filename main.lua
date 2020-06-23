@@ -4,7 +4,7 @@ require 'stateinfo'
 require 'menuinfo'
 require 'actions'
 require 'decisions'
-require 'utils/execute'
+require 'utils.execute'
 
 -- Convenience function for reporting messages on screen
 -- emu.message crashes the emulator for some reason

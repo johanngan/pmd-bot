@@ -2,7 +2,7 @@
 
 require 'table'
 
-require 'utils/enum'
+require 'utils.enum'
 require 'menuinfo'
 
 actions = {}

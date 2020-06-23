@@ -1,7 +1,7 @@
 -- Reading state info from memory specifically related to menuing
 
-require 'utils/enum'
-require 'utils/memoryrange'
+require 'utils.enum'
+require 'utils.memoryrange'
 require 'stateinfo'
 
 menuinfo = {}

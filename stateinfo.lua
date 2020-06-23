@@ -2,8 +2,8 @@
 
 require 'table'
 
-require 'utils/memoryrange'
-require 'utils/StateData'
+require 'utils.memoryrange'
+require 'utils.StateData'
 
 stateinfo = {}
 
