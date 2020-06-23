@@ -32,4 +32,25 @@ function memoryrange.readbytesSigned(address, length)
     return memoryrange.bytesToSigned(memory.readbyterange(address, length))
 end
 
+-- Reads a list of n contiguous length-byte numbers (little-endian)
+local function readList(address, length, n, convertBytes)
+    bytes = memory.readbyterange(address, length*n)
+    valList = {}
+    for i=1,n do
+        local start = 1 + length*(i-1)
+        valList[i] = convertBytes({unpack(bytes, start, start+length-1)})
+    end
+    return valList
+end
+
+-- Reads a list of n contiguous length-byte unsigned integers (little-endian)
+function memoryrange.readListUnsigned(address, length, n)
+    return readList(address, length, n, memoryrange.bytesToUnsigned)
+end
+
+-- Reads a list of n contiguous length-byte signed integers (little-endian)
+function memoryrange.readListUnsigned(address, length, n)
+    return readList(address, length, n, memoryrange.bytesToSigned)
+end
+
 return memoryrange
