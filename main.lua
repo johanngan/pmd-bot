@@ -52,5 +52,10 @@ while true do
         for i=1,ACTION_COOLDOWN_FRAMES do
             emu.frameadvance()
         end
+    elseif menuinfo.messageIsOpen() then
+        -- If there seems to be a menu open, then maybe the canAct flag got locked.
+        -- Try pressing B to regain control
+        joypad.set({B=true})
+        emu.frameadvance()
     end
 end
