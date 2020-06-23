@@ -200,18 +200,28 @@ local function getActiveNonMonsterPtrs(idxLo, idxHi)
     end
     return activePtrs
 end
--- Read an item at a given address
-local function readItem(address)
+-- Read fields from an item's info table
+local function readItemInfoTable(infoTableStart)
     local item = {}
-    item.xPosition = memory.readwordsigned(address + 0x04)
-    item.yPosition = memory.readwordsigned(address + 0x06)
-
-    -- The original address ends in a pointer to a table with important values
-    local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4, 4)
     item.itemState = memory.readwordunsigned(infoTableStart)
+    if item.itemState == 0 then
+        return nil  -- Nonexistent item
+    end
     item.amount = memory.readwordunsigned(infoTableStart + 0x02)
     item.itemType = memory.readwordunsigned(infoTableStart + 0x04)
-
+    return item
+end
+-- Read an item at a given (entity) address
+local function readItem(address)
+    -- The original address ends in a pointer to a table with important values
+    local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4, 4)
+    local item = readItemInfoTable(infoTableStart)
+    -- Make sure the item exists before continuing
+    if item then
+        -- More info at the original address
+        item.xPosition = memory.readwordsigned(address + 0x04)
+        item.yPosition = memory.readwordsigned(address + 0x06)
+    end
     return item
 end
 state.dungeon.entities.items = StateData:new()
@@ -304,6 +314,20 @@ end
 
 -- List of items in bag
 state.player.bag = StateData:new()
+local BAG_START = 0x022A3824
+local ITEM_SIZE = 6
+function state.player.bag:read()
+    local bag = {}
+    local i = 0
+    local item = readItemInfoTable(BAG_START)
+    -- Read until an empty slot is encountered
+    while item do
+        table.insert(bag, item)
+        i = i + 1
+        item = readItemInfoTable(BAG_START + i*ITEM_SIZE)
+    end
+    return bag
+end
 
 ---- END STATE DATA MODEL ----
 
