@@ -36,6 +36,7 @@ function StateData.__call(self)
         -- Cache if caching is enabled
         if self.doesCache then
             self.cache = data
+            self.isStale = false
         end
     end
     return unpack(data) -- Unwrap packed data with possibly multiple outputs
