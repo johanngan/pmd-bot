@@ -178,7 +178,7 @@ local function getActiveNonMonsterPtrs(idxLo, idxHi)
             table.insert(activePtrs, ptr)
         end
     end
-    return i
+    return activePtrs
 end
 -- Read an item at a given address
 local function readItem(address)
