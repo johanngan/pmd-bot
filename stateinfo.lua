@@ -206,6 +206,31 @@ end
 
 -- Trap list
 state.dungeon.entities.traps = StateData:new()
+-- Read a trap at a given address
+local function readTrap(address)
+    local trap = {}
+    trap.xPosition = memory.readwordsigned(address + 0x04)
+    trap.yPosition = memory.readwordsigned(address + 0x06)
+    trap.isRevealed = memory.readbyteunsigned(address + 0x20) ~= 0
+
+    -- The original address ends in a pointer to a table with important values
+    local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4)
+    trap.trapType = memory.readbyteunsigned(infoTableStart)
+    -- Not sure if isActive is really a meaningful value, or if it will always be true...
+    trap.isActive = memory.readbyteunsigned(infoTableStart + 0x01)
+    trap.isActive = (trap.isActive == 0 or trap.isActive == 2)
+    
+    return trap
+end
+function state.dungeon.entities.traps:read()
+    -- Trap indexes are grouped with items indexes; traps start at 64
+    local activeTrapPtrs = getActiveNonMonsterPtrs(64, 128)
+    local traps = {}
+    for _, addr in ipairs(activeTrapPtrs) do
+        table.insert(traps, readTrap(addr))
+    end
+    return traps
+end
 
 -- Subcontainer for dungeon-wide conditions
 state.dungeon.conditions = {}
