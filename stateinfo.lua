@@ -145,6 +145,10 @@ local function readMonster(address)
     monster.experience = memoryrange.readbytesSigned(infoTableStart + 0x020, 4)
     -- 0x024-0x043: stat boosts/drops
     monster.direction = memory.readbyteunsigned(infoTableStart + 0x04C)
+    monster.primaryType = memory.readbyteunsigned(infoTableStart + 0x05E)
+    monster.secondaryType = memory.readbyteunsigned(infoTableStart + 0x05F)
+    monster.primaryAbility = memory.readbyteunsigned(infoTableStart + 0x060)
+    monster.secondaryAbility = memory.readbyteunsigned(infoTableStart + 0x061)
     monster.heldItemQuantity = memory.readwordunsigned(infoTableStart + 0x064)
     monster.heldItem = memory.readwordunsigned(infoTableStart + 0x066)
     -- 0x0A9-11E: statuses
