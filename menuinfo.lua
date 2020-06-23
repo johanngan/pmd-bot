@@ -1,38 +1,12 @@
 -- Reading state info from memory specifically related to menuing
 
-require 'utils.enum'
+require 'codes.menu'
 require 'utils.memoryrange'
 require 'stateinfo'
 
 menuinfo = {}
 
--- Enum for menu names
-menuinfo.MENU, menuinfo.MENU_NAMES = enum.register({
-    'None',
-    'MessageBox',
-    'DialogueBox',
-    'Main',
-    'Moves',
-    'MoveAction',
-    'Bag',
-    'ItemAction',
-    'ItemFor',
-    'Team',
-    'LeaderAction',
-    'TeammateAction',
-    'IQ',
-    'IQAction',
-    'Tactics',
-    'TacticsAction',
-    'Others',
-    'Ground',
-    'Stairs',
-    'Rest',
-    'YesNo',
-    'NewMove',
-    'NewMoveAction',
-}, 1, 'menu')
-local MENU, MENU_NAMES = menuinfo.MENU, menuinfo.MENU_NAMES
+local MENU, MENU_NAMES = codes.MENU, codes.MENU_NAMES
 
 ---- BEGIN INTERNAL TABLES ----
 

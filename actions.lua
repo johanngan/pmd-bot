@@ -2,29 +2,24 @@
 
 require 'table'
 
-require 'utils.enum'
+require 'codes.direction'
+require 'codes.menu'
 require 'menuinfo'
 
 actions = {}
-
--- Enum for directions (matches the internal direction index in-game)
-actions.DIRECTION, actions.DIRECTION_NAMES = enum.register(
-    {'Down', 'DownRight', 'Right', 'UpRight', 'Up', 'UpLeft', 'Left', 'DownLeft'},
-    0, 'direction'
-)
 
 ---- BEGIN INTERNAL STUFF ----
 
 -- Mapping from valid direction strings to inputs, for convenience
 local directionInputs = {
-    [actions.DIRECTION.Down]={down=true},
-    [actions.DIRECTION.DownRight]={down=true, right=true},
-    [actions.DIRECTION.Right]={right=true},
-    [actions.DIRECTION.UpRight]={up=true, right=true},
-    [actions.DIRECTION.Up]={up=true},
-    [actions.DIRECTION.UpLeft]={up=true, left=true},
-    [actions.DIRECTION.Left]={left=true},
-    [actions.DIRECTION.DownLeft]={down=true, left=true},
+    [codes.DIRECTION.Down]={down=true},
+    [codes.DIRECTION.DownRight]={down=true, right=true},
+    [codes.DIRECTION.Right]={right=true},
+    [codes.DIRECTION.UpRight]={up=true, right=true},
+    [codes.DIRECTION.Up]={up=true},
+    [codes.DIRECTION.UpLeft]={up=true, left=true},
+    [codes.DIRECTION.Left]={left=true},
+    [codes.DIRECTION.DownLeft]={down=true, left=true},
 }
 
 -- Advance some number of frames
@@ -72,8 +67,8 @@ local function navMenuIndex(currentIndex, targetIndex, incDirection, decDirectio
     end
 
     -- Default to up and down for navigation
-    local incDirection = incDirection or actions.DIRECTION.Down
-    local decDirection = decDirection or actions.DIRECTION.Up
+    local incDirection = incDirection or codes.DIRECTION.Down
+    local decDirection = decDirection or codes.DIRECTION.Up
 
     local diff = targetIndex - currentIndex
     local dirInput = directionInputs[(diff > 0) and incDirection or decDirection]
@@ -152,8 +147,8 @@ end
 
 -- Open the main menu
 function actions.openMainMenu()
-    actions.closeMenus(menuinfo.MENU.Main)
-    while menuinfo.getMenu() ~= menuinfo.MENU.Main do
+    actions.closeMenus(codes.MENU.Main)
+    while menuinfo.getMenu() ~= codes.MENU.Main do
         joypad.set({X=true})
         waitForMenuTransition()
     end
@@ -161,8 +156,8 @@ end
 
 -- Open the moves menu
 function actions.openMovesMenu()
-    actions.closeMenus(menuinfo.MENU.Moves)
-    while menuinfo.getMenu() ~= menuinfo.MENU.Moves do
+    actions.closeMenus(codes.MENU.Moves)
+    while menuinfo.getMenu() ~= codes.MENU.Moves do
         joypad.set({X=true})
         waitForMenuTransition()
     end
@@ -170,8 +165,8 @@ end
 
 -- Open the treasure bag menu
 function actions.openBagMenu()
-    actions.closeMenus(menuinfo.MENU.Bag)
-    while menuinfo.getMenu() ~= menuinfo.MENU.Bag do
+    actions.closeMenus(codes.MENU.Bag)
+    while menuinfo.getMenu() ~= codes.MENU.Bag do
         hold({B=true}, 2)
         waitForMenuTransition()
     end
@@ -184,7 +179,7 @@ function actions.useMove(index)
     repeat
         joypad.set({A=true})
         waitForMenuTransition()
-    until menuinfo.getMenu() == menuinfo.MENU.MoveAction
+    until menuinfo.getMenu() == codes.MENU.MoveAction
     navMenuIndex(menuinfo.getMenuCursorIndex(), 0)
     joypad.set({A=true})
     waitForMenuTransition()
@@ -192,18 +187,18 @@ end
 
 -- Select an item at some index
 function actions.selectItem(index)
-    local menuLength = menuinfo.maxMenuLengths[menuinfo.MENU.Bag]
+    local menuLength = menuinfo.maxMenuLengths[codes.MENU.Bag]
     local relIndex = index % menuLength
     local pageIndex = math.floor(index / menuLength)
 
     actions.openBagMenu()
     navMenuIndex(menuinfo.getMenuPageIndex(), pageIndex,
-        actions.DIRECTION.Right, actions.DIRECTION.Left)
+        codes.DIRECTION.Right, codes.DIRECTION.Left)
     navMenuIndex(menuinfo.getMenuCursorIndex(), relIndex)
     repeat
         joypad.set({A=true})
         waitForMenuTransition()
-    until menuinfo.getMenu() == menuinfo.MENU.ItemAction
+    until menuinfo.getMenu() == codes.MENU.ItemAction
 end
 
 -- Take some action with an item at a given index
@@ -219,7 +214,7 @@ function actions.itemActionOnTeammate(index, actionIndex, teammate)
     local teammate = teammate or 0    -- Default to using on the leader
 
     actions.itemAction(index, actionIndex)
-    while menuinfo.getMenu() ~= menuinfo.MENU.ItemFor do
+    while menuinfo.getMenu() ~= codes.MENU.ItemFor do
         joypad.set({A=true})
         waitForMenuTransition()
     end
