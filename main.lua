@@ -17,11 +17,11 @@ end
 report_message('Bot engaged.')
 
 -- The state
-state = stateinfo.state
+local state = stateinfo.state
 -- Needed to detect a floor change
-currentFloor = 0
+local currentFloor = 0
 -- Queue of actions for the bot the execute
-actionQueue = {}
+local actionQueue = {}
 -- Pause of a few frames after completing an action; to give time for internal stuff
 -- in memory to update right after input
 local ACTION_COOLDOWN_FRAMES = 20
