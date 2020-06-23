@@ -170,7 +170,7 @@ local FIRST_NON_MONSTER_PTR = 0x021CD960
 local DATA_BLOCK_SIZE = 184
 -- Get pointer to active non-monster entities in a given index range (starting at 0)
 local function getActiveNonMonsterPtrs(idxLo, idxHi)
-    activePtrs = {}
+    local activePtrs = {}
     for i=idxLo,idxHi do
         local ptr = FIRST_NON_MONSTER_PTR + i*DATA_BLOCK_SIZE
         -- The first byte is nonzero if active
@@ -200,6 +200,8 @@ function state.dungeon.entities.items:read()
     local items = {}
     for _, addr in ipairs(activeItemPtrs) do
         table.insert(items, readItem(addr))
+        -- Advance frame in between loading items to reduce frame stuttering
+        emu.frameadvance()
     end
     return items
 end
@@ -228,6 +230,8 @@ function state.dungeon.entities.traps:read()
     local traps = {}
     for _, addr in ipairs(activeTrapPtrs) do
         table.insert(traps, readTrap(addr))
+        -- Advance frame in between loading traps to reduce frame stuttering
+        emu.frameadvance()
     end
     return traps
 end
