@@ -10,6 +10,10 @@ function enum.register(enumKeys, startIndex, enumName)
     local i = startIndex or 1
     local enumName = enumName or 'enum'
     for _, name in ipairs(enumKeys) do
+        -- Don't allow duplicates
+        if newEnum[name] then
+            error('Duplicate enum key "' .. name .. '"', 2)
+        end
         newEnum[name] = i
         invTable[i] = name
         i = i + 1
