@@ -1,6 +1,5 @@
 -- Main dispatcher for the bot
 
-require 'statemodel'
 require 'stateinfo'
 require 'menuinfo'
 require 'actions'
@@ -15,11 +14,10 @@ function report_message(message)
     gui.text(MESSAGE_X, -MESSAGE_Y, message)
 end
 
--- Initialize the state model from scratch
-report_message('Loading dungeon state...')
-state = stateinfo.loadState()
-report_message('Dungeon state successfully loaded. Bot engaged.')
+report_message('Bot engaged.')
 
+-- The state
+state = stateinfo.state
 -- Needed to detect a floor change
 currentFloor = 0
 -- Queue of actions for the bot the execute
@@ -33,10 +31,10 @@ while true do
     emu.frameadvance()
     -- If the bot cannot act because of in-game animation, loading, etc.,
     -- then don't do anything; just wait
-    if stateinfo.canAct() then
+    if state.canAct() then
         -- If there's been a floor change, do necessary updates to the dungeon state
-        if currentFloor ~= state.dungeon.floor then
-            currentFloor = state.dungeon.floor
+        if currentFloor ~= state.dungeon.floor() then
+            currentFloor = state.dungeon.floor()
             state = stateinfo.reloadEveryFloor(state)
             emu.frameadvance()  -- intermediate frame advance to combat lag
         end

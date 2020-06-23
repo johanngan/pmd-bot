@@ -121,7 +121,7 @@ menuinfo.maxMenuLengths = {
 -- the period of "on" time seems to be too small on both ends by a few frames,
 -- depending on the menu transition
 function menuinfo.inMenuTransition()
-    return (memory.readbyte(0x0228B06A) ~= 0) and stateinfo.canAct()
+    return (memory.readbyte(0x0228B06A) ~= 0) and stateinfo.state.canAct()
 end
 
 -- Get the current menu's internal code
