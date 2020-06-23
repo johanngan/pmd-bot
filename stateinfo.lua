@@ -107,6 +107,22 @@ local function getActiveMonstersPtrs(activeIdxLo, activeIdxHi, allIdxLo, allIdxH
     end
     return filteredActivePtrs
 end
+-- Read a single move given its data block address
+local function readMove(address)
+    local bitfield = memory.readbyteunsigned(address)
+    -- Check if the move slot is empty
+    if AND(bitfield, 0x01) == 0 then
+        return nil
+    end
+    local move = {}
+    move.subsequentInLinkChain = AND(bitfield, 0x02) ~= 0
+    move.isSet = AND(bitfield, 0x08) ~= 0
+    move.isSealed = memory.readbyteunsigned(address + 0x02) ~= 0
+    move.moveID = memory.readwordunsigned(address + 0x04)
+    move.PP = memory.readbyteunsigned(address + 0x06)
+    move.ginsengBoost = memory.readbyteunsigned(address + 0x07)
+    return move
+end
 -- Read a single monster given its data block address
 local function readMonster(address)
     local monster = {}
@@ -132,10 +148,14 @@ local function readMonster(address)
     monster.heldItemQuantity = memory.readwordunsigned(infoTableStart + 0x064)
     monster.heldItem = memory.readwordunsigned(infoTableStart + 0x066)
     -- 0x0A9-11E: statuses
-    -- 0x124-0x12B: move 1 info
-    -- 0x12C-0x133: move 2 info
-    -- 0x134-0x13B: move 3 info
-    -- 0x13C-0x143: move 4 info
+    monster.moves = {}
+    local MOVE1_OFFSET = 0x124
+    local MOVE_SIZE = 8
+    for i=0,3 do
+        local move = readMove(infoTableStart + MOVE1_OFFSET + i*MOVE_SIZE)
+        if not move then break end  -- Stop reading moves if the slot is empty
+        table.insert(monster.moves, move)
+    end
     monster.belly = (
         memory.readwordsigned(infoTableStart + 0x146) +
         memory.readwordsigned(infoTableStart + 0x148) / 1000
