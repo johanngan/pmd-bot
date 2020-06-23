@@ -124,6 +124,7 @@ local function readMove(address)
     return move
 end
 -- Read a single monster given its data block address
+local N_DEFAULT_GENDER = 600 -- Number of monster entities with their default genders
 local function readMonster(address)
     local monster = {}
     monster.xPosition = memory.readwordsigned(address + 0x04)
@@ -131,7 +132,8 @@ local function readMonster(address)
 
     -- The original address ends in a pointer to a table with many important values
     local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4, 4)
-    monster.species = memory.readword(infoTableStart + 0x002)
+    -- Need to mod with 600 since the non-default genders have different IDs for some reason
+    monster.species = memory.readword(infoTableStart + 0x002) % N_DEFAULT_GENDER
     monster.isEnemy = memory.readbyteunsigned(infoTableStart + 0x006) == 1
     monster.isLeader = memory.readbyteunsigned(infoTableStart + 0x007) == 1
     monster.level = memory.readbyteunsigned(infoTableStart + 0x00A)
