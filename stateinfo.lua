@@ -85,11 +85,86 @@ end
 
 -- Subcontainer for entities in the dungeon
 state.dungeon.entities = {}
+
+
 -- Team list
 state.dungeon.entities.team = StateData:new()
+local ALL_MONSTER_PTRS_START = 0x021CC85C  -- Start of internal list of all monster ptrs
+local ACTIVE_MONSTER_PTRS_START = 0x21CC8AC    -- Start of internal list of all active monster ptrs
+-- Search through the active monster pointers from the range [activeIdxLo, activeIdxHi]
+-- in the active pointer list. Return a list with all of them that lie in the range
+-- [allIdxLo, allIdxHi] within the list of all monster pointers. Indexes start from 0.
+local function getActiveMonstersPtrs(activeIdxLo, activeIdxHi, allIdxLo, allIdxHi)
+    local activePtrs = memoryrange.readListUnsigned(
+        ACTIVE_MONSTER_PTRS_START + 4*activeIdxLo, 4, activeIdxHi-activeIdxLo+1)
+    local allPtrLo = memoryrange.readbytesUnsigned(ALL_MONSTER_PTRS_START + 4*allIdxLo, 4)
+    local allPtrHi = memoryrange.readbytesUnsigned(ALL_MONSTER_PTRS_START + 4*allIdxHi, 4)
+    local filteredActivePtrs = {}
+    for _, ptr in ipairs(activePtrs) do
+        if ptr >= allPtrLo and ptr <= allPtrHi then
+            table.insert(filteredActivePtrs, ptr)
+        end
+    end
+    return filteredActivePtrs
+end
+-- Read a single monster given its data block address
+local function readMonster(address)
+    local monster = {}
+    monster.xPosition = memory.readwordsigned(address + 0x04)
+    monster.yPosition = memory.readwordsigned(address + 0x06)
+
+    -- The original address ends in a pointer to a table with many important values
+    local infoTableStart = memoryrange.readbytesUnsigned(address + 0x0B4)
+    monster.species = memory.readword(infoTableStart + 0x002)
+    monster.isEnemy = memory.readbyteunsigned(infoTableStart + 0x006) == 1
+    monster.isLeader = memory.readbyteunsigned(infoTableStart + 0x007) == 1
+    monster.level = memory.readbyteunsigned(infoTableStart + 0x00A)
+    monster.IQ = memory.readwordsigned(infoTableStart + 0x00E)
+    monster.HP = memory.readwordsigned(infoTableStart + 0x010)
+    monster.maxHP = memory.readwordsigned(infoTableStart + 0x012)
+    monster.attack = memory.readbyteunsigned(infoTableStart + 0x01A)
+    monster.specialAttack = memory.readbyteunsigned(infoTableStart + 0x01B)
+    monster.defense = memory.readbyteunsigned(infoTableStart + 0x01C)
+    monster.specialDefense = memory.readbyteunsigned(infoTableStart + 0x01D)
+    monster.experience = memoryrange.readbytesSigned(infoTableStart + 0x020)
+    -- 0x024-0x043: stat boosts/drops
+    monster.direction = memory.readbyteunsigned(infoTableStart + 0x04C)
+    monster.heldItemQuantity = memory.readwordunsigned(infoTableStart + 0x064)
+    monster.heldItem = memory.readwordunsigned(infoTableStart + 0x066)
+    -- 0x0A9-11E: statuses
+    -- 0x124-0x12B: move 1 info
+    -- 0x12C-0x133: move 2 info
+    -- 0x134-0x13B: move 3 info
+    -- 0x13C-0x143: move 4 info
+    monster.belly = (
+        memory.readwordsigned(infoTableStart + 0x146) +
+        memory.readwordsigned(infoTableStart + 0x148) / 1000
+    )
+
+    return monster
+end
+-- Read a list of monsters given a list of data block addresses
+local function readMonsterList(addresses)
+    local monsters = {}
+    for _, addr in ipairs(addresses) do
+        table.insert(monsters, readMonster(addr))
+        -- Advance frame in between loading monsters to reduce frame stuttering
+        emu.frameadvance()
+    end
+    return monsters
+end
+function state.dungeon.entities.team:read()
+    local activeTeamPtrs = getActiveMonstersPtrs(0, 3, 0, 3)
+    return readMonsterList(activeTeamPtrs)
+end
 
 -- Enemy list
 state.dungeon.entities.enemies = StateData:new()
+function state.dungeon.entities.enemies:read()
+    local activeEnemyPtrs = getActiveMonstersPtrs(1, 19, 4, 19)
+    return readMonsterList(activeEnemyPtrs)
+end
+
 -- Item list
 state.dungeon.entities.items = StateData:new()
 -- Trap list
