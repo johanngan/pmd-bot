@@ -108,6 +108,17 @@ function actions.closeMenus(stopAtMenu)
     end
 end
 
+-- Mash X+B to close any message boxes
+function actions.closeMessages()
+    local alternate = {{X=true}, {B=true}}
+    local i = 1
+    while menuinfo.messageIsOpen() do
+        i = 1 + (i % #alternate)
+        joypad.set(alternate[i])
+        waitForMenuTransition()
+    end
+end
+
 -- Rest in place
 function actions.rest()
     actions.closeMenus()
