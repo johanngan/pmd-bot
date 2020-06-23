@@ -114,7 +114,7 @@ local function readMonster(address)
     monster.yPosition = memory.readwordsigned(address + 0x06)
 
     -- The original address ends in a pointer to a table with many important values
-    local infoTableStart = memoryrange.readbytesUnsigned(address + 0x0B4)
+    local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4)
     monster.species = memory.readword(infoTableStart + 0x002)
     monster.isEnemy = memory.readbyteunsigned(infoTableStart + 0x006) == 1
     monster.isLeader = memory.readbyteunsigned(infoTableStart + 0x007) == 1
@@ -166,7 +166,44 @@ function state.dungeon.entities.enemies:read()
 end
 
 -- Item list
+local FIRST_NON_MONSTER_PTR = 0x021CD960
+local DATA_BLOCK_SIZE = 184
+-- Get pointer to active non-monster entities in a given index range (starting at 0)
+local function getActiveNonMonsterPtrs(idxLo, idxHi)
+    activePtrs = {}
+    for i=idxLo,idxHi do
+        local ptr = FIRST_NON_MONSTER_PTR + i*DATA_BLOCK_SIZE
+        -- The first byte is nonzero if active
+        if memory.readbyteunsigned(ptr) ~= 0 then
+            table.insert(activePtrs, ptr)
+        end
+    end
+    return i
+end
+-- Read an item at a given address
+local function readItem(address)
+    local item = {}
+    item.xPosition = memory.readwordsigned(address + 0x04)
+    item.yPosition = memory.readwordsigned(address + 0x06)
+
+    -- The original address ends in a pointer to a table with important values
+    local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4)
+    item.itemState = memory.readwordunsigned(infoTableStart)
+    item.amount = memory.readwordunsigned(infoTableStart + 0x02)
+    item.itemType = memory.readwordunsigned(infoTableStart + 0x04)
+
+    return item
+end
 state.dungeon.entities.items = StateData:new()
+function state.dungeon.entities.items:read()
+    local activeItemPtrs = getActiveNonMonsterPtrs(0, 63)
+    local items = {}
+    for _, addr in ipairs(activeItemPtrs) do
+        table.insert(items, readItem(addr))
+    end
+    return items
+end
+
 -- Trap list
 state.dungeon.entities.traps = StateData:new()
 
