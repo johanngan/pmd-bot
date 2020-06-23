@@ -28,6 +28,9 @@ menuinfo.MENU, menuinfo.MENU_NAMES = enum.register({
     'Ground',
     'Stairs',
     'Rest',
+    'YesNo',
+    'NewMove',
+    'NewMoveAction',
 }, 1, 'menu')
 local MENU, MENU_NAMES = menuinfo.MENU, menuinfo.MENU_NAMES
 
@@ -67,6 +70,10 @@ local menuCodes = {
     [154] = MENU.Ground, -- 6 options. Includes "consumable" items on the ground and shop items
     [119] = MENU.Stairs, -- 3 options. Also includes wonder tiles and traps when you use through Ground, but that's unusual
     [97] = MENU.Rest,
+    [157] = MENU.YesNo, -- 2 options. For move forget prompts
+    [182] = MENU.YesNo, -- 2 options. For Kecleon purchase prompts
+    [217] = MENU.NewMove, -- 5 options
+    [273] = MENU.NewMoveAction, -- 4 options
 }
 setmetatable(menuCodes, {__index = function(table, key) return 'Unknown' end})
 
@@ -91,6 +98,8 @@ local volatileCursorInfo = {
     [MENU.Ground] = 0x020B3474,
     [MENU.Stairs] = 0x020B34A4,
     [MENU.Rest] = 0x020B3474,
+    [MENU.YesNo] = 0x020B3474,
+    [MENU.NewMoveAction] = 0x020B3474,
 }
 
 ---- END INTERNAL TABLES ----
@@ -114,6 +123,9 @@ menuinfo.maxMenuLengths = {
     [MENU.Ground] = 6,
     [MENU.Stairs] = 3,
     [MENU.Rest] = 2,
+    [MENU.YesNo] = 2,
+    [MENU.NewMove] = 5,
+    [MENU.NewMoveAction] = 4,
 }
 
 -- Rough indicator of whether or not the game is in a
@@ -168,7 +180,7 @@ function menuinfo.getMenuCursorIndex()
     local currentMenu = menuinfo.getMenu()
 
     -- Moves menu is a weird outlier
-    if currentMenu == MENU.Moves then
+    if currentMenu == MENU.Moves or currentMenu == MENU.NewMove then
         return memory.readwordsigned(0x020AFE7E)
     end
 
