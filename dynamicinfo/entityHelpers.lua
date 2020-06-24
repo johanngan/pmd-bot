@@ -63,27 +63,52 @@ function entityHelpers.readMonster(address)
 
     -- The original address ends in a pointer to a table with many important values
     local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4, 4)
+
+    -- Stuff seen on the "Features" page in-game, but add species, because belongs conceptually
+    monster.features = {}
     -- Need to mod with 600 since the non-default genders have different IDs for some reason
-    monster.species = memory.readword(infoTableStart + 0x002) % N_DEFAULT_GENDER
+    monster.features.species = memory.readwordunsigned(infoTableStart + 0x002) % N_DEFAULT_GENDER
+
+    -- Other basic info
     monster.isEnemy = memory.readbyteunsigned(infoTableStart + 0x006) == 1
     monster.isLeader = memory.readbyteunsigned(infoTableStart + 0x007) == 1
-    monster.level = memory.readbyteunsigned(infoTableStart + 0x00A)
-    monster.IQ = memory.readwordsigned(infoTableStart + 0x00E)
-    monster.HP = memory.readwordsigned(infoTableStart + 0x010)
-    monster.maxHP = memory.readwordsigned(infoTableStart + 0x012)
-    monster.attack = memory.readbyteunsigned(infoTableStart + 0x01A)
-    monster.specialAttack = memory.readbyteunsigned(infoTableStart + 0x01B)
-    monster.defense = memory.readbyteunsigned(infoTableStart + 0x01C)
-    monster.specialDefense = memory.readbyteunsigned(infoTableStart + 0x01D)
-    monster.experience = memoryrange.readbytesSigned(infoTableStart + 0x020, 4)
-    -- 0x024-0x043: stat boosts/drops
+
+    -- Stuff seen on the "Stats" page in-game, and related stuff
+    -- Exclude item from this subcontainer, because I think that's stupid
+    monster.stats = {}
+    monster.stats.level = memory.readbyteunsigned(infoTableStart + 0x00A)
+    monster.stats.IQ = memory.readwordsigned(infoTableStart + 0x00E)
+    monster.stats.HP = memory.readwordsigned(infoTableStart + 0x010)
+    monster.stats.maxHP = memory.readwordsigned(infoTableStart + 0x012)
+    monster.stats.attack = memory.readbyteunsigned(infoTableStart + 0x01A)
+    monster.stats.specialAttack = memory.readbyteunsigned(infoTableStart + 0x01B)
+    monster.stats.defense = memory.readbyteunsigned(infoTableStart + 0x01C)
+    monster.stats.specialDefense = memory.readbyteunsigned(infoTableStart + 0x01D)
+    monster.stats.experience = memoryrange.readbytesSigned(infoTableStart + 0x020, 4)
+    -- Stat modifiers
+    -- Note: Not the same [-6, 6] range as in the main series.
+    -- Instead the normal value is 10, and goes up to 20 and down to 0.
+    monster.stats.modifiers = {}
+    monster.stats.modifiers.attackStage = memory.readwordsigned(infoTableStart + 0x024)
+    monster.stats.modifiers.specialAttackStage = memory.readwordsigned(infoTableStart + 0x026)
+    monster.stats.modifiers.defenseStage = memory.readwordsigned(infoTableStart + 0x028)
+    monster.stats.modifiers.specialDefenseStage = memory.readwordsigned(infoTableStart + 0x02A)
+    monster.stats.modifiers.accuracyStage = memory.readwordsigned(infoTableStart + 0x02C)
+    monster.stats.modifiers.evasionStage = memory.readwordsigned(infoTableStart + 0x02E)
+
+    -- Other info
     monster.direction = memory.readbyteunsigned(infoTableStart + 0x04C)
-    monster.primaryType = memory.readbyteunsigned(infoTableStart + 0x05E)
-    monster.secondaryType = memory.readbyteunsigned(infoTableStart + 0x05F)
-    monster.primaryAbility = memory.readbyteunsigned(infoTableStart + 0x060)
-    monster.secondaryAbility = memory.readbyteunsigned(infoTableStart + 0x061)
+
+    -- More features
+    monster.features.primaryType = memory.readbyteunsigned(infoTableStart + 0x05E)
+    monster.features.secondaryType = memory.readbyteunsigned(infoTableStart + 0x05F)
+    monster.features.primaryAbility = memory.readbyteunsigned(infoTableStart + 0x060)
+    monster.features.secondaryAbility = memory.readbyteunsigned(infoTableStart + 0x061)
+
+    -- Held item stuff
     monster.heldItemQuantity = memory.readwordunsigned(infoTableStart + 0x064)
     monster.heldItem = memory.readwordunsigned(infoTableStart + 0x066)
+
     -- 0x0A9-11E: statuses
     monster.moves = {}
     local MOVE1_OFFSET = 0x124
@@ -93,6 +118,8 @@ function entityHelpers.readMonster(address)
         if not move then break end  -- Stop reading moves if the slot is empty
         table.insert(monster.moves, move)
     end
+
+    -- Belly. Integer part stored in one variable, and thousandths in another
     monster.belly = (
         memory.readwordsigned(infoTableStart + 0x146) +
         memory.readwordsigned(infoTableStart + 0x148) / 1000
