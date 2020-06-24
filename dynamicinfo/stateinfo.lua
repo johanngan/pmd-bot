@@ -4,6 +4,7 @@ require 'table'
 
 require 'utils.memoryrange'
 require 'utils.StateData'
+local mapHelpers = require 'dynamicinfo.mapHelpers'
 local entityHelpers = require 'dynamicinfo.entityHelpers'
 
 stateinfo = {}
@@ -35,53 +36,20 @@ end
 
 -- Floor layout
 state.dungeon.layout = StateData:new()
--- Parse a range of bytes into a list of tile objects
-local TILE_BYTES = 20   -- Each tile is represented by 20 bytes
-local function parseTiles(bytes)
-    local tiles = {}
-    for start=1,#bytes,TILE_BYTES do
-        local tile = {}
-        -- 0x00: a bitfield
-        tile.terrain = AND(bytes[start], 0x03)
-        tile.inShop = AND(bytes[start], 0x20) ~= 0
-        tile.inMonsterHouse = AND(bytes[start], 0x40) ~= 0
-        -- 0x01: stairs flag
-        tile.isStairs = bytes[start + 0x01] == 2
-        -- 0x02: map visibility flag
-        tile.visibleOnMap = bytes[start + 0x02] ~= 0
-        -- 0x07: room index; will be -1 if in a hall
-        tile.room = memoryrange.unsignedToSigned(bytes[start + 0x07], 1)
-
-        table.insert(tiles, tile)
-    end
-    return tiles
-end
-local UPPER_LEFT_CORNER = 0x021BE288
-local NROWS = 30
-local NCOLS = 54
 function state.dungeon.layout:read()
     local layout = {}
-    for i=0,NROWS-1 do
-        -- Offset by 2 extra tiles each row because there's a rectangular boundary
-        -- of tiles around the dungeon's "interactable tiles". These tiles are
-        -- always impassable, so there's no point in reading them
-        table.insert(layout, parseTiles(memory.readbyterange(
-            UPPER_LEFT_CORNER + i*(NCOLS+2)*TILE_BYTES, NCOLS*TILE_BYTES)))
+    for y=1,mapHelpers.NROWS do
+        table.insert(layout, mapHelpers.readTileRow(y))
         -- Advance frame in between loading rows to reduce frame stuttering
         emu.frameadvance()
     end
     return layout
 end
--- Convenience utility for the stairs position
+
+-- Convenience field for the stairs position
 state.dungeon.stairs = StateData:new()
 function state.dungeon.stairs:read()
-    for y, row in ipairs(state.dungeon.layout()) do
-        for x, tile in ipairs(row) do
-            if tile.isStairs then
-                return x, y
-            end
-        end
-    end
+    return mapHelpers.findStairs(state.dungeon.layout())
 end
 
 -- Subcontainer for entities in the dungeon
