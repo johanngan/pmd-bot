@@ -276,6 +276,10 @@ end
 state.dungeon.conditions = {}
 -- Weather type
 state.dungeon.conditions.weather = StateData:new()
+function state.dungeon.conditions.weather:read()
+    return memory.readbyteunsigned(0x021C6A6C)
+end
+
 -- Turns left for weather condition
 state.dungeon.conditions.weatherTurnsLeft = StateData:new()
 -- Subsubcontainer for other conditions
@@ -290,6 +294,10 @@ function state.dungeon.counters.wind:read()
 end
 -- Counter for passive damage from bad weather
 state.dungeon.counters.weatherDamage = StateData:new()
+function state.dungeon.counters.weatherDamage:read()
+    -- Counts down from 9 to 0, damage when it resets to 9
+    return memory.readbyteunsigned(0x021C6A8E)
+end
 -- Counter for passive damage from statuses
 state.dungeon.counters.statusDamage = StateData:new()
 -- Counter for enemy spawns
