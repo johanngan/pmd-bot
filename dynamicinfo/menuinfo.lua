@@ -2,7 +2,7 @@
 
 require 'codes.menu'
 require 'utils.memoryrange'
-require 'stateinfo'
+require 'dynamicinfo.stateinfo'
 
 menuinfo = {}
 

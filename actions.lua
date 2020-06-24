@@ -4,7 +4,7 @@ require 'table'
 
 require 'codes.direction'
 require 'codes.menu'
-require 'menuinfo'
+require 'dynamicinfo.menuinfo'
 
 actions = {}
 

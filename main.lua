@@ -1,7 +1,7 @@
 -- Main dispatcher for the bot
 
-require 'stateinfo'
-require 'menuinfo'
+require 'dynamicinfo.stateinfo'
+require 'dynamicinfo.menuinfo'
 require 'actions'
 require 'decisions'
 require 'utils.execute'
