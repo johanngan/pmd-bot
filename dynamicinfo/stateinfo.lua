@@ -6,6 +6,7 @@ require 'utils.memoryrange'
 require 'utils.StateData'
 local mapHelpers = require 'dynamicinfo.mapHelpers'
 local entityHelpers = require 'dynamicinfo.entityHelpers'
+local conditionHelpers = require 'dynamicinfo.conditionHelpers'
 
 stateinfo = {}
 
@@ -91,11 +92,37 @@ state.dungeon.conditions.weather = StateData:new()
 function state.dungeon.conditions.weather:read()
     return memory.readbyteunsigned(0x021C6A6C)
 end
-
+-- Natural weather type on the floor
+state.dungeon.conditions.naturalWeather = StateData:new()
+function state.dungeon.conditions.naturalWeather:read()
+    return memory.readbyteunsigned(0x021C6A6D)
+end
 -- Turns left for weather condition
 state.dungeon.conditions.weatherTurnsLeft = StateData:new()
--- Subsubcontainer for other conditions
-state.dungeon.conditions.misc = StateData:new()
+function state.dungeon.conditions.weatherTurnsLeft:read()
+    return conditionHelpers.weatherTurnsLeft(
+        state.dungeon.conditions.weather(), state.dungeon.conditions.naturalWeather())
+end
+-- Cloud Nine/Air Lock in effect
+state.dungeon.conditions.weatherIsNullified = StateData:new()
+function state.dungeon.conditions.weatherIsNullified:read()
+    return memory.readbyteunsigned(0x021C6A91) ~= 0
+end
+-- Turns left for Mud Sport. Will be 0 if not in effect
+state.dungeon.conditions.mudSportTurnsLeft = StateData:new()
+function state.dungeon.conditions.mudSportTurnsLeft:read()
+    return memory.readbyteunsigned(0x021C6A8F)
+end
+-- Turns left for Water Sport. Will be 0 if not in effect
+state.dungeon.conditions.waterSportTurnsLeft = StateData:new()
+function state.dungeon.conditions.waterSportTurnsLeft:read()
+    return memory.readbyteunsigned(0x021C6A90)
+end
+-- Stole from Kecleon flag
+state.dungeon.conditions.thiefAlert = StateData:new()
+function state.dungeon.conditions.thiefAlert:read()
+    return memory.readbyteunsigned(0x021BA4C4) ~= 0
+end
 
 -- Subcontainer for turn counters
 state.dungeon.counters = {}
@@ -171,6 +198,7 @@ function stateinfo.reloadEveryFloor(state)
     flagListForReload({
         state.dungeon.layout,
         state.dungeon.stairs,
+        state.dungeon.conditions.naturalWeather,
     })
     return state
 end
@@ -185,7 +213,10 @@ function stateinfo.reloadEveryTurn(state)
         state.dungeon.entities.traps,
         state.dungeon.conditions.weather,
         state.dungeon.conditions.weatherTurnsLeft,
-        state.dungeon.conditions.misc,
+        state.dungeon.conditions.weatherIsNullified,
+        state.dungeon.conditions.mudSportTurnsLeft,
+        state.dungeon.conditions.waterSportTurnsLeft,
+        state.dungeon.conditions.thiefAlert,
         state.dungeon.counters.wind,
         state.dungeon.counters.weatherDamage,
         state.dungeon.counters.statusDamage,
