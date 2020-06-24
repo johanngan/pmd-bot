@@ -1,5 +1,6 @@
 -- Helpers for reading entities (monsters, items, and traps) from memory
 
+require 'table'
 require 'utils.memoryrange'
 
 local entityHelpers = {}
