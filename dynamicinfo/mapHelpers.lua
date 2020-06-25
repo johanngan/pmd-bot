@@ -17,6 +17,9 @@ function mapHelpers.parseTiles(bytes)
         local tile = {}
         -- 0x00: a bitfield
         tile.terrain = AND(bytes[start], 0x03)
+        -- Room tiles next to a corridor, as well as branching points in a corridor
+        -- Only applies to natural junctions, not ones made by Absolute Mover
+        tile.isJunction = AND(bytes[start], 0x08) ~= 0
         tile.inShop = AND(bytes[start], 0x20) ~= 0
         tile.inMonsterHouse = AND(bytes[start], 0x40) ~= 0
         -- 0x01: stairs flag
