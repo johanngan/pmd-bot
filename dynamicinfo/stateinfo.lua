@@ -123,6 +123,11 @@ state.dungeon.conditions.thiefAlert = StateData:new()
 function state.dungeon.conditions.thiefAlert:read()
     return memory.readbyteunsigned(0x021BA4C4) ~= 0
 end
+-- Gravity
+state.dungeon.conditions.gravity = StateData:new()
+function state.dungeon.conditions.gravity:read()
+    return memory.readbyteunsigned(0x021CC830) ~= 0
+end
 
 -- Subcontainer for turn counters
 state.dungeon.counters = {}
@@ -217,6 +222,7 @@ function stateinfo.reloadEveryTurn(state)
         state.dungeon.conditions.mudSportTurnsLeft,
         state.dungeon.conditions.waterSportTurnsLeft,
         state.dungeon.conditions.thiefAlert,
+        state.dungeon.conditions.gravity,
         state.dungeon.counters.wind,
         state.dungeon.counters.weatherDamage,
         state.dungeon.counters.statusDamage,
