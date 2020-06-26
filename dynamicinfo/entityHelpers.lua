@@ -171,11 +171,16 @@ end
 
 -- Read fields from an item's info table
 function entityHelpers.readItemInfoTable(infoTableStart)
-    local item = {}
-    item.itemState = memory.readwordunsigned(infoTableStart)
-    if item.itemState == 0 then
+    local bitfield = memory.readbyteunsigned(infoTableStart)
+    if AND(bitfield, 0x01) == 0 then
         return nil  -- Nonexistent item
     end
+    local item = {}
+    item.inShop = AND(bitfield, 0x02) ~= 0
+    item.isSticky = AND(bitfield, 0x08) ~= 0
+    item.isSet = AND(bitfield, 0x10) ~= 0
+    -- Monster ID for holder; for held items in bag
+    item.heldBy = memory.readbyteunsigned(infoTableStart + 0x01)
     item.amount = memory.readwordunsigned(infoTableStart + 0x02)
     item.itemType = memory.readwordunsigned(infoTableStart + 0x04)
     return item
