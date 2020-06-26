@@ -3,9 +3,6 @@
 require 'codes.direction'
 require 'actions'
 
-require 'jumper.grid'
-require 'jumper.pathfinder'
-
 Agent = {}
 
 -- This is just boilerplate code for the class
