@@ -86,17 +86,12 @@ end
 function actions.nothing()
 end
 
--- Mash B to get out of any menus, or X+B to cancel message boxes
+-- Mash B to get out of any menus, not including message boxes
 -- Optionally specify a menu index to stop at upon reaching
 function actions.closeMenus(stopAtMenu)
-    while menuinfo.menuIsOpen() do
+    while menuinfo.menuIsOpen() and not menuinfo.messageIsOpen() do
         if menuinfo.getMenu() == stopAtMenu then
             break
-        end
-
-        if menuinfo.messageIsOpen() then
-            joypad.set({X=true})
-            waitForMenuTransition()
         end
         joypad.set({B=true})
         waitForMenuTransition()
