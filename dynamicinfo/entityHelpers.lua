@@ -11,8 +11,9 @@ local function readEntityList(addresses, readEntity)
     local entities = {}
     for _, addr in ipairs(addresses) do
         table.insert(entities, readEntity(addr))
-        -- Advance frame in between loading entities to reduce frame stuttering
-        emu.frameadvance()
+        -- If there's frame stuttering each turn, try advancing the frame
+        -- in between loading entities
+        -- emu.frameadvance()
     end
     return entities
 end
