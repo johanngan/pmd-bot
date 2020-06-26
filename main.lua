@@ -3,8 +3,7 @@
 require 'dynamicinfo.stateinfo'
 require 'dynamicinfo.menuinfo'
 require 'actions'
-require 'decisions'
-require 'utils.execute'
+require 'Agent'
 
 -- Convenience function for reporting messages on screen
 -- emu.message crashes the emulator for some reason
@@ -20,8 +19,8 @@ report_message('Bot engaged.')
 local state = stateinfo.state
 -- Needed to detect a floor change
 local currentFloor = 0
--- Queue of actions for the bot the execute
-local actionQueue = {}
+-- Agent that decides what actions to take every turn
+local bot = Agent:new(state)
 -- Pause of a few frames after completing an action; to give time for internal stuff
 -- in memory to update right after input
 local ACTION_COOLDOWN_FRAMES = 20
@@ -42,12 +41,10 @@ while true do
         state = stateinfo.reloadEveryTurn(state)
         emu.frameadvance()
 
-        -- Decide how to act based on the state and the current action queue
-        actionQueue = decisions.decideActions(state, actionQueue)
+        -- Perform an action based on the current state
+        bot:act(state)
         emu.frameadvance()
 
-        -- Execute the next action in the queue
-        actionQueue = execute.stepActionQueue(actionQueue)
         -- Cooldown
         for i=1,ACTION_COOLDOWN_FRAMES do
             emu.frameadvance()
