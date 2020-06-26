@@ -73,6 +73,8 @@ function entityHelpers.readMonster(address)
     -- Other basic info
     monster.isEnemy = memory.readbyteunsigned(infoTableStart + 0x006) == 1
     monster.isLeader = memory.readbyteunsigned(infoTableStart + 0x007) == 1
+    monster.isAlly = memory.readbyteunsigned(infoTableStart + 0x008) == 1   -- But not on team; for "enemies"
+    monster.isShopkeeper = memory.readbyteunsigned(infoTableStart + 0x009) == 1
 
     -- Stuff seen on the "Stats" page in-game, and related stuff
     -- Exclude item from this subcontainer, because I think that's stupid
