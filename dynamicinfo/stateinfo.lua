@@ -17,7 +17,10 @@ local state = stateinfo.state
 -- Rough indicator of whether or not the game is accepting input
 state.canAct = StateData:new(false)
 function state.canAct:read()
-    return memory.readbyte(0x021BA62B) == 0
+    -- This address seems like an action code of some sort; it's
+    -- located within the leader's data block. Seems to be 0 when
+    -- input is allowed, except for when a dialogue box is open?
+    return memory.readbyte(0x021BA572) == 0
 end
 
 -- Container for information related to the dungeon
