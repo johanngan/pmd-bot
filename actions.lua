@@ -228,12 +228,12 @@ function actions.eatFoodItem(index, teammate)
     actions.itemActionOnTeammate(index, 0, teammate)
 end
 
--- Equip a held item at a given index.
+-- Equip a held item at a given index
 function actions.equipHeldItem(index, teammate)
     actions.itemActionOnTeammate(index, 0, teammate)
 end
 
--- Unequip a held item at a given index.
+-- Unequip a held item at a given index
 function actions.unequipHeldItem(index)
     actions.itemAction(index, 0)
 end
