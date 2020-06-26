@@ -260,10 +260,15 @@ function actions.unequipHeldItem(index)
     actions.itemAction(index, 0)
 end
 
--- Climbs the stairs
+-- Climbs the stairs when standing on them
 function actions.climbStairs()
     while menuinfo.getMenu() ~= codes.MENU.Stairs do
         waitForMenuTransition()
+        -- If the stairs menu still isn't open after waiting, try opening
+        -- the ground menu
+        if menuinfo.getMenu() ~= codes.MENU.Stairs then
+            actions.openGroundMenu()
+        end
     end
     while menuinfo.getMenuCursorIndex() ~= 0 do
         navMenuIndex(menuinfo.getMenuCursorIndex(), 0)
