@@ -167,6 +167,16 @@ function actions.openBagMenu()
     end
 end
 
+-- Open the ground menu
+function actions.openGroundMenu()
+    actions.openMainMenu()
+    while menuinfo.getMenuCursorIndex() ~= 4 do
+        navMenuIndex(menuinfo.getMenuCursorIndex(), 4)
+    end
+    joypad.set({A=true})
+    waitForMenuTransition()
+end
+
 -- Use a move at a given index
 function actions.useMove(index)
     actions.openMovesMenu()
