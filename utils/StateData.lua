@@ -32,7 +32,7 @@ function StateData.__call(self)
     -- Read new data only if necessary
     local data = self.cache
     if not self.doesCache or self.cache == nil or self.isStale then
-        data = {self.read()}    -- Wrap in a table to handle multiple outputs
+        data = {self:read()}    -- Wrap in a table to handle multiple outputs
         -- Cache if caching is enabled
         if self.doesCache then
             self.cache = data
