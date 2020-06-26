@@ -243,4 +243,14 @@ function actions.unequipHeldItem(index)
     actions.itemAction(index, 0)
 end
 
+-- Climbs the stairs
+function actions.climbStairs()
+    while menuinfo.getMenu() ~= codes.MENU.Stairs do
+        waitForMenuTransition()
+    end
+    navMenuIndex(menuinfo.getMenuCursorIndex(), 0)
+    joypad.set({A=true})
+    waitForMenuTransition()
+end
+
 return actions
