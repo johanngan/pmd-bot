@@ -170,12 +170,16 @@ end
 -- Use a move at a given index
 function actions.useMove(index)
     actions.openMovesMenu()
-    navMenuIndex(menuinfo.getMenuCursorIndex(), index)
+    while menuinfo.getMenuCursorIndex() ~= index do
+        navMenuIndex(menuinfo.getMenuCursorIndex(), index)
+    end
     repeat
         joypad.set({A=true})
         waitForMenuTransition()
     until menuinfo.getMenu() == codes.MENU.MoveAction
-    navMenuIndex(menuinfo.getMenuCursorIndex(), 0)
+    while menuinfo.getMenuCursorIndex() ~= 0 do
+        navMenuIndex(menuinfo.getMenuCursorIndex(), 0)
+    end
     joypad.set({A=true})
     waitForMenuTransition()
 end
@@ -187,9 +191,13 @@ function actions.selectItem(index)
     local pageIndex = math.floor(index / menuLength)
 
     actions.openBagMenu()
-    navMenuIndex(menuinfo.getMenuPageIndex(), pageIndex,
-        codes.DIRECTION.Right, codes.DIRECTION.Left)
-    navMenuIndex(menuinfo.getMenuCursorIndex(), relIndex)
+    while menuinfo.getMenuPageIndex() ~= pageIndex do
+        navMenuIndex(menuinfo.getMenuPageIndex(), pageIndex,
+            codes.DIRECTION.Right, codes.DIRECTION.Left)
+    end
+    while menuinfo.getMenuCursorIndex() ~= relIndex do
+        navMenuIndex(menuinfo.getMenuCursorIndex(), relIndex)
+    end
     repeat
         joypad.set({A=true})
         waitForMenuTransition()
@@ -199,7 +207,9 @@ end
 -- Take some action with an item at a given index
 function actions.itemAction(index, actionIndex)
     actions.selectItem(index)
-    navMenuIndex(menuinfo.getMenuCursorIndex(), actionIndex)
+    while menuinfo.getMenuCursorIndex() ~= actionIndex do
+        navMenuIndex(menuinfo.getMenuCursorIndex(), actionIndex)
+    end
     joypad.set({A=true})
     waitForMenuTransition()
 end
@@ -209,11 +219,13 @@ function actions.itemActionOnTeammate(index, actionIndex, teammate)
     local teammate = teammate or 0    -- Default to using on the leader
 
     actions.itemAction(index, actionIndex)
-    while menuinfo.getMenu() ~= codes.MENU.ItemFor do
+    repeat
         joypad.set({A=true})
         waitForMenuTransition()
+    until menuinfo.getMenu() == codes.MENU.ItemFor
+    while menuinfo.getMenuCursorIndex() ~= teammate do
+        navMenuIndex(menuinfo.getMenuCursorIndex(), teammate)
     end
-    navMenuIndex(menuinfo.getMenuCursorIndex(), teammate)
     joypad.set({A=true})
     waitForMenuTransition()
 end
@@ -243,7 +255,9 @@ function actions.climbStairs()
     while menuinfo.getMenu() ~= codes.MENU.Stairs do
         waitForMenuTransition()
     end
-    navMenuIndex(menuinfo.getMenuCursorIndex(), 0)
+    while menuinfo.getMenuCursorIndex() ~= 0 do
+        navMenuIndex(menuinfo.getMenuCursorIndex(), 0)
+    end
     joypad.set({A=true})
     waitForMenuTransition()
 end
