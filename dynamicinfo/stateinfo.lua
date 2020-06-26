@@ -226,7 +226,6 @@ function stateinfo.reloadEveryTurn(state)
         state.dungeon.conditions.gravity,
         state.dungeon.counters.wind,
         state.dungeon.counters.weatherDamage,
-        state.dungeon.counters.statusDamage,
         state.dungeon.counters.enemySpawn,
         state.player.money,
         state.player.bag,
