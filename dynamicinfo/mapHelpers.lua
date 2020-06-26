@@ -22,8 +22,8 @@ function mapHelpers.parseTiles(bytes)
         tile.isJunction = AND(bytes[start], 0x08) ~= 0
         tile.inShop = AND(bytes[start], 0x20) ~= 0
         tile.inMonsterHouse = AND(bytes[start], 0x40) ~= 0
-        -- 0x01: stairs flag
-        tile.isStairs = bytes[start + 0x01] == 2
+        -- 0x01: stairs flag (also includes warp zones)
+        tile.isStairs = AND(bytes[start + 0x01], 0x02) ~= 0
         -- 0x02: map visibility flag
         tile.visibleOnMap = bytes[start + 0x02] ~= 0
         -- 0x07: room index; will be -1 if in a hall
