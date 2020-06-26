@@ -142,8 +142,6 @@ function state.dungeon.counters.weatherDamage:read()
     -- Counts down from 9 to 0, damage when it resets to 9
     return memory.readbyteunsigned(0x021C6A8E)
 end
--- Counter for passive damage from statuses
-state.dungeon.counters.statusDamage = StateData:new()
 -- Counter for enemy spawns
 state.dungeon.counters.enemySpawn = StateData:new()
 function state.dungeon.counters.enemySpawn:read()

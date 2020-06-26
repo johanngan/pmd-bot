@@ -6,6 +6,8 @@ end
 
 -- Enum for status IDs according to internal files
 codes.STATUS, codes.STATUS_NAMES = enum.register({
+    'MenuOptionsDisabled',  -- DOESN'T EXIST INTERNALLY! Added here with enum value -2
+    'Roost',        -- DOESN'T EXIST INTERNALLY!! Added here with enum value -1
     'None',         -- Called "-" internally
     'Sleep',
     'Sleepless',    -- Alt: Won't get sleepy
@@ -108,4 +110,4 @@ codes.STATUS, codes.STATUS_NAMES = enum.register({
     'PerishSong',   -- Alt: Received Perish Song
     'DoubledAttack',    -- Alt: Has sped-up attacks
     'StairSpotter', -- Alt: Can locate stairs
-}, 0, 'status')
+}, -2, 'status')

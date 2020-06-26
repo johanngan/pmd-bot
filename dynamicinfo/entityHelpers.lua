@@ -2,6 +2,7 @@
 
 require 'table'
 require 'utils.memoryrange'
+local statusHelpers = require 'dynamicinfo.statusHelpers'
 
 local entityHelpers = {}
 
@@ -95,6 +96,20 @@ function entityHelpers.readMonster(address)
     monster.stats.modifiers.specialDefenseStage = memory.readwordsigned(infoTableStart + 0x02A)
     monster.stats.modifiers.accuracyStage = memory.readwordsigned(infoTableStart + 0x02C)
     monster.stats.modifiers.evasionStage = memory.readwordsigned(infoTableStart + 0x02E)
+    -- Speed stages are stored internally with status conditions, but they fit in here more
+    -- Speed stages go from 0-4, with 1 being normal
+    monster.stats.modifiers.speedStage = memoryrange.readbytesSigned(infoTableStart + 0x110, 4)
+    -- Internal counters determine when exactly how long speed modifiers will last
+    monster.stats.modifiers.speedCounters = {}
+    -- Speed boost/drop = (# nonzero u) - (# nonzero down), but forced between 0-4
+    monster.stats.modifiers.speedCounters.up = {}
+    monster.stats.modifiers.speedCounters.down = {}
+    for i=0,4 do
+        table.insert(monster.stats.modifiers.speedCounters.up,
+            memory.readbyteunsigned(infoTableStart + 0x114 + i))
+        table.insert(monster.stats.modifiers.speedCounters.down,
+            memory.readbyteunsigned(infoTableStart + 0x119 + i))
+    end
 
     -- Other info
     monster.direction = memory.readbyteunsigned(infoTableStart + 0x04C)
@@ -109,7 +124,9 @@ function entityHelpers.readMonster(address)
     monster.heldItemQuantity = memory.readwordunsigned(infoTableStart + 0x064)
     monster.heldItem = memory.readwordunsigned(infoTableStart + 0x066)
 
-    -- 0x0A9-11E: statuses
+    -- Statuses
+    monster.statuses = statusHelpers.readStatusList(infoTableStart)
+
     monster.moves = {}
     local MOVE1_OFFSET = 0x124
     local MOVE_SIZE = 8
