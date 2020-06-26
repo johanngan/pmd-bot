@@ -23,7 +23,7 @@ local currentFloor = 0
 local bot = Agent:new(state)
 -- Pause of a few frames after completing an action; to give time for internal stuff
 -- in memory to update right after input
-local ACTION_COOLDOWN_FRAMES = 20
+local ACTION_COOLDOWN_FRAMES = 3
 
 -- Main execution loop for the bot
 while true do
