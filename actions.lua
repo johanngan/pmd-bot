@@ -39,7 +39,7 @@ end
 
 -- Combine two input tables
 local function combineInputs(input1, input2)
-    combined = {}
+    local combined = {}
     for k in pairs(input1) do
         combined[k] = true
     end
@@ -125,7 +125,7 @@ end
 
 -- Walk in some direction
 function actions.walk(direction)
-    dirInput = directionInputs[direction]
+    local dirInput = directionInputs[direction]
     actions.closeMenus()
     joypad.set(dirInput)
     emu.frameadvance()
@@ -133,7 +133,7 @@ end
 
 -- Face some direction
 function actions.face(direction)
-    dirInput = directionInputs[direction]
+    local dirInput = directionInputs[direction]
     actions.closeMenus()
     hold({Y=true}, 2)
     joypad.set(combineInputs({Y=true}, dirInput))
