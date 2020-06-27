@@ -4,6 +4,7 @@ require 'table'
 
 require 'utils.memoryrange'
 require 'utils.StateData'
+require 'dynamicinfo.menuinfo'
 local mapHelpers = require 'dynamicinfo.mapHelpers'
 local entityHelpers = require 'dynamicinfo.entityHelpers'
 local conditionHelpers = require 'dynamicinfo.conditionHelpers'
@@ -19,8 +20,11 @@ state.canAct = StateData:new(false)
 function state.canAct:read()
     -- This address seems like an action code of some sort; it's
     -- located within the leader's data block. Seems to be 0 when
-    -- input is allowed, except for when a dialogue box is open?
-    return memory.readbyte(0x021BA572) == 0
+    -- input is allowed, except for when certain menus and dialogue
+    -- boxes are open?
+    return memory.readbyte(0x021BA572) == 0 or
+        -- If in a menu (that's not a message), you're always in control
+        (menuinfo.menuIsOpen() and not menuinfo.messageIsOpen())
 end
 
 -- Container for information related to the dungeon

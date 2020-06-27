@@ -2,7 +2,6 @@
 
 require 'codes.menu'
 require 'utils.memoryrange'
-require 'dynamicinfo.stateinfo'
 
 menuinfo = {}
 
@@ -109,8 +108,10 @@ menuinfo.maxMenuLengths = {
 -- (typically short) menu transition sequence
 -- the period of "on" time seems to be too small on both ends by a few frames,
 -- depending on the menu transition
+-- Note: if you call this when not in a menu, it may have weird results and be
+-- true during certain animations
 function menuinfo.inMenuTransition()
-    return (memory.readbyte(0x0228B06A) ~= 0) and stateinfo.state.canAct()
+    return memory.readbyte(0x0228B06A) ~= 0
 end
 
 -- Get the current menu's internal code
