@@ -57,7 +57,7 @@ local function waitForMenuTransition()
     while menuinfo.inMenuTransition() do
         emu.frameadvance()
     end
-    advance(5)
+    advance(6)
 end
 
 -- Navigate to a certain index in a menu
