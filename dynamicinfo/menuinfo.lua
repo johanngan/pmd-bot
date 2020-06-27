@@ -104,16 +104,6 @@ menuinfo.maxMenuLengths = {
     [MENU.NewMoveAction] = 4,
 }
 
--- Rough indicator of whether or not the game is in a
--- (typically short) menu transition sequence
--- the period of "on" time seems to be too small on both ends by a few frames,
--- depending on the menu transition
--- Note: if you call this when not in a menu, it may have weird results and be
--- true during certain animations
-function menuinfo.inMenuTransition()
-    return memory.readbyte(0x0228B06A) ~= 0
-end
-
 -- Get the current menu's internal code
 function menuinfo.getMenuCode()
     return memory.readword(0x022A7A74, 0x022A7A75)
@@ -138,6 +128,17 @@ end
 function menuinfo.messageIsOpen()
     local currentMenu = menuinfo.getMenu()
     return currentMenu == MENU.MessageBox or currentMenu == MENU.DialogueBox
+end
+
+-- Rough indicator of whether or not the game is in a
+-- (typically short) menu transition sequence
+-- the period of "on" time seems to be too small on both ends by a few frames,
+-- depending on the menu transition
+-- Note: if you call this when not in a menu, it may have weird results and be
+-- true during certain animations
+function menuinfo.inMenuTransition()
+    -- If a message is open, it's not a menu transition
+    return memory.readbyte(0x0228B06A) ~= 0 and not menuinfo.messageIsOpen()
 end
 
 -- Get the cursor index for a menu for menus with a volatile index location
