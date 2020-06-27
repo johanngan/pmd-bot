@@ -229,10 +229,10 @@ function actions.itemActionOnTeammate(index, actionIndex, teammate)
     local teammate = teammate or 0    -- Default to using on the leader
 
     actions.itemAction(index, actionIndex)
-    repeat
+    while menuinfo.getMenu() ~= codes.MENU.ItemFor do
         joypad.set({A=true})
         waitForMenuTransition()
-    until menuinfo.getMenu() == codes.MENU.ItemFor
+    end
     while menuinfo.getMenuCursorIndex() ~= teammate do
         navMenuIndex(menuinfo.getMenuCursorIndex(), teammate)
     end
