@@ -5,6 +5,7 @@ require 'table'
 require 'codes.direction'
 require 'codes.item'
 require 'codes.menu'
+require 'codes.terrain'
 require 'dynamicinfo.menuinfo'
 require 'actions.basicactions'
 require 'actions.smartactions'
@@ -123,11 +124,18 @@ function Agent:act(state)
             {leader.xPosition, leader.yPosition}, {enemy.xPosition, enemy.yPosition}) <= 1 then
             -- Step distance is quick to calculate, but isn't 100% accurate. We
             -- really need to check that the actual path distance is 1. That way
-            -- we won't try to (regular) attack around corners.
+            -- we won't try to (regular) attack around corners. We can attack
+            -- even if the enemy is standing on water/lava/chasm, so count that
+            -- as "walkable" for this calculation along with normal terrain
             local pathToEnemy = pathfinder.getPath(
                 state.dungeon.layout(),
                 leader.xPosition, leader.yPosition,
-                enemy.xPosition, enemy.yPosition
+                enemy.xPosition, enemy.yPosition,
+                function(terrain)
+                    return terrain == codes.TERRAIN.Normal
+                        or terrain == codes.TERRAIN.WaterOrLava
+                        or terrain == codes.TERRAIN.Chasm
+                end
             )
             -- Exists, and just includes start and end, so path length is 1
             if pathToEnemy and #pathToEnemy == 2 then

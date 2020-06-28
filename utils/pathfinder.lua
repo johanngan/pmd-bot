@@ -33,11 +33,14 @@ local function pathToList(path)
     return pathlist
 end
 
--- Given a layout object (from state.dungeon.layout), find a path
+-- Given a layout object (from state.dungeon.layout), find a path.
+-- Optionally provide a "walkable" terrain code or function of the form:
+--     walkable(terrain) -> true/false
+-- to specify which types of terrain are walkable. Defaults to just normal terrain
 -- Return the path as a list of (x, y) pairs, or nil if the pathfinding failed
-function pathfinder.getPath(layout, startx, starty, endx, endy)
+function pathfinder.getPath(layout, startx, starty, endx, endy, walkable)
     local grid = Grid(layoutToMap(layout))
-    local walkable = codes.TERRAIN.Normal
+    local walkable = walkable or codes.TERRAIN.Normal
     local cornerCuttable = function(terrain)
         return terrain == codes.TERRAIN.Normal
             or terrain == codes.TERRAIN.WaterOrLava
