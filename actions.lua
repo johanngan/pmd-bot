@@ -291,4 +291,27 @@ function actions.selectYesNo(selection)
     waitForMenuTransition()
 end
 
+-- Pick a move to forget when learning a new move (if you already have 4 moves).
+-- Defaults to passing up the new move
+function actions.selectMoveToForget(selection)
+    -- If not in a new move prompt, just return
+    if menuinfo.getMenu() ~= codes.MENU.NewMove then return end
+    local selection = selection or 4
+    while menuinfo.getMenuCursorIndex() ~= selection do
+        navMenuIndex(menuinfo.getMenuCursorIndex(), selection)
+    end
+    repeat
+        joypad.set({A=true})
+        waitForMenuTransition()
+    until menuinfo.getMenu() == codes.MENU.NewMoveAction
+    while menuinfo.getMenuCursorIndex() ~= 0 do
+        navMenuIndex(menuinfo.getMenuCursorIndex(), 0)
+    end
+    repeat
+        joypad.set({A=true})
+        waitForMenuTransition()
+    until menuinfo.getMenu() == codes.MENU.YesNo
+    actions.selectYesNo(0)
+end
+
 return actions

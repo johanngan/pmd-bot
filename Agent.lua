@@ -60,6 +60,12 @@ function Agent:act(state)
         return
     end
 
+    -- If trying to learn a new move, don't
+    if menuinfo.getMenu() == codes.MENU.NewMove then
+        actions.selectMoveToForget(4)
+        return
+    end
+
     local leader = state.player.leader()
 
     -- If no target position exists, or it's been reached, set it to the stairs
