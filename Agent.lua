@@ -202,7 +202,7 @@ function Agent:act(state)
         end
     end
 
-    -- If nothing of interest is nearby, keep moving towards the target
+    -- If nothing of interest is nearby, keep moving toward the target
     if not self.path or #self.path == 0 or not pathfinder.comparePositions(
         {leader.xPosition, leader.yPosition}, self.path[1].start) then
         -- Path is nonexistent or obsolete. Find a new path
@@ -218,7 +218,7 @@ function Agent:act(state)
     end
     if #self.path > 0 then
         -- Not already on target
-        local text = 'Moving towards target'
+        local text = 'Moving toward target'
         if self.targetName then
             text = text .. ': ' .. self.targetName
         end
