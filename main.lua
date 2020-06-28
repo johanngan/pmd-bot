@@ -1,5 +1,6 @@
 -- Main dispatcher for the bot
 
+require 'utils.nicknames'
 require 'dynamicinfo.stateinfo'
 require 'dynamicinfo.menuinfo'
 require 'Agent'
@@ -13,6 +14,9 @@ function report_message(message)
 end
 
 report_message('Bot engaged.')
+
+-- Temporarily set the leader's nickname to "Lua"
+nicknames.setLeaderNicknameTemp('Lua')
 
 -- The state
 local state = stateinfo.state
