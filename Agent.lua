@@ -43,6 +43,13 @@ local function tileUnder(entity, layout)
     return layout[entity.yPosition][entity.xPosition]
 end
 
+-- Decide how to attack an enemy given the circumstances, and perform the action.
+-- If you're using different Pokemon, it might be sufficient just to rewrite this
+-- method, and leave the main dungeon-crawling logic as is.
+function Agent:attackEnemy(enemy, state)
+    basicactions.attack()
+end
+
 -- Perform some actions based on the current state of the dungeon (and the bot's own state)
 -- This is a very simple sample strategy. Change it to fit your botting needs.
 function Agent:act(state)
@@ -146,7 +153,7 @@ function Agent:act(state)
                 if leader.direction ~= direction then
                     basicactions.face(direction)
                 end
-                basicactions.attack()
+                self:attackEnemy(enemy, state)
                 return
             end
         end
