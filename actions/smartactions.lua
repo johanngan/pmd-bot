@@ -3,7 +3,6 @@
 -- Will return a flag for whether or not the action was successful or not.
 
 require 'actions.basicactions'
-require 'codes.item'
 
 smartactions = {}
 
