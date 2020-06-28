@@ -4,6 +4,8 @@ require 'table'
 
 require 'codes.direction'
 require 'codes.item'
+require 'codes.menu'
+require 'dynamicinfo.menuinfo'
 require 'actions'
 require 'utils.pathfinder'
 
@@ -52,6 +54,12 @@ end
 -- Perform some actions based on the current state of the dungeon (and the bot's own state)
 -- This is a very simple sample strategy. Change it to fit your botting needs.
 function Agent:act(state)
+    -- If in a Yes/No prompt, try to exit
+    if menuinfo.getMenu() == codes.MENU.YesNo then
+        actions.selectYesNo(1)
+        return
+    end
+
     local leader = state.player.leader()
 
     -- If no target position exists, or it's been reached, set it to the stairs

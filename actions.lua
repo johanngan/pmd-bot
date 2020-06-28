@@ -279,4 +279,16 @@ function actions.climbStairs()
     waitForMenuTransition()
 end
 
+-- Pick an option in a Yes/No prompt. 0 for yes, 1 for no. Defaults to no
+function actions.selectYesNo(selection)
+    -- If not in a Yes/No prompt, just return
+    if menuinfo.getMenu() ~= codes.MENU.YesNo then return end
+    local selection = selection or 1
+    while menuinfo.getMenuCursorIndex() ~= selection do
+        navMenuIndex(menuinfo.getMenuCursorIndex(), selection)
+    end
+    joypad.set({A=true})
+    waitForMenuTransition()
+end
+
 return actions
