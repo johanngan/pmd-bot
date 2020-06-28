@@ -141,6 +141,11 @@ function menuinfo.inMenuTransition()
     return memory.readbyte(0x0228B06A) ~= 0 and not menuinfo.messageIsOpen()
 end
 
+-- Whether or not the you're turning on the spot (pressing Y)
+function menuinfo.turningOnTheSpot()
+    return memory.readbyte(0x0237C9A6) ~= 0
+end
+
 -- Get the cursor index for a menu for menus with a volatile index location
 local function getVolatileCursorIndex(address, offset, length)
     local offset = offset or 0xC0    -- This is the usual offset, for whatever reason

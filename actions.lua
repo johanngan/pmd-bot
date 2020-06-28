@@ -134,8 +134,10 @@ end
 -- Face some direction
 function actions.face(direction)
     local dirInput = directionInputs[direction]
-    actions.closeMenus()
-    hold({Y=true}, 2)
+    repeat  -- Until the input registers
+        actions.closeMenus()
+        hold({Y=true}, 2)
+    until menuinfo.turningOnTheSpot()
     joypad.set(combineInputs({Y=true}, dirInput))
     emu.frameadvance()
 end
