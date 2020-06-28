@@ -83,8 +83,19 @@ function Agent:act(state)
                 -- Don't touch Kecleon's stuff
                 if tileUnder(item, state.dungeon.layout()).room == leaderRoom and
                     not item.inShop then
-                    self:setTargetPos({item.xPosition, item.yPosition})
-                    break
+                    -- If a path can't be found, the item is inaccessible; ignore it
+                    local path = pathfinder.getPath(
+                        state.dungeon.layout(),
+                        leader.xPosition, leader.yPosition,
+                        item.xPosition, item.yPosition
+                    )
+                    if path then
+                        self:setTargetPos({item.xPosition, item.yPosition})
+                        -- Might as well save the result of the pathfinding
+                        -- calculation we just did
+                        self.path = pathfinder.getMoves(path)
+                        break
+                    end
                 end
             end
         end
