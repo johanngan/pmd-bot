@@ -1,5 +1,7 @@
 -- Message reporting utils
 
+require 'utils.scriptexit'
+
 messages = {}
 
 -- Reports a message on screen until a new message is set
@@ -20,6 +22,6 @@ function messages.reportIfVerbose(text, verbose)
 end
 
 -- Make sure messages get cleared after the script exits
-emu.registerexit(messages.clear)
+scriptexit.registerexit(messages.clear)
 
 return messages

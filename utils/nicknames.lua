@@ -1,6 +1,7 @@
 -- Mess with Pokemon nicknames
 
 require 'string'
+require 'utils.scriptexit'
 
 nicknames = {}
 
@@ -30,7 +31,7 @@ end
 function nicknames.setLeaderNicknameTemp(name)
     local leaderName = nicknames.getLeaderNickname()
     nicknames.setLeaderNickname(name)
-    emu.registerexit(function() nicknames.setLeaderNickname(leaderName) end)
+    scriptexit.registerexit(function() nicknames.setLeaderNickname(leaderName) end)
 end
 
 return nicknames
