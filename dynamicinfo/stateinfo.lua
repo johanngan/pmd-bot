@@ -3,7 +3,7 @@
 require 'table'
 
 require 'utils.memoryrange'
-require 'utils.StateData'
+require 'dynamicinfo.StateData'
 require 'dynamicinfo.menuinfo'
 local mapHelpers = require 'dynamicinfo.mapHelpers'
 local entityHelpers = require 'dynamicinfo.entityHelpers'
