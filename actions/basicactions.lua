@@ -1,4 +1,4 @@
--- Useful action subroutines
+-- Useful basic action subroutines
 
 require 'table'
 
@@ -6,7 +6,7 @@ require 'codes.direction'
 require 'codes.menu'
 require 'dynamicinfo.menuinfo'
 
-actions = {}
+basicactions = {}
 
 ---- BEGIN INTERNAL STUFF ----
 
@@ -83,12 +83,12 @@ end
 ---- BEGIN PUBLIC STUFF ----
 
 -- Literally do nothing
-function actions.nothing()
+function basicactions.nothing()
 end
 
 -- Mash B to get out of any menus, not including message boxes
 -- Optionally specify a menu index to stop at upon reaching
-function actions.closeMenus(stopAtMenu)
+function basicactions.closeMenus(stopAtMenu)
     while menuinfo.menuIsOpen() and not menuinfo.messageIsOpen() do
         if menuinfo.getMenu() == stopAtMenu then
             break
@@ -99,7 +99,7 @@ function actions.closeMenus(stopAtMenu)
 end
 
 -- Mash X+B to close any message boxes
-function actions.closeMessages()
+function basicactions.closeMessages()
     local alternate = {{X=true}, {B=true}}
     local i = 1
     while menuinfo.messageIsOpen() do
@@ -110,32 +110,32 @@ function actions.closeMessages()
 end
 
 -- Rest in place
-function actions.rest()
-    actions.closeMenus()
+function basicactions.rest()
+    basicactions.closeMenus()
     joypad.set({A=true, B=true})
     emu.frameadvance()
 end
 
 -- Use a basic attack
-function actions.attack()
-    actions.closeMenus()
+function basicactions.attack()
+    basicactions.closeMenus()
     joypad.set({A=true})
     emu.frameadvance()
 end
 
 -- Walk in some direction
-function actions.walk(direction)
+function basicactions.walk(direction)
     local dirInput = directionInputs[direction]
-    actions.closeMenus()
+    basicactions.closeMenus()
     joypad.set(dirInput)
     emu.frameadvance()
 end
 
 -- Face some direction
-function actions.face(direction)
+function basicactions.face(direction)
     local dirInput = directionInputs[direction]
     repeat  -- Until the input registers
-        actions.closeMenus()
+        basicactions.closeMenus()
         hold({Y=true}, 2)
     until menuinfo.turningOnTheSpot()
     joypad.set(combineInputs({Y=true}, dirInput))
@@ -143,8 +143,8 @@ function actions.face(direction)
 end
 
 -- Open the main menu
-function actions.openMainMenu()
-    actions.closeMenus(codes.MENU.Main)
+function basicactions.openMainMenu()
+    basicactions.closeMenus(codes.MENU.Main)
     while menuinfo.getMenu() ~= codes.MENU.Main do
         joypad.set({X=true})
         waitForMenuTransition()
@@ -152,8 +152,8 @@ function actions.openMainMenu()
 end
 
 -- Open the moves menu
-function actions.openMovesMenu()
-    actions.closeMenus(codes.MENU.Moves)
+function basicactions.openMovesMenu()
+    basicactions.closeMenus(codes.MENU.Moves)
     while menuinfo.getMenu() ~= codes.MENU.Moves do
         joypad.set({X=true})
         waitForMenuTransition()
@@ -161,8 +161,8 @@ function actions.openMovesMenu()
 end
 
 -- Open the treasure bag menu
-function actions.openBagMenu()
-    actions.closeMenus(codes.MENU.Bag)
+function basicactions.openBagMenu()
+    basicactions.closeMenus(codes.MENU.Bag)
     while menuinfo.getMenu() ~= codes.MENU.Bag do
         hold({B=true}, 2)
         waitForMenuTransition()
@@ -170,8 +170,8 @@ function actions.openBagMenu()
 end
 
 -- Open the ground menu
-function actions.openGroundMenu()
-    actions.openMainMenu()
+function basicactions.openGroundMenu()
+    basicactions.openMainMenu()
     while menuinfo.getMenuCursorIndex() ~= 4 do
         navMenuIndex(menuinfo.getMenuCursorIndex(), 4)
     end
@@ -180,8 +180,8 @@ function actions.openGroundMenu()
 end
 
 -- Use a move at a given index
-function actions.useMove(index)
-    actions.openMovesMenu()
+function basicactions.useMove(index)
+    basicactions.openMovesMenu()
     while menuinfo.getMenuCursorIndex() ~= index do
         navMenuIndex(menuinfo.getMenuCursorIndex(), index)
     end
@@ -197,12 +197,12 @@ function actions.useMove(index)
 end
 
 -- Select an item at some index
-function actions.selectItem(index)
+function basicactions.selectItem(index)
     local menuLength = menuinfo.maxMenuLengths[codes.MENU.Bag]
     local relIndex = index % menuLength
     local pageIndex = math.floor(index / menuLength)
 
-    actions.openBagMenu()
+    basicactions.openBagMenu()
     while menuinfo.getMenuPageIndex() ~= pageIndex do
         navMenuIndex(menuinfo.getMenuPageIndex(), pageIndex,
             codes.DIRECTION.Right, codes.DIRECTION.Left)
@@ -217,8 +217,8 @@ function actions.selectItem(index)
 end
 
 -- Take some action with an item at a given index
-function actions.itemAction(index, actionIndex)
-    actions.selectItem(index)
+function basicactions.itemAction(index, actionIndex)
+    basicactions.selectItem(index)
     while menuinfo.getMenuCursorIndex() ~= actionIndex do
         navMenuIndex(menuinfo.getMenuCursorIndex(), actionIndex)
     end
@@ -227,10 +227,10 @@ function actions.itemAction(index, actionIndex)
 end
 
 -- Take some action with an item at a given index on a teammate
-function actions.itemActionOnTeammate(index, actionIndex, teammate)
+function basicactions.itemActionOnTeammate(index, actionIndex, teammate)
     local teammate = teammate or 0    -- Default to using on the leader
 
-    actions.itemAction(index, actionIndex)
+    basicactions.itemAction(index, actionIndex)
     while menuinfo.getMenu() ~= codes.MENU.ItemFor do
         joypad.set({A=true})
         waitForMenuTransition()
@@ -243,33 +243,33 @@ function actions.itemActionOnTeammate(index, actionIndex, teammate)
 end
 
 -- Use an item at a given index
-function actions.useRegularItem(index)
-    actions.itemAction(index, 0)
+function basicactions.useRegularItem(index)
+    basicactions.itemAction(index, 0)
 end
 
 -- Eat/ingest an item at a given index
-function actions.eatFoodItem(index, teammate)
-    actions.itemActionOnTeammate(index, 0, teammate)
+function basicactions.eatFoodItem(index, teammate)
+    basicactions.itemActionOnTeammate(index, 0, teammate)
 end
 
 -- Equip a held item at a given index
-function actions.equipHeldItem(index, teammate)
-    actions.itemActionOnTeammate(index, 0, teammate)
+function basicactions.equipHeldItem(index, teammate)
+    basicactions.itemActionOnTeammate(index, 0, teammate)
 end
 
 -- Unequip a held item at a given index
-function actions.unequipHeldItem(index)
-    actions.itemAction(index, 0)
+function basicactions.unequipHeldItem(index)
+    basicactions.itemAction(index, 0)
 end
 
 -- Climbs the stairs when standing on them
-function actions.climbStairs()
+function basicactions.climbStairs()
     while menuinfo.getMenu() ~= codes.MENU.Stairs do
         waitForMenuTransition()
         -- If the stairs menu still isn't open after waiting, try opening
         -- the ground menu
         if menuinfo.getMenu() ~= codes.MENU.Stairs then
-            actions.openGroundMenu()
+            basicactions.openGroundMenu()
         end
     end
     while menuinfo.getMenuCursorIndex() ~= 0 do
@@ -280,7 +280,7 @@ function actions.climbStairs()
 end
 
 -- Pick an option in a Yes/No prompt. 0 for yes, 1 for no. Defaults to no
-function actions.selectYesNo(selection)
+function basicactions.selectYesNo(selection)
     -- If not in a Yes/No prompt, just return
     if menuinfo.getMenu() ~= codes.MENU.YesNo then return end
     local selection = selection or 1
@@ -293,7 +293,7 @@ end
 
 -- Pick a move to forget when learning a new move (if you already have 4 moves).
 -- Defaults to passing up the new move
-function actions.selectMoveToForget(selection)
+function basicactions.selectMoveToForget(selection)
     -- If not in a new move prompt, just return
     if menuinfo.getMenu() ~= codes.MENU.NewMove then return end
     local selection = selection or 4
@@ -311,7 +311,7 @@ function actions.selectMoveToForget(selection)
         joypad.set({A=true})
         waitForMenuTransition()
     until menuinfo.getMenu() == codes.MENU.YesNo
-    actions.selectYesNo(0)
+    basicactions.selectYesNo(0)
 end
 
-return actions
+return basicactions

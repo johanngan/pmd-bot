@@ -6,7 +6,8 @@ require 'codes.direction'
 require 'codes.item'
 require 'codes.menu'
 require 'dynamicinfo.menuinfo'
-require 'actions'
+require 'actions.basicactions'
+require 'actions.smartactions'
 require 'utils.pathfinder'
 
 Agent = {}
@@ -36,16 +37,6 @@ function Agent:setTargetPos(targetPos)
     end
 end
 
--- Look for an item in the bag. If it exists, return the first matching index.
--- Otherwise, return nil
-local function searchBag(bag, item)
-    for i, bagItem in ipairs(bag) do
-        if bagItem.itemType == item then
-            return i-1  -- 0-index
-        end
-    end
-end
-
 -- Return the tile under an entity
 local function tileUnder(entity, layout)
     return layout[entity.yPosition][entity.xPosition]
@@ -56,13 +47,13 @@ end
 function Agent:act(state)
     -- If in a Yes/No prompt, try to exit
     if menuinfo.getMenu() == codes.MENU.YesNo then
-        actions.selectYesNo(1)
+        basicactions.selectYesNo(1)
         return
     end
 
     -- If trying to learn a new move, don't
     if menuinfo.getMenu() == codes.MENU.NewMove then
-        actions.selectMoveToForget(4)
+        basicactions.selectMoveToForget(4)
         return
     end
 
@@ -79,7 +70,7 @@ function Agent:act(state)
         pathfinder.comparePositions({leader.xPosition, leader.yPosition},
             {state.dungeon.stairs()}) then
         self:setTargetPos(nil)  -- Clear the target
-        actions.climbStairs()
+        basicactions.climbStairs()
         return
     end
 
@@ -101,18 +92,16 @@ function Agent:act(state)
 
     -- If HP is low and there's an Oran Berry in the bag, eat it
     if leader.stats.HP <= leader.stats.maxHP - 100 then
-        local oranIdx = searchBag(state.player.bag(), codes.ITEM.OranBerry)
-        if oranIdx then
-            actions.eatFoodItem(oranIdx)
+        if smartactions.useItemIfPossible(basicactions.eatFoodItem,
+            codes.ITEM.OranBerry, state.player.bag()) then
             return
         end
     end
 
     -- If belly is low and there's an Apple in the bag, eat it
     if leader.belly <= 50 then
-        local appleIdx = searchBag(state.player.bag(), codes.ITEM.Apple)
-        if appleIdx then
-            actions.eatFoodItem(appleIdx)
+        if smartactions.useItemIfPossible(basicactions.eatFoodItem,
+            codes.ITEM.Apple, state.player.bag()) then
             return
         end
     end
@@ -136,9 +125,9 @@ function Agent:act(state)
                     enemy.yPosition-leader.yPosition
                 )
                 if leader.direction ~= direction then
-                    actions.face(direction)
+                    basicactions.face(direction)
                 end
-                actions.attack()
+                basicactions.attack()
                 return
             end
         end
@@ -161,6 +150,6 @@ function Agent:act(state)
     if #self.path > 0 then
         -- Not already on target
         local direction = table.remove(self.path, 1).direction
-        actions.walk(direction)
+        basicactions.walk(direction)
     end
 end

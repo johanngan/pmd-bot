@@ -2,7 +2,6 @@
 
 require 'dynamicinfo.stateinfo'
 require 'dynamicinfo.menuinfo'
-require 'actions'
 require 'Agent'
 
 -- Convenience function for reporting messages on screen
