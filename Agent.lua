@@ -154,6 +154,18 @@ function Agent:act(state)
         end
     end
 
+    -- If all moves are out of PP and there's a Max Elixir in the bag, use it
+    local remainingPP = 0
+    for _, move in ipairs(leader.moves) do
+        remainingPP = remainingPP + move.PP
+    end
+    if remainingPP == 0 then
+        if smartactions.useItemIfPossible(basicactions.eatFoodItem,
+            codes.ITEM.MaxElixir, state.player.bag(), true) then
+            return
+        end
+    end
+
     -- If an enemy is nearby, attack it (unless it's a shopkeeper)
     for _, enemy in ipairs(state.dungeon.entities.enemies()) do
         if not enemy.isShopkeeper and pathfinder.stepDistance(
