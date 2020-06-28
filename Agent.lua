@@ -7,6 +7,7 @@ require 'codes.item'
 require 'codes.menu'
 require 'codes.terrain'
 require 'codes.species'
+require 'codes.weather'
 require 'dynamicinfo.menuinfo'
 require 'actions.basicactions'
 require 'actions.smartactions'
@@ -71,6 +72,7 @@ function Agent:act(state)
     end
 
     local leader = state.player.leader()
+    local leaderRoom = tileUnder(leader, state.dungeon.layout()).room
 
     -- If no target position exists, or it's been reached, set it to the stairs
     if not self.targetPos or pathfinder.comparePositions(
@@ -82,6 +84,28 @@ function Agent:act(state)
     if pathfinder.comparePositions(self.targetPos, {state.dungeon.stairs()}) and
         pathfinder.comparePositions({leader.xPosition, leader.yPosition},
             {state.dungeon.stairs()}) then
+        -- If HP isn't full and it makes sense to rest
+        -- (full belly, non damaging weather, no status),
+        -- then rest
+        if leader.stats.HP < leader.stats.maxHP and leader.belly > 0 and
+            #leader.statuses == 0 and (not (
+                state.dungeon.conditions.weather() == codes.WEATHER.Sandstorm or
+                state.dungeon.conditions.weather() == codes.WEATHER.Hail
+            ) or state.dungeon.conditions.weatherIsNullified()) then
+            -- Don't rest if there are enemies in the room
+            local enemyInRoom = false
+            for _, enemy in ipairs(state.dungeon.entities.enemies()) do
+                if tileUnder(enemy, state.dungeon.layout()).room == leaderRoom then
+                    enemyInRoom = true
+                end
+            end
+            if not enemyInRoom then
+                basicactions.rest(true)
+                return
+            end
+        end
+
+        -- Otherwise, go up the stairs
         self:setTargetPos(nil)  -- Clear the target
         basicactions.climbStairs(true)
         return
@@ -90,7 +114,6 @@ function Agent:act(state)
     -- If there are items in the room, and there's room in the bag, go to pick them up
     if #state.player.bag() < 48 and pathfinder.comparePositions(
         self.targetPos, {state.dungeon.stairs()}) then
-        local leaderRoom = tileUnder(leader, state.dungeon.layout()).room
         if leaderRoom ~= -1 then -- -1 means hallway
             for _, item in ipairs(state.dungeon.entities.items()) do
                 -- Don't touch Kecleon's stuff
