@@ -1,19 +1,10 @@
 -- Main dispatcher for the bot
 
 require 'utils.nicknames'
+require 'utils.messages'
 require 'dynamicinfo.stateinfo'
 require 'dynamicinfo.menuinfo'
 require 'Agent'
-
--- Convenience function for reporting messages on screen
--- emu.message crashes the emulator for some reason
-function report_message(message)
-    local MESSAGE_X = 0
-    local MESSAGE_Y = -190
-    gui.text(MESSAGE_X, -MESSAGE_Y, message)
-end
-
-report_message('Bot engaged.')
 
 -- Temporarily set the leader's nickname to "Lua"
 nicknames.setLeaderNicknameTemp('Lua')
@@ -24,6 +15,7 @@ local state = stateinfo.state
 local currentFloor = 0
 -- Agent that decides what actions to take every turn
 local bot = Agent:new(state)
+messages.report(bot.name .. ' engaged.')
 -- Pause of a few frames after completing an action; to give time for internal stuff
 -- in memory to update right after input
 local ACTION_COOLDOWN_FRAMES = 3

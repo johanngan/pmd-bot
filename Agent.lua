@@ -6,12 +6,15 @@ require 'codes.direction'
 require 'codes.item'
 require 'codes.menu'
 require 'codes.terrain'
+require 'codes.species'
 require 'dynamicinfo.menuinfo'
 require 'actions.basicactions'
 require 'actions.smartactions'
 require 'utils.pathfinder'
+require 'utils.messages'
 
 Agent = {}
+Agent.name = 'Agent'
 
 -- This is just boilerplate code for the class
 function Agent:new(state)
@@ -27,15 +30,17 @@ function Agent:init(state)
     -- If you want your bot to have a state or a memory, initialize stuff here!
     self.path = nil
     self.targetPos = nil
+    self.targetName = nil
 end
 
--- Set the target position
-function Agent:setTargetPos(targetPos)
+-- Set the target position, with an optional name
+function Agent:setTargetPos(targetPos, targetName)
     if not (self.targetPos and targetPos) or
         not pathfinder.comparePositions(self.targetPos, targetPos) then
         self.targetPos = targetPos
         self.path = nil -- Need to calculate a new path
     end
+    self.targetName = targetName
 end
 
 -- Return the tile under an entity
@@ -61,7 +66,7 @@ function Agent:act(state)
 
     -- If trying to learn a new move, don't
     if menuinfo.getMenu() == codes.MENU.NewMove then
-        basicactions.selectMoveToForget(4)
+        basicactions.selectMoveToForget(4, true)
         return
     end
 
@@ -70,7 +75,7 @@ function Agent:act(state)
     -- If no target position exists, or it's been reached, set it to the stairs
     if not self.targetPos or pathfinder.comparePositions(
         {leader.xPosition, leader.yPosition}, self.targetPos) then
-        self:setTargetPos({state.dungeon.stairs()})
+        self:setTargetPos({state.dungeon.stairs()}, 'Stairs')
     end
 
     -- If on the stairs and it's the current target, climb
@@ -78,7 +83,7 @@ function Agent:act(state)
         pathfinder.comparePositions({leader.xPosition, leader.yPosition},
             {state.dungeon.stairs()}) then
         self:setTargetPos(nil)  -- Clear the target
-        basicactions.climbStairs()
+        basicactions.climbStairs(true)
         return
     end
 
@@ -98,7 +103,8 @@ function Agent:act(state)
                         item.xPosition, item.yPosition
                     )
                     if path then
-                        self:setTargetPos({item.xPosition, item.yPosition})
+                        self:setTargetPos({item.xPosition, item.yPosition},
+                            codes.ITEM_NAMES[item.itemType])
                         -- Might as well save the result of the pathfinding
                         -- calculation we just did
                         self.path = pathfinder.getMoves(path)
@@ -112,7 +118,7 @@ function Agent:act(state)
     -- If HP is low and there's an Oran Berry in the bag, eat it
     if leader.stats.HP <= leader.stats.maxHP - 100 then
         if smartactions.useItemIfPossible(basicactions.eatFoodItem,
-            codes.ITEM.OranBerry, state.player.bag()) then
+            codes.ITEM.OranBerry, state.player.bag(), true) then
             return
         end
     end
@@ -120,7 +126,7 @@ function Agent:act(state)
     -- If belly is low and there's an Apple in the bag, eat it
     if leader.belly <= 50 then
         if smartactions.useItemIfPossible(basicactions.eatFoodItem,
-            codes.ITEM.Apple, state.player.bag()) then
+            codes.ITEM.Apple, state.player.bag(), true) then
             return
         end
     end
@@ -153,6 +159,8 @@ function Agent:act(state)
                 if leader.direction ~= direction then
                     basicactions.face(direction)
                 end
+                messages.report('Attacking enemy ' ..
+                    codes.SPECIES_NAMES[enemy.features.species] .. '.')
                 self:attackEnemy(enemy, state)
                 return
             end
@@ -175,6 +183,13 @@ function Agent:act(state)
     end
     if #self.path > 0 then
         -- Not already on target
+        local text = 'Moving towards target'
+        if self.targetName then
+            text = text .. ': ' .. self.targetName
+        end
+        text = text .. '.'
+        messages.report(text)
+
         local direction = table.remove(self.path, 1).direction
         basicactions.walk(direction)
     end

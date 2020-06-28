@@ -1,10 +1,14 @@
 -- Useful basic action subroutines
+--
+-- All public actions have a verbose flag as a final optional parameter
+-- (default false).
 
 require 'table'
 
 require 'codes.direction'
 require 'codes.menu'
 require 'dynamicinfo.menuinfo'
+require 'utils.messages'
 
 basicactions = {}
 
@@ -83,12 +87,15 @@ end
 ---- BEGIN PUBLIC STUFF ----
 
 -- Literally do nothing
-function basicactions.nothing()
+function basicactions.nothing(verbose)
+    messages.reportIfVerbose('Doing nothing.', verbose)
 end
 
 -- Mash B to get out of any menus, not including message boxes
 -- Optionally specify a menu index to stop at upon reaching
-function basicactions.closeMenus(stopAtMenu)
+function basicactions.closeMenus(stopAtMenu, verbose)
+    messages.reportIfVerbose('Closing menus.', verbose)
+
     while menuinfo.menuIsOpen() and not menuinfo.messageIsOpen() do
         if menuinfo.getMenu() == stopAtMenu then
             break
@@ -99,7 +106,9 @@ function basicactions.closeMenus(stopAtMenu)
 end
 
 -- Mash X+B to close any message boxes
-function basicactions.closeMessages()
+function basicactions.closeMessages(verbose)
+    messages.reportIfVerbose('Closing messages.', verbose)
+
     local alternate = {{X=true}, {B=true}}
     local i = 1
     while menuinfo.messageIsOpen() do
@@ -110,21 +119,27 @@ function basicactions.closeMessages()
 end
 
 -- Rest in place
-function basicactions.rest()
+function basicactions.rest(verbose)
+    messages.reportIfVerbose('Resting.', verbose)
+
     basicactions.closeMenus()
     joypad.set({A=true, B=true})
     emu.frameadvance()
 end
 
 -- Use a basic attack
-function basicactions.attack()
+function basicactions.attack(verbose)
+    messages.reportIfVerbose('Using regular attack.', verbose)
+
     basicactions.closeMenus()
     joypad.set({A=true})
     emu.frameadvance()
 end
 
 -- Walk in some direction
-function basicactions.walk(direction)
+function basicactions.walk(direction, verbose)
+    messages.reportIfVerbose('Walking ' .. codes.DIRECTION_NAMES[direction] .. '.', verbose)
+
     local dirInput = directionInputs[direction]
     basicactions.closeMenus()
     joypad.set(dirInput)
@@ -132,7 +147,9 @@ function basicactions.walk(direction)
 end
 
 -- Face some direction
-function basicactions.face(direction)
+function basicactions.face(direction, verbose)
+    messages.reportIfVerbose('Facing ' .. codes.DIRECTION_NAMES[direction] .. '.', verbose)
+
     local dirInput = directionInputs[direction]
     repeat  -- Until the input registers
         basicactions.closeMenus()
@@ -143,7 +160,9 @@ function basicactions.face(direction)
 end
 
 -- Open the main menu
-function basicactions.openMainMenu()
+function basicactions.openMainMenu(verbose)
+    messages.reportIfVerbose('Opening main menu.', verbose)
+
     basicactions.closeMenus(codes.MENU.Main)
     while menuinfo.getMenu() ~= codes.MENU.Main do
         joypad.set({X=true})
@@ -152,7 +171,9 @@ function basicactions.openMainMenu()
 end
 
 -- Open the moves menu
-function basicactions.openMovesMenu()
+function basicactions.openMovesMenu(verbose)
+    messages.reportIfVerbose('Opening moves menu.', verbose)
+
     basicactions.closeMenus(codes.MENU.Moves)
     while menuinfo.getMenu() ~= codes.MENU.Moves do
         joypad.set({X=true})
@@ -161,7 +182,9 @@ function basicactions.openMovesMenu()
 end
 
 -- Open the treasure bag menu
-function basicactions.openBagMenu()
+function basicactions.openBagMenu(verbose)
+    messages.reportIfVerbose('Opening bag.', verbose)
+
     basicactions.closeMenus(codes.MENU.Bag)
     while menuinfo.getMenu() ~= codes.MENU.Bag do
         hold({B=true}, 2)
@@ -170,7 +193,9 @@ function basicactions.openBagMenu()
 end
 
 -- Open the ground menu
-function basicactions.openGroundMenu()
+function basicactions.openGroundMenu(verbose)
+    messages.reportIfVerbose('Checking underfoot.', verbose)
+
     basicactions.openMainMenu()
     while menuinfo.getMenuCursorIndex() ~= 4 do
         navMenuIndex(menuinfo.getMenuCursorIndex(), 4)
@@ -180,7 +205,9 @@ function basicactions.openGroundMenu()
 end
 
 -- Use a move at a given index
-function basicactions.useMove(index)
+function basicactions.useMove(index, verbose)
+    messages.reportIfVerbose('Using move ' .. (index+1) .. '.', verbose)
+
     basicactions.openMovesMenu()
     while menuinfo.getMenuCursorIndex() ~= index do
         navMenuIndex(menuinfo.getMenuCursorIndex(), index)
@@ -197,7 +224,9 @@ function basicactions.useMove(index)
 end
 
 -- Select an item at some index
-function basicactions.selectItem(index)
+function basicactions.selectItem(index, verbose)
+    messages.reportIfVerbose('Selecting item ' .. (index+1) .. '.', verbose)
+
     local menuLength = menuinfo.maxMenuLengths[codes.MENU.Bag]
     local relIndex = index % menuLength
     local pageIndex = math.floor(index / menuLength)
@@ -217,7 +246,10 @@ function basicactions.selectItem(index)
 end
 
 -- Take some action with an item at a given index
-function basicactions.itemAction(index, actionIndex)
+function basicactions.itemAction(index, actionIndex, verbose)
+    messages.reportIfVerbose('Using item ' .. (index+1) .. ' with action ' ..
+        (actionIndex+1) .. '.', verbose)
+
     basicactions.selectItem(index)
     while menuinfo.getMenuCursorIndex() ~= actionIndex do
         navMenuIndex(menuinfo.getMenuCursorIndex(), actionIndex)
@@ -227,7 +259,14 @@ function basicactions.itemAction(index, actionIndex)
 end
 
 -- Take some action with an item at a given index on a teammate
-function basicactions.itemActionOnTeammate(index, actionIndex, teammate)
+function basicactions.itemActionOnTeammate(index, actionIndex, teammate, verbose)
+    local text = 'Using item ' .. (index+1) .. ' with action ' .. (actionIndex+1)
+    if teammate then
+        text = text .. ' on teammate ' .. (teammate+1)
+    end
+    text = text .. '.'
+    messages.reportIfVerbose(text, verbose)
+
     local teammate = teammate or 0    -- Default to using on the leader
 
     basicactions.itemAction(index, actionIndex)
@@ -243,27 +282,47 @@ function basicactions.itemActionOnTeammate(index, actionIndex, teammate)
 end
 
 -- Use an item at a given index
-function basicactions.useRegularItem(index)
+function basicactions.useRegularItem(index, verbose)
+    messages.reportIfVerbose('Using item ' .. (index+1) .. '.', verbose)
+
     basicactions.itemAction(index, 0)
 end
 
 -- Eat/ingest an item at a given index
-function basicactions.eatFoodItem(index, teammate)
+function basicactions.eatFoodItem(index, teammate, verbose)
+    local text = 'Eating item ' .. (index+1)
+    if teammate then
+        text = text .. ' [teammate ' .. (teammate+1) .. ']'
+    end
+    text = text .. '.'
+    messages.reportIfVerbose(text, verbose)
+
     basicactions.itemActionOnTeammate(index, 0, teammate)
 end
 
 -- Equip a held item at a given index
-function basicactions.equipHeldItem(index, teammate)
+function basicactions.equipHeldItem(index, teammate, verbose)
+    local text = 'Equipping item ' .. (index+1)
+    if teammate then
+        text = text .. ' on teammate ' .. (teammate+1)
+    end
+    text = text .. '.'
+    messages.reportIfVerbose(text, verbose)
+
     basicactions.itemActionOnTeammate(index, 0, teammate)
 end
 
 -- Unequip a held item at a given index
-function basicactions.unequipHeldItem(index)
+function basicactions.unequipHeldItem(index, verbose)
+    messages.reportIfVerbose('Unequipping item ' .. (index+1) .. '.', verbose)
+
     basicactions.itemAction(index, 0)
 end
 
 -- Climbs the stairs when standing on them
-function basicactions.climbStairs()
+function basicactions.climbStairs(verbose)
+    messages.reportIfVerbose('Proceeding to next floor.', verbose)
+
     while menuinfo.getMenu() ~= codes.MENU.Stairs do
         waitForMenuTransition()
         -- If the stairs menu still isn't open after waiting, try opening
@@ -280,7 +339,9 @@ function basicactions.climbStairs()
 end
 
 -- Pick an option in a Yes/No prompt. 0 for yes, 1 for no. Defaults to no
-function basicactions.selectYesNo(selection)
+function basicactions.selectYesNo(selection, verbose)
+    messages.reportIfVerbose('Selecting "' .. ((selection == 0) and 'Yes' or 'No') .. '".', verbose)
+
     -- If not in a Yes/No prompt, just return
     if menuinfo.getMenu() ~= codes.MENU.YesNo then return end
     local selection = selection or 1
@@ -293,7 +354,9 @@ end
 
 -- Pick a move to forget when learning a new move (if you already have 4 moves).
 -- Defaults to passing up the new move
-function basicactions.selectMoveToForget(selection)
+function basicactions.selectMoveToForget(selection, verbose)
+    messages.reportIfVerbose('Forgetting move ' .. (selection+1) .. '.', verbose)
+
     -- If not in a new move prompt, just return
     if menuinfo.getMenu() ~= codes.MENU.NewMove then return end
     local selection = selection or 4

@@ -1,8 +1,14 @@
 -- Useful "smart" action subroutines that can check state info before trying
 -- to act, and possibly perform more complex decision-making.
 -- Will return a flag for whether or not the action was successful or not.
+--
+-- All public actions have a verbose flag as a final optional parameter
+-- (default false).
 
 require 'actions.basicactions'
+require 'codes.item'
+require 'codes.move'
+require 'utils.messages'
 
 smartactions = {}
 
@@ -19,12 +25,14 @@ local function searchBag(bag, item, startIdx)
     end
 end
 -- Use an item if it's in the bag and isn't sticky
-function smartactions.useItemIfPossible(itemAction, item, bag)
+function smartactions.useItemIfPossible(itemAction, item, bag, verbose)
     local itemIdx, bagItem = searchBag(bag, item)
     while itemIdx do
         if bagItem.isSticky then
             itemIdx, bagItem = searchBag(bag, item, itemIdx + 1)
         else
+            messages.reportIfVerbose('Using ' ..
+                codes.ITEM_NAMES[item] .. '.', verbose)
             itemAction(itemIdx)
             return true
         end
@@ -34,10 +42,12 @@ end
 
 -- Use a move at some index (0-indexed) if it has PP, isn't sealed, and isn't
 -- subsequent in a link chain
-function smartactions.useMoveIfPossible(moveIdx, moveList)
+function smartactions.useMoveIfPossible(moveIdx, moveList, verbose)
     local move = moveList[moveIdx+1]   -- Access using 1-indexing
     if move and move.PP > 0 and not move.isSealed
         and not move.subsequentInLinkChain then
+        messages.reportIfVerbose('Using ' ..
+            codes.MOVE_NAMES[move.moveID] .. '.', verbose)
         basicactions.useMove(moveIdx)
         return true
     end
