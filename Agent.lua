@@ -166,9 +166,9 @@ function Agent:act(state)
         end
     end
 
-    -- If an enemy is nearby, attack it (unless it's a shopkeeper)
+    -- If an enemy is nearby, attack it (unless it's a shopkeeper/ally)
     for _, enemy in ipairs(state.dungeon.entities.enemies()) do
-        if not enemy.isShopkeeper and pathfinder.stepDistance(
+        if not enemy.isShopkeeper and not enemy.isAlly and pathfinder.stepDistance(
             {leader.xPosition, leader.yPosition}, {enemy.xPosition, enemy.yPosition}) <= 1 then
             -- Step distance is quick to calculate, but isn't 100% accurate. We
             -- really need to check that the actual path distance is 1. That way
