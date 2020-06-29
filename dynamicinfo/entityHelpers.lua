@@ -83,7 +83,8 @@ function entityHelpers.readMonster(address)
     monster.stats.level = memory.readbyteunsigned(infoTableStart + 0x00A)
     monster.stats.IQ = memory.readwordsigned(infoTableStart + 0x00E)
     monster.stats.HP = memory.readwordsigned(infoTableStart + 0x010)
-    monster.stats.maxHP = memory.readwordsigned(infoTableStart + 0x012)
+    monster.stats.maxHP = memory.readwordsigned(infoTableStart + 0x012) -- Natural
+        + memory.readwordsigned(infoTableStart + 0x016) -- Max HP boost
     monster.stats.attack = memory.readbyteunsigned(infoTableStart + 0x01A)
     monster.stats.specialAttack = memory.readbyteunsigned(infoTableStart + 0x01B)
     monster.stats.defense = memory.readbyteunsigned(infoTableStart + 0x01C)
