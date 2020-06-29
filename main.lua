@@ -13,6 +13,7 @@ nicknames.setLeaderNicknameTemp('Lua')
 local state = stateinfo.state
 -- Needed to detect a floor change
 local currentFloor = 0
+local currentWind = -1
 -- Agent that decides what actions to take every turn
 local bot = Agent:new(state)
 messages.report(bot.name .. ' engaged.')
@@ -27,11 +28,15 @@ while true do
     -- then don't do anything; just wait
     if state.canAct() then
         -- If there's been a floor change, do necessary updates to the dungeon state
-        if currentFloor ~= state.dungeon.floor() then
+        -- Alternatively, since the floor might not change with hidden stairs, as a
+        -- backup check if the wind counter is more than it was before
+        if currentFloor ~= state.dungeon.floor() or
+            state.dungeon.counters.wind() > currentWind then
             currentFloor = state.dungeon.floor()
             state = stateinfo.reloadEveryFloor(state)
             emu.frameadvance()  -- intermediate frame advance to combat lag
         end
+        currentWind = state.dungeon.counters.wind()
         -- Do updates for frequently changing things whenever the player has control
         state = stateinfo.reloadEveryTurn(state)
         emu.frameadvance()

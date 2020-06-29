@@ -55,6 +55,8 @@ function state.dungeon.layout:read()
 end
 
 -- Convenience field for the stairs position
+-- Note that this might be normal stairs or hidden stairs; whichever
+-- is found first
 state.dungeon.stairs = StateData:new()
 function state.dungeon.stairs:read()
     return mapHelpers.findStairs(state.dungeon.layout())
@@ -88,8 +90,20 @@ end
 state.dungeon.entities.traps = StateData:new()
 function state.dungeon.entities.traps:read()
     -- Trap indexes are grouped with items indexes; traps start at 64
-    local activeTrapPtrs = entityHelpers.getActiveNonMonsterPtrs(64, 128)
+    local activeTrapPtrs = entityHelpers.getActiveNonMonsterPtrs(64, 127)
     return entityHelpers.readTrapList(activeTrapPtrs)
+end
+
+-- Hidden stairs
+state.dungeon.entities.hiddenStairs = StateData:new()
+function state.dungeon.entities.hiddenStairs:read()
+    -- Hidden stairs are stored after the tile list at index 128
+    local activeHiddenStairsPtrs = entityHelpers.getActiveNonMonsterPtrs(128, 128)
+    if #activeHiddenStairsPtrs > 0 then
+        -- There will only ever be 1
+        return entityHelpers.readHiddenStairs(activeHiddenStairsPtrs[1])
+    end
+    return nil
 end
 
 -- Subcontainer for dungeon-wide conditions

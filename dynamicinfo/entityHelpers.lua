@@ -234,6 +234,16 @@ function entityHelpers.readTrapList(addresses)
     return readEntityList(addresses, entityHelpers.readTrap)
 end
 
+-- Read hidden stairs at a given address
+function entityHelpers.readHiddenStairs(address)
+    local hiddenStairs = {}
+    hiddenStairs.xPosition = memory.readwordsigned(address + 0x04)
+    hiddenStairs.yPosition = memory.readwordsigned(address + 0x06)
+    hiddenStairs.isRevealed = memory.readbyteunsigned(address + 0x20) ~= 0
+
+    return hiddenStairs
+end
+
 ---- END TRAP STUFF ----
 
 return entityHelpers

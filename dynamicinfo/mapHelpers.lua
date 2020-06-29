@@ -45,6 +45,7 @@ function mapHelpers.readTileRow(y)
 end
 
 -- Find the stairs in some floor layout (grid of tiles, stored row-major)
+-- Might be normal stairs or hidden stairs, whichever comes up first
 function mapHelpers.findStairs(layout)
     for y, row in ipairs(layout) do
         for x, tile in ipairs(row) do
