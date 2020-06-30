@@ -23,10 +23,10 @@ Most of the botting logic is written in the file [`Agent.lua`](Agent.lua). This 
 
 The bot makes direct use of the following utilities:
 
-    - [Dungeon state information](dynamicinfo) is accessed through the `state` object passed to `Agent:act()`.
-    - [Actions in game](actions) are performed using the `actions` module.
-    - [Internal ID codes](codes) are referenced from the `codes` module.
-    - [Other utilities](utils) include pathfinding and message reporting, which are handled in their respective submodules in `utils`.
+- [Dungeon state information](dynamicinfo) is accessed through the `state` object passed to `Agent:act()`.
+- [Actions in game](actions) are performed using the `actions` module.
+- [Internal ID codes](codes) are referenced from the `codes` module.
+- [Other utilities](utils) include pathfinding and message reporting, which are handled in their respective submodules in `utils`.
 
 Modifying `Agent.lua` should be sufficient for many use cases. However, if you need to change the nature of the main execution loop, you can modify [`main.lua`](main.lua).
 
