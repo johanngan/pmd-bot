@@ -28,7 +28,7 @@ The bot accesses the entire dungeon state as a single object (`stateinfo.state`)
             - `items()`: Ordered list of items on the floor
             - `traps()`: Ordered list of traps on the floor
             - `hiddenStairs()`: Hidden stairs on the floor. Will be `nil` if there are none.
-        - `conditions`: Floor-wide conditions
+        - `conditions`: Subcontainer for floor-wide conditions
             - `weather()`: The ID for the current weather condition
             - `naturalWeather()`: The weather that the floor will revert to if no artificial weather is in effect
             - `weatherTurnsLeft()`: Turns left for artificial weather, if applicable
