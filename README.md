@@ -7,7 +7,7 @@ PMD-Bot is a botting framework for _Pokémon Mystery Dungeon: Explorers of Sky_.
 - [A modified version of the Jumper library](https://github.com/johanngan/Jumper) for pathfinding.
 
 ## Installation
-1. Retrieve the repository locally (for example, by doing `git clone https://github.com/johanngan/pmd-bot.git` through command line).
+1. Retrieve the repository locally (for example, by doing `git clone https://github.com/johanngan/pmd-bot.git` through the command line).
 2. Retrieve the [modified Jumper library](https://github.com/johanngan/Jumper), and copy the `jumper/` directory into PMD-Bot's top-level directory (the same level as this README).
 
 ## Usage
@@ -22,9 +22,10 @@ PMD-Bot is a botting framework for _Pokémon Mystery Dungeon: Explorers of Sky_.
 Most of the botting logic is written in the file [`Agent.lua`](Agent.lua). This repository comes with an example bot, but you can change the bot as you see fit. You'll mainly be modifying the `Agent:act()` method, which contains the main logic for the bot. You might also change `Agent:attackEnemy`, which holds attack selection logic, but this is really just a helper function; you could instead just cram this logic directly into `Agent:act()`. Additionally, if you want to set up state information for your bot, you can do so in `Agent:init()`, which is called only once at startup.
 
 The bot makes direct use of the following utilities:
-    - [The dungeon state](dynamicinfo) is accessed through the `state` object passed to `Agent:act()`.
+
+    - [Dungeon state information](dynamicinfo) is accessed through the `state` object passed to `Agent:act()`.
     - [Actions in game](actions) are performed using the `actions` module.
-    - [Internal codes](codes) are referenced from the `codes` module.
+    - [Internal ID codes](codes) are referenced from the `codes` module.
     - [Other utilities](utils) include pathfinding and message reporting, which are handled in their respective submodules in `utils`.
 
 Modifying `Agent.lua` should be sufficient for many use cases. However, if you need to change the nature of the main execution loop, you can modify [`main.lua`](main.lua).
