@@ -3,6 +3,15 @@ PMD-Bot is a botting framework for _Pokémon Mystery Dungeon: Explorers of Sky_.
 
 - PMD-Bot is written in [FCEUX Lua](https://tasvideos.github.io/fceux/web/help/fceux.html?LuaScripting.html) and runs on DeSmuME for Windows (Lua scripting is sadly not supported on DeSmuME for Mac/Linux).
 
+## How it works
+Broadly, PMD-Bot runs using a three-step process, repeated every turn:
+
+1. Detect what's happening in the dungeon by read state information from RAM.
+2. Make decisions on how to act based on the current state.
+3. Make the necessary inputs (including menu navigation) in order to perform whatever action was decided on.
+
+For a more detailed discussion, see [Writing a bot](#writing-a-bot).
+
 ## Dependencies
 - [A modified version of the Jumper library](https://github.com/johanngan/Jumper) for pathfinding.
 
