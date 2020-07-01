@@ -47,7 +47,7 @@ The bot accesses the entire dungeon state as a single object (`stateinfo.state`)
         - `money()`: Amount of money carried
         - `bag()`: Ordered list of items currently in the bag
 
-Nodes with parentheses after their names are `StateData` objects, whose value should be accessed by calling them). Otherwise, they're just normal table fields (accessed without a call).
+Nodes with parentheses after their names are `StateData` objects, whose value should be accessed by calling them. Otherwise, they're just normal table fields (accessed without a call).
 
 ### Tiles
 Returned in a grid by the `layout()` field. Tiles have the following fields:
@@ -58,7 +58,7 @@ Returned in a grid by the `layout()` field. Tiles have the following fields:
 - `inMonsterHouse`: Flag for whether or not the tile is in a Monster House
 - `isStairs`: Flag for whether or not the tile is a floor exit (includes normal stairs, hidden stairs, and Warp Zones)
 - `visibleOnMap`: Flag for whether or not the tile is visible on the player's map
-- `room`: The ID of the room the tile is in. Will be -1 if in a hallway
+- `room`: The ID of the room the tile is in. Will be -1 if in a hallway.
 
 ### Monsters
 Returned in a list by the `team()` and `enemies()` fields, and also returned by the `leader()` field. Monsters have the following structure:
@@ -89,14 +89,14 @@ Returned in a list by the `team()` and `enemies()` fields, and also returned by 
     - `defense`: The monster's Defense stat
     - `specialDefense`: The monster's Special Defense stat
     - `experience`: The amount of experience the monster has
-    - `modifiers`: Table of stat modifiers. For most stats (except speed), the normal value is 10, and it goes up to 20 and down to 0
+    - `modifiers`: Table of stat modifiers. For most stats (except speed), the normal value is 10, and it goes up to 20 and down to 0.
         - `attackStage`: The monster's Attack stage
         - `specialAttackStage`: The monster's Special Attack stage
         - `defenseStage`: The monster's Defense stage
         - `specialDefenseStage`: The monster's Special Defense stage
         - `accuracyStage`: The monster's accuracy stage
         - `evasionStage`: The monster's evasion stage
-        - `speedStage`: The monster's speed stage. The normal value is 1, and it goes up to 4 and down to 0
+        - `speedStage`: The monster's speed stage. The normal value is 1, and it goes up to 4 and down to 0.
         - `speedCounters`: Lists of "speed counters" that tick down to 0. The current speed stage is equal to `(# nonzero up) - (# nonzero down)`, but kept in the range 0-4.
             - `up`: List of the 5 "up" counters
             - `down`: List of the 5 "down" counters
@@ -110,7 +110,7 @@ Stored in a list in a monster's `statuses` field. Statuses have the following (n
 - `turnsLeft`: The number of turns left of the status
 - `effectCountdown`: The number of turns left for a recurring effect of the status to occur, such as damage or healing
 
-Note: the stockpile status is special, and has the field `stage` that holds the stockpile stage.
+Note: the Stockpile status is special, and has the field `stage` that holds the stockpile stage.
 
 #### Moves
 Stored in a list in a monster's `moves` field. Moves have the following fields:
@@ -131,7 +131,7 @@ Returned in a list by the `items()` and `bag()` fields. Items have the following
 - `isSticky`: Flag for whether or not the item is sticky
 - `isSet`: Flag for whether or not the item is set, if in the bag
 - `heldBy`: Index of the party member holding the item, if in the bag
-- `amount`: Amount code, if applicable. Note: seems like for Poké this value doesn't correspond to the literal amount
+- `amount`: Amount code, if applicable. Note: seems like for Poké this value doesn't correspond to the literal amount.
 - `itemType`: The [item ID](../codes/item.lua)
 
 ### Traps

@@ -19,7 +19,7 @@ PMD-Bot is a botting framework for _Pokémon Mystery Dungeon: Explorers of Sky_.
     - If you need some help, here's a link to the [necessary Lua binaries](https://sourceforge.net/projects/luabinaries/files/5.1.5/Tools%20Executables/lua-5.1.5_Win64_bin.zip/download). Extract the archive and copy `lua5.1.dll` and `lua51.dll` into the same directory as your DeSmuME executable file. After doing this, you should be able to run Lua scripts on DeSmuME.
 
 ### Writing a bot
-Most of the botting logic is written in the file [`Agent.lua`](Agent.lua). This repository comes with an example bot, but you can change the bot as you see fit. You'll mainly be modifying the `Agent:act()` method, which contains the main logic for the bot. You might also change `Agent:attackEnemy`, which holds attack selection logic, but this is really just a helper function; you could instead just cram this logic directly into `Agent:act()`. Additionally, if you want to set up state information for your bot, you can do so in `Agent:init()`, which is called only once at startup.
+Most of the botting logic is written in the file [`Agent.lua`](Agent.lua). This repository comes with an example bot, but you can change the bot as you see fit. You'll mainly be modifying the `Agent:act()` method, which contains the main logic for the bot. You might also change `Agent:attackEnemy()`, which holds attack selection logic, but this is really just a helper function; you could instead just cram this logic directly into `Agent:act()`. Additionally, if you want to set up state information for your bot, you can do so in `Agent:init()`, which is called only once at startup.
 
 The bot makes direct use of the following utilities:
 
