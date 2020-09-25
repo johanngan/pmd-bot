@@ -20,6 +20,7 @@ The bot accesses the entire dungeon state as a single object (`stateinfo.state`)
 - `state`: The state model object
     - `dungeon`: Subcontainer for "external" information
         - `dungeonID()`: The [dungeon ID](../codes/dungeon.lua) of the current dungeon
+        - `visibilityRadius()`: How far away the player can see enemies in a dark hallway. Also controls how many tiles around the leader get revealed on the map during exploration.
         - `floor()`: Current floor number
         - `layout()`: Grid of tiles on the floor, ordered by position. Access using `layout()[y][x]`.
         - `stairs()`: Location of stairs on the floor. Returns two values (x, y). Could be normal or hidden stairs.
@@ -38,6 +39,8 @@ The bot accesses the entire dungeon state as a single object (`stateinfo.state`)
             - `waterSportTurnsLeft()`: Turns left for the effects of Water Sport. Will be 0 if Water Sport is inactive.
             - `thiefAlert()`: Flag for whether you've stolen from Kecleon
             - `gravity()`: Flag for whether gravity is in effect
+            - `luminous()`: Flag for whether the floor is luminous (no darkness, with floor layout and enemies visible)
+            - `darkness()`: Flag for whether the floor is dark (affects visibility in halls)
         - `counters`: Subcontainer for "dungeon counters" that tick every turn
             - `wind()`: Turns left before the dungeon wind blows you out
             - `weatherDamage()`: Turns left before getting damaged by weather, if applicable. Counts from 9 to 0, damage occurs when it resets to 9.
@@ -47,6 +50,9 @@ The bot accesses the entire dungeon state as a single object (`stateinfo.state`)
         - `leader()`: Alias for the first team member
         - `money()`: Amount of money carried
         - `bag()`: Ordered list of items currently in the bag
+        - `canSeeEnemies()`: Flag for whether the player can see all enemies on the floor
+        - `canSeeItems()`: Flag for whether the player can see all items on the floor
+        - `canSeeStairs()`: Flag for whether the player can see location of the stairs without having found them through exploration
 
 Nodes with parentheses after their names are `StateData` objects, whose value should be accessed by calling them. Otherwise, they're just normal table fields (accessed without a call).
 

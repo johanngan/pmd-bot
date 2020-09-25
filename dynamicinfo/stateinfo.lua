@@ -36,6 +36,14 @@ function state.dungeon.dungeonID:read()
     return memory.readwordsigned(0x022AB4FE)
 end
 
+-- Visibility radius of the current dungeon
+local DEFAULT_VISIBILITY_RADIUS = 2
+state.dungeon.visibilityRadius = StateData:new()
+function state.dungeon.visibilityRadius:read()
+    local visRad = memory.readbyteunsigned(0x021D3F71)
+    return (visRad ~= 0 and visRad or DEFAULT_VISIBILITY_RADIUS)
+end
+
 -- Current floor #
 state.dungeon.floor = StateData:new()
 function state.dungeon.floor:read()
@@ -149,6 +157,19 @@ state.dungeon.conditions.gravity = StateData:new()
 function state.dungeon.conditions.gravity:read()
     return memory.readbyteunsigned(0x021CC830) ~= 0
 end
+-- Luminous (like after using a Luminous Orb)
+state.dungeon.conditions.luminous = StateData:new()
+function state.dungeon.conditions.luminous:read()
+    return memory.readbyteunsigned(0x021D3F73) ~= 0
+end
+-- Darkness (obscures vision in hallways)
+state.dungeon.conditions.darkness = StateData:new()
+function state.dungeon.conditions.darkness:read()
+    -- 0x021D3F74 is a flag for natural lighting.
+    -- The luminous condition will also negate darkness
+    return (memory.readbyteunsigned(0x021D3F74) == 0
+            and not state.dungeon.conditions.luminous())
+end
 
 -- Subcontainer for turn counters
 state.dungeon.counters = {}
@@ -208,6 +229,26 @@ function state.player.bag:read()
     return bag
 end
 
+-- Whether the player can detect all enemies on the floor
+state.player.canSeeEnemies = StateData:new()
+function state.player.canSeeEnemies:read()
+    -- 0x021D3F76 is a composite flag for the leader having the Power Ears status or holding X-Ray Specs
+    -- Enemies will also be revealed if the dungeon is luminous
+    return (memory.readbyteunsigned(0x021D3F76) ~= 0) or state.dungeon.conditions.luminous()
+end
+-- Whether the player can detect all items on the floor
+state.player.canSeeItems = StateData:new()
+function state.player.canSeeItems:read()
+    -- Composite flag for the leader having the Scanning status or holding X-Ray Specs
+    return memory.readbyteunsigned(0x021D3F77) ~= 0
+end
+-- Whether the player can see the stairs location. This may be redundant with the leader having the
+-- Stair Spotter status... Not sure
+state.player.canSeeStairs = StateData:new()
+function state.player.canSeeStairs:read()
+    return memory.readbyteunsigned(0x021D3F7A) ~= 0
+end
+
 ---- END STATE DATA MODEL ----
 
 -- Forces reload on a StateData list
@@ -242,11 +283,16 @@ function stateinfo.reloadEveryTurn(state)
         state.dungeon.conditions.waterSportTurnsLeft,
         state.dungeon.conditions.thiefAlert,
         state.dungeon.conditions.gravity,
+        state.dungeon.conditions.luminous,
+        state.dungeon.conditions.darkness,
         state.dungeon.counters.wind,
         state.dungeon.counters.weatherDamage,
         state.dungeon.counters.enemySpawn,
         state.player.money,
         state.player.bag,
+        state.player.canSeeEnemies,
+        state.player.canSeeItems,
+        state.player.canSeeStairs,
     })
     return state
 end
