@@ -75,6 +75,7 @@ Returned in a list by the `team()` and `enemies()` fields, and also returned by 
 - `belly`: The amount of belly the monster has
 - `features`: Mostly stuff on the "Features" page in-game
     - `species`: The [species ID](../codes/species.lua)
+    - `apparentSpecies`: The apparent [species ID](../codes/species.lua). Normally the same as `species`, but can differ if the monster used Transform.
     - `primaryType`: The [type ID](../codes/type.lua) of the monster's primary type
     - `secondaryType`: The [type ID](../codes/type.lua) of the monster's secondary type
     - `primaryAbility`: The [ability ID](../codes/ability.lua) of the monster's primary ability
@@ -117,7 +118,9 @@ Stored in a list in a monster's `moves` field. Moves have the following fields:
 
 - `subsequentInLinkChain`: Flag for whether or not the move is in a link chain and isn't the starting move
 - `isSet`: Flag for whether or not the move is set
-- `isSealed`: Flag for whether or not the move is sealed
+- `isLastUsed`: Flag for whether or not the move was the last one used (important for Encore)
+- `isDisabled`: Flag for whether or not the move is disabled (e.g. by Torment)
+- `isSealed`: Flag for whether or not the move is sealed (e.g. by a Seal Trap)
 - `moveID`: The [move ID](../codes/move.lua)
 - `PP`: The amount of PP left for the move
 - `ginsengBoost`: The number of Ginseng boosts on the move
@@ -141,7 +144,8 @@ Returned in a list by the `traps()` field. Traps have the following fields:
 - `yPosition`: The trap's _y_ position in the dungeon
 - `isRevealed`: Flag for whether or not the trap is revealed to the player
 - `trapType`: The [trap ID](../codes/trap.lua)
-- `isActive`: Flag for whether or not the trap is active
+- `isTriggerableByTeam`: Whether or not the trap will trigger when a team member steps on it
+- `isTriggerableByEnemies`: Whether or not the trap will trigger when an enemy steps on it
 
 ## Refreshing
 A lot of the dungeon state model uses caching, so that the bot doesn't need to reload the entire dungeon state every turn. Information to be reloaded every turn is designated in `stateinfo.reloadEveryTurn()`, while information to be reloaded only once per floor is designated in `stateinfo.reloadEveryFloor()`.

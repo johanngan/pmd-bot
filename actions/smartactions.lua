@@ -44,7 +44,7 @@ end
 -- subsequent in a link chain
 function smartactions.useMoveIfPossible(moveIdx, moveList, verbose)
     local move = moveList[moveIdx+1]   -- Access using 1-indexing
-    if move and move.PP > 0 and not move.isSealed
+    if move and move.PP > 0 and not move.isSealed and not move.isDisabled
         and not move.subsequentInLinkChain then
         messages.reportIfVerbose('Using ' ..
             codes.MOVE_NAMES[move.moveID] .. '.', verbose)

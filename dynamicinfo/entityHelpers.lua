@@ -49,7 +49,11 @@ function entityHelpers.readMove(address)
     local move = {}
     move.subsequentInLinkChain = AND(bitfield, 0x02) ~= 0
     move.isSet = AND(bitfield, 0x08) ~= 0
-    move.isSealed = memory.readbyteunsigned(address + 0x02) ~= 0
+    move.isLastUsed = AND(bitfield, 0x10) ~= 0
+    -- E.g., rendered unusable by Torment
+    move.isDisabled = AND(bitfield, 0x20) ~= 0
+    -- E.g. rendered unusable by a Seal Trap
+    move.isSealed = AND(memory.readbyteunsigned(address + 0x02), 0x01) ~= 0
     move.moveID = memory.readwordunsigned(address + 0x04)
     move.PP = memory.readbyteunsigned(address + 0x06)
     move.ginsengBoost = memory.readbyteunsigned(address + 0x07)
@@ -70,6 +74,8 @@ function entityHelpers.readMonster(address)
     monster.features = {}
     -- Need to mod with 600 since the non-default genders have different IDs for some reason
     monster.features.species = memory.readwordunsigned(infoTableStart + 0x002) % N_DEFAULT_GENDER
+    -- This could be different if the monster used Transform
+    monster.features.apparentSpecies = memory.readwordunsigned(infoTableStart + 0x004) % N_DEFAULT_GENDER
 
     -- Other basic info
     monster.isEnemy = memory.readbyteunsigned(infoTableStart + 0x006) == 1
@@ -223,9 +229,9 @@ function entityHelpers.readTrap(address)
     -- The original address ends in a pointer to a table with important values
     local infoTableStart = memoryrange.readbytesUnsigned(address + 0xB4, 4)
     trap.trapType = memory.readbyteunsigned(infoTableStart)
-    -- Not sure if isActive is really a meaningful value, or if it will always be true...
-    trap.isActive = memory.readbyteunsigned(infoTableStart + 0x01)
-    trap.isActive = (trap.isActive == 0 or trap.isActive == 2)
+    local trapAlignment = memory.readbyteunsigned(infoTableStart + 0x01)
+    trap.isTriggerableByTeam = (trapAlignment == 0 or trapAlignment == 2)
+    trap.isTriggerableByEnemies = trapAlignment == 1
     
     return trap
 end
