@@ -19,6 +19,7 @@ The bot accesses the entire dungeon state as a single object (`stateinfo.state`)
 
 - `state`: The state model object
     - `dungeon`: Subcontainer for "external" information
+        - `dungeonID()`: The [dungeon ID](../codes/dungeon.lua) of the current dungeon
         - `floor()`: Current floor number
         - `layout()`: Grid of tiles on the floor, ordered by position. Access using `layout()[y][x]`.
         - `stairs()`: Location of stairs on the floor. Returns two values (x, y). Could be normal or hidden stairs.
