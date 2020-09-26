@@ -276,6 +276,7 @@ function stateinfo.reloadEveryTurn(state)
         state.dungeon.entities.enemies,
         state.dungeon.entities.items,
         state.dungeon.entities.traps,
+        state.dungeon.entities.hiddenStairs,
         state.dungeon.conditions.weather,
         state.dungeon.conditions.weatherTurnsLeft,
         state.dungeon.conditions.weatherIsNullified,
