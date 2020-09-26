@@ -242,6 +242,11 @@ function state.player.canSeeItems:read()
     -- Composite flag for the leader having the Scanning status or holding X-Ray Specs
     return memory.readbyteunsigned(0x021D3F77) ~= 0
 end
+-- Whether the player can see all traps
+state.player.canSeeTraps = StateData:new()
+function state.player.canSeeTraps:read()
+    return memory.readbyteunsigned(0x021D3F78) ~= 0
+end
 -- Whether the player can see the stairs location. This may be redundant with the leader having the
 -- Stair Spotter status... Not sure
 state.player.canSeeStairs = StateData:new()
@@ -293,6 +298,7 @@ function stateinfo.reloadEveryTurn(state)
         state.player.bag,
         state.player.canSeeEnemies,
         state.player.canSeeItems,
+        state.player.canSeeTraps,
         state.player.canSeeStairs,
     })
     return state
