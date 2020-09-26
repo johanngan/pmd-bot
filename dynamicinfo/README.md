@@ -66,6 +66,7 @@ Returned in a grid by the `layout()` field. Tiles have the following fields:
 - `inMonsterHouse`: Flag for whether or not the tile is in a Monster House
 - `isStairs`: Flag for whether or not the tile is a floor exit (includes normal stairs, hidden stairs, and Warp Zones)
 - `visibleOnMap`: Flag for whether or not the tile is visible on the player's map
+- `visited`: Flag for whether or not the tile has been visited by the player
 - `room`: The ID of the room the tile is in. Will be -1 if in a hallway.
 
 ### Monsters
