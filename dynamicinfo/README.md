@@ -52,8 +52,8 @@ The bot accesses the entire dungeon state as a single object (`stateinfo.state`)
         - `bag()`: Ordered list of items currently in the bag
         - `canSeeEnemies()`: Flag for whether the player can see all enemies on the floor
         - `canSeeItems()`: Flag for whether the player can see all items on the floor
-        - `canSeeTraps()`: Flag for whether the player can see all traps on the floor
-        - `canSeeStairs()`: Flag for whether the player can see location of the stairs without having found them through exploration
+        - `canSeeTrapsAndHiddenStairs()`: Flag for whether the player can see unrevealed traps and hidden stairs
+        - `canSeeStairs()`: Flag for whether the player can see location of the stairs (both normal and hidden) without having found them through exploration
 
 Nodes with parentheses after their names are `StateData` objects, whose value should be accessed by calling them. Otherwise, they're just normal table fields (accessed without a call).
 

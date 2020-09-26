@@ -243,8 +243,8 @@ function state.player.canSeeItems:read()
     return memory.readbyteunsigned(0x021D3F77) ~= 0
 end
 -- Whether the player can see all traps
-state.player.canSeeTraps = StateData:new()
-function state.player.canSeeTraps:read()
+state.player.canSeeTrapsAndHiddenStairs = StateData:new()
+function state.player.canSeeTrapsAndHiddenStairs:read()
     return memory.readbyteunsigned(0x021D3F78) ~= 0
 end
 -- Whether the player can see the stairs location. This may be redundant with the leader having the
@@ -298,7 +298,7 @@ function stateinfo.reloadEveryTurn(state)
         state.player.bag,
         state.player.canSeeEnemies,
         state.player.canSeeItems,
-        state.player.canSeeTraps,
+        state.player.canSeeTrapsAndHiddenStairs,
         state.player.canSeeStairs,
     })
     return state
