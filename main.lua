@@ -3,6 +3,7 @@
 require 'utils.nicknames'
 require 'utils.messages'
 require 'dynamicinfo.stateinfo'
+require 'dynamicinfo.visibleinfo'
 require 'dynamicinfo.menuinfo'
 require 'Agent'
 
@@ -11,11 +12,12 @@ nicknames.setLeaderNicknameTemp('Lua')
 
 -- The state
 local state = stateinfo.state
+local visible = visibleinfo.state
 -- Needed to detect a floor change
 local currentFloor = 0
 local currentWind = -1
 -- Agent that decides what actions to take every turn
-local bot = Agent:new(state)
+local bot = Agent:new(state, visible)
 messages.report(bot.name .. ' engaged.')
 -- Pause of a few frames after completing an action; to give time for internal stuff
 -- in memory to update right after input
@@ -39,10 +41,11 @@ while true do
         currentWind = state.dungeon.counters.wind()
         -- Do updates for frequently changing things whenever the player has control
         state = stateinfo.reloadEveryTurn(state)
+        visible = visibleinfo.reloadEveryTurn(visible)
         emu.frameadvance()
 
         -- Perform an action based on the current state
-        bot:act(state)
+        bot:act(state, visible)
         emu.frameadvance()
 
         -- Cooldown

@@ -17,7 +17,8 @@ local function layoutToMap(layout)
     for _, layoutRow in ipairs(layout) do
         local mapRow = {}
         for _, tile in ipairs(layoutRow) do
-            table.insert(mapRow, tile.terrain)
+            -- If the terrain is unknown (nil), treat it as a wall
+            table.insert(mapRow, tile.terrain or codes.TERRAIN.Wall)
         end
         table.insert(map, mapRow)
     end

@@ -1,12 +1,13 @@
 # State information
 
-State information is read directly from RAM. The two primary files are:
+State information is read directly from RAM. The three primary files are:
 
 - [`stateinfo.lua`](stateinfo.lua), which lazily reads dungeon information such as the dungeon layout, entities in the dungeon, and the player's bag.
+- [`visibleinfo.lua`](visibleinfo.lua), which filters the full state information from `stateinfo` into a model containing only information that would be accessible to a human player.
 - [`menuinfo.lua`](menuinfo.lua), which reads information related to menuing, such as the current menu open and the position of the menu cursor.
 
 ## The `StateData` class
-The [`StateData` class](StateData.lua) handles caching and lazy reading of dungeon information. These objects form the basis of the dungeon state model used by the bot to access environmental information (through the variable `state` in [`Agent:act(state)`](../Agent.lua)). All `StateData` instances behave as follows:
+The [`StateData` class](StateData.lua) handles caching and lazy reading of dungeon information. These objects form the basis of the dungeon state model used by the bot to access environmental information (through the variables `state` and `visible` in [`Agent:act(state, visible)`](../Agent.lua)). All `StateData` instances behave as follows:
 
 - When called, they return the data they represent.
 - Have the field `doesCache` that determines whether or not they should cache their data after the first read. This defaults to true, but can be set in the constructor.
@@ -161,3 +162,22 @@ Returned in a list by the `traps()` field. Traps have the following fields:
 
 ## Refreshing
 A lot of the dungeon state model uses caching, so that the bot doesn't need to reload the entire dungeon state every turn. Information to be reloaded every turn is designated in `stateinfo.reloadEveryTurn()`, while information to be reloaded only once per floor is designated in `stateinfo.reloadEveryFloor()`.
+
+## The _visible_ dungeon state model
+The bot can also access the _visible_ dungeon state as a single object (`visibleinfo.state`), defined in [`visibleinfo.lua`](visibleinfo.lua). The data model follows almost exactly the same format as the full dungeon state object (`stateinfo.state`), except with fields containing inaccessible information set to `nil`. In most cases, only leaf nodes in the state model (non-table fields) are set to `nil`, so as to avoid causing errors in code from accessing fields in invalid subtables. Notable exceptions to this general format are described in the following sections.
+
+### Removed fields
+Certain fields are completely inaccessible to the player, and as such are removed entirely from the state model in `visibleinfo.state`. Removed fields include:
+- `dungeon.conditions.naturalWeather()`
+- `dungeon.conditions.weatherTurnsLeft()`
+- The entire `dungeon.counters` subcontainer
+
+### Modified fields
+A few fields are modified from `stateinfo.state` because their full specifications are inaccessible to the player, but it does not make sense to simply remove access to certain fields. Modified fields include:
+- `dungeon.conditions.mudSport()` takes the place of `dungeon.conditions.mudSportTurnsLeft()`. The modified field is a boolean flag for whether or not Mud Sport is active.
+- `dungeon.conditions.waterSport()` takes the place of `dungeon.conditions.waterSportTurnsLeft()`. The modified field is a boolean flag for whether or not Water Sport is active.
+
+### Variable-length array fields
+Empty tables already have a well-defined meaning with variable-length array fields. As such, they will instead be set to `nil` in `visibleinfo.state` if their values are unknown. The following fields are nullable variable-length arrays:
+- `monster.statuses`
+- `monster.moves`

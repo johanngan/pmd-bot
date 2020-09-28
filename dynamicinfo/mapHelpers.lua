@@ -56,6 +56,64 @@ function mapHelpers.findStairs(layout)
             end
         end
     end
+    return nil
 end
+
+---- BEGIN MAP VISIBILITY HELPERS ----
+
+-- Whether or not (x, y) is within (xrad, yrad) of (x0, y0)
+local function inRange(x, y, x0, y0, xrad, yrad)
+    local yrad = yrad or xrad
+    return math.abs(x - x0) <= xrad and math.abs(y - y0) <= yrad
+end
+
+-- Whether or not a position (x, y) is "on screen" when standing at a given position (x0, y0).
+local SCREEN_X_RADIUS = 5
+local SCREEN_Y_RADIUS = 4
+function mapHelpers.onScreen(x, y, x0, y0)
+    return inRange(x, y, x0, y0, SCREEN_X_RADIUS, SCREEN_Y_RADIUS)
+end
+
+-- Whether or not a position (x, y) is either "on screen" when standing at a given position (x0, y0),
+-- or is visible on the map.
+function mapHelpers.onMapOrScreen(x, y, x0, y0, layout)
+    return layout[y][x].visibleOnMap or mapHelpers.onScreen(x, y, x0, y0)
+end
+
+-- Whether or not a position (x, y) is either "on screen" when standing at a given position (x0, y0),
+-- or has been visited before.
+function mapHelpers.visitedOrOnScreen(x, y, x0, y0, layout)
+    return layout[y][x].visited or mapHelpers.onScreen(x, y, x0, y0)
+end
+
+-- Whether or not a position (x, y) is "visible" when standing at a given postion (x0, y0),
+-- in the context of the full dungeon layout.
+function mapHelpers.inVisibilityRegion(x, y, x0, y0, dungeon)
+    -- If there's lighting, the visibility region is just whatever is on screen
+    if not dungeon.conditions.darkness() then
+        return mapHelpers.onScreen(x, y, x0, y0)
+    end
+
+    local layout = dungeon.layout()
+    local i0 = layout[y0][x0].room
+    if i0 >= 0 then
+        -- In a room. Visible tiles are all those in the room, along with the surrounding boundary
+        for _, dy in ipairs({0, 1, -1}) do
+            for _, dx in ipairs({0, 1, -1}) do
+                if (x + dx > 0 and x + dx <= mapHelpers.NCOLS and
+                    y + dy > 0 and y + dy <= mapHelpers.NROWS and
+                    layout[y + dy][x + dx].room == i0) then
+                        return true
+                end
+            end
+        end
+        return false
+    end
+
+    -- In a hallway
+    return inRange(x, y, x0, y0, dungeon.visibilityRadius())
+end
+
+---- END MAP VISIBILITY HELPERS ----
 
 return mapHelpers

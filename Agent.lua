@@ -18,16 +18,16 @@ Agent = {}
 Agent.name = 'Agent'
 
 -- This is just boilerplate code for the class
-function Agent:new(state)
+function Agent:new(state, visible)
     obj = {}
     setmetatable(obj, self)
     self.__index = self
-    self:init(state)
+    self:init(state, visible)
     return obj
 end
 
 -- This function will be called just once when the bot starts up.
-function Agent:init(state)
+function Agent:init(state, visible)
     -- If you want your bot to have a state or a memory, initialize stuff here!
     self.path = nil
     self.targetPos = nil
@@ -52,13 +52,13 @@ end
 -- Decide how to attack an enemy given the circumstances, and perform the action.
 -- If you're using different Pokemon, it might be sufficient just to rewrite this
 -- method, and leave the main dungeon-crawling logic as is.
-function Agent:attackEnemy(enemy, state)
+function Agent:attackEnemy(enemy, state, visible)
     basicactions.attack()
 end
 
 -- Perform some actions based on the current state of the dungeon (and the bot's own state)
 -- This is a very simple sample strategy. Change it to fit your botting needs.
-function Agent:act(state)
+function Agent:act(state, visible)
     -- If in a Yes/No prompt, try to exit
     if menuinfo.getMenu() == codes.MENU.YesNo then
         basicactions.selectYesNo(1)
@@ -196,7 +196,7 @@ function Agent:act(state)
                 end
                 messages.report('Attacking enemy ' ..
                     codes.SPECIES_NAMES[enemy.features.species] .. '.')
-                self:attackEnemy(enemy, state)
+                self:attackEnemy(enemy, state, visible)
                 return
             end
         end

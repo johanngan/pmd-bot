@@ -32,7 +32,7 @@ Most of the botting logic is written in the file [`Agent.lua`](Agent.lua). This 
 
 The bot makes direct use of the following utilities:
 
-- [Dungeon state information](dynamicinfo) is accessed through the `state` object passed to `Agent:act()`.
+- [Dungeon state information](dynamicinfo) is accessed through the _full_ `state` (`stateinfo.state`) and _visible_ `state` (`visibleinfo.state`) objects passed to `Agent:act()`.
 - [Actions in game](actions) are performed using the `actions` module.
 - [Internal ID codes](codes) are referenced from the `codes` module.
 - [Game mechanics utilities](mechanics) are referenced from the `mechanics` module.
