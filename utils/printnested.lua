@@ -15,10 +15,16 @@ end
 local INDENT_SIZE = 6
 function printnested(table, baseIndent)
     local baseIndent = baseIndent or 0
+    local spaces = string.rep(' ', baseIndent)
+
+    if type(table) ~= 'table' then
+        print(spaces .. tostring(table))
+        return
+    end
+
     local tableIsArray = isArray(table)
     local iter = tableIsArray and ipairs or pairs
     for key, val in iter(table) do
-        local spaces = string.rep(' ', baseIndent)
         if type(val) == 'table' then
             if tableIsArray then
                 print(spaces .. '#' .. tostring(key) .. '. ')
