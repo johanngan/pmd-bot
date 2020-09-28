@@ -2,6 +2,7 @@
 
 require 'table'
 require 'utils.memoryrange'
+require 'mechanics.item'
 local statusHelpers = require 'dynamicinfo.statusHelpers'
 
 local entityHelpers = {}
@@ -193,6 +194,7 @@ function entityHelpers.readItemInfoTable(infoTableStart)
     item.heldBy = memory.readbyteunsigned(infoTableStart + 0x01)
     item.amount = memory.readwordunsigned(infoTableStart + 0x02)
     item.itemType = memory.readwordunsigned(infoTableStart + 0x04)
+    item.sprite = mechanics.item.sprites[item.itemType]
     return item
 end
 

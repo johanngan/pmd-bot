@@ -145,6 +145,9 @@ Returned in a list by the `items()` and `bag()` fields. Items have the following
 - `heldBy`: Index of the party member holding the item, if in the bag
 - `amount`: Amount code, if applicable. Note: seems like for Poké this value doesn't correspond to the literal amount.
 - `itemType`: The [item ID](../codes/item.lua)
+- `sprite`: The item sprite when the item is on the floor
+    - `type`: The [item sprite ID](../codes/itemSprite.lua)
+    - `color`: The main [color ID](../codes/color.lua) of sprite
 
 ### Traps
 Returned in a list by the `traps()` field. Traps have the following fields:
