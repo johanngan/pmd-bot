@@ -5,25 +5,16 @@ require 'string'
 require 'table'
 
 require 'utils.copy'
+require 'utils.stringutils'
 require 'dynamicinfo.StateData'
 require 'dynamicinfo.stateinfo'
 local mapHelpers = require 'dynamicinfo.mapHelpers'
 
 visibleinfo = {}
 
--- Split a string by one or more delimeters into an array of substrings
--- delim is string concatenation of 1-character delimeters
-local function split(str, delim)
-    local delim = delim or '.'
-    substrs = {}
-    for substr in string.gmatch(str, '([^' .. delim .. ']+)') do
-        table.insert(substrs, substr)
-    end
-    return substrs
-end
 -- Register a field to the state model that just retrieves the corresponding field from stateinfo
 local function registerProxyField(state, fieldPathSpec)
-    local pathComponents = split(fieldPathSpec)
+    local pathComponents = stringutils.split(fieldPathSpec, '.')
     local field = table.remove(pathComponents)
     -- Recurse down the path to the leaf
     local stateinfoContainer = stateinfo.state
