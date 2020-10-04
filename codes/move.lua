@@ -473,7 +473,7 @@ codes.MOVE, codes.MOVE_NAMES = enum.register({
     'PsychoShift',
     'MeFirst',
     'Embargo',
-    'Unnamed0x1D3', -- Placeholder name is $$$. Some steel explosion thing.
+    'Judgment', -- Placeholder name is $$$, but this is Judgment!
     'SeedFlare',
     'Brine',
     'XScissor',
