@@ -565,6 +565,4 @@ codes.MOVE, codes.MOVE_NAMES = enum.register({
     'Tag0x22C',
     'Tag0x22D',
     'Tag0x22E',
-    'Tag0x22F',
-    'Tag0x230',
 }, 0, 'move')
