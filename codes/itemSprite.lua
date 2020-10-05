@@ -1,5 +1,4 @@
 require 'utils.enum'
-require 'codes.item'
 
 if codes == nil then
     codes = {}
