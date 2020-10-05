@@ -4,7 +4,7 @@ _Explorers of Sky_ (and _Pokémon_ in general) has fairly rich game mechanics, m
 
 - [TODO] [Dungeon characteristics](dungeon.lua)
 - [Item characteristics](item.lua)
-- [TODO] [Move characteristics](move.lua)
+- [Move characteristics](move.lua)
 - [TODO] [Move power calculation](power.lua)
 - [TODO] [Pokémon species characteristics](species.lua)
 
