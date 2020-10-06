@@ -24,5 +24,5 @@ codes.TYPE, codes.TYPE_NAMES = enum.register({
     'Dragon',
     'Dark',
     'Steel',
-    'Neutral',
+    'Neutral',  -- This is never used for moves nor monsters, but include for completeness
 }, 0, 'type')
