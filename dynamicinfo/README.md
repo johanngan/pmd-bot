@@ -170,12 +170,14 @@ The bot can also access the _visible_ dungeon state as a single object (`visible
 Certain fields are completely inaccessible to the player, and as such are removed entirely from the state model in `visibleinfo.state`. Removed fields include:
 - `dungeon.conditions.naturalWeather()`
 - `dungeon.conditions.weatherTurnsLeft()`
-- The entire `dungeon.counters` subcontainer
+- `dungeon.counters.enemySpawn()`
 
 ### Modified fields
 A few fields are modified from `stateinfo.state` because their full specifications are inaccessible to the player, but it does not make sense to simply remove access to certain fields. Modified fields include:
 - `dungeon.conditions.mudSport()` takes the place of `dungeon.conditions.mudSportTurnsLeft()`. The modified field is a boolean flag for whether or not Mud Sport is active.
 - `dungeon.conditions.waterSport()` takes the place of `dungeon.conditions.waterSportTurnsLeft()`. The modified field is a boolean flag for whether or not Water Sport is active.
+- `dungeon.counters.windWarnings()` takes the place of `dungeon.counters.wind()`. The modified field is the number of warnings the player has received about the approaching wind.
+- `dungeon.counters.turnsSinceWeatherDamage()` takes the place of `dungeon.counters.weatherDamage()`. The modified field is the number of turns that have passed since the last round of passive damage from inclement weather.
 
 ### Variable-length array fields
 Empty tables already have a well-defined meaning with variable-length array fields. As such, they will instead be set to `nil` in `visibleinfo.state` if their values are unknown. The following fields are nullable variable-length arrays:
