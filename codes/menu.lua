@@ -27,6 +27,7 @@ codes.MENU, codes.MENU_NAMES = enum.register({
     'Stairs',
     'Rest',
     'YesNo',
+    'PurchaseService',
     'NewMove',
     'NewMoveAction',
 }, 1, 'menu')

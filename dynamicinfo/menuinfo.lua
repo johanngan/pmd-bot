@@ -47,7 +47,9 @@ local menuCodes = {
     [119] = MENU.Stairs, -- 3 options. Also Warp Zones. Also includes wonder tiles and traps when you use through Ground, but that's unusual
     [97] = MENU.Rest,
     [157] = MENU.YesNo, -- 2 options. For move forget prompts, recruit decision prompts, probably more
-    [182] = MENU.YesNo, -- 2 options. For Kecleon purchase prompts
+    [182] = MENU.YesNo, -- 2 options. For Kecleon purchase/sale prompts, and the confirmation from Shedinja (Secret Bazaar)
+    [230] = MENU.PurchaseService, -- 2 options. Mime Jr./Lickilicky/Swalot (Secret Bazaar) Buy/Cancel prompt
+    [258] = MENU.PurchaseService, -- 2 options. Shedinja (Secret Bazaar) Buy/Cancel prompt
     [217] = MENU.NewMove, -- 5 options
     [273] = MENU.NewMoveAction, -- 4 options
 }
