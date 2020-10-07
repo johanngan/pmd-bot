@@ -112,7 +112,7 @@ function Agent:act(state, visible)
     end
 
     -- If there are items in the room, and there's room in the bag, go to pick them up
-    if #state.player.bag() < 48 and pathfinder.comparePositions(
+    if #state.player.bag() < state.player.bagCapacity() and pathfinder.comparePositions(
         self.targetPos, {state.dungeon.stairs()}) then
         if leaderRoom ~= -1 then -- -1 means hallway
             for _, item in ipairs(state.dungeon.entities.items()) do

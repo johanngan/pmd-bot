@@ -51,6 +51,7 @@ The bot accesses the entire dungeon state as a single object (`stateinfo.state`)
         - `leader()`: Alias for the first team member
         - `money()`: Amount of money carried
         - `bag()`: Ordered list of items currently in the bag
+        - `bagCapacity()`: Maximum number of items the player can carry in the bag
         - `canSeeEnemies()`: Flag for whether the player can see all enemies on the floor
         - `canSeeItems()`: Flag for whether the player can see all items on the floor
         - `canSeeTrapsAndHiddenStairs()`: Flag for whether the player can see unrevealed traps and hidden stairs

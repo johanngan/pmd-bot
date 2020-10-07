@@ -229,6 +229,19 @@ function state.player.bag:read()
     return bag
 end
 
+-- Maximum number of items in bag
+state.player.bagCapacity = StateData:new()
+local BAG_LEVEL_PTR = 0x022AB15C
+local BAG_CAPACITY_TABLE_HEAD = 0x020A27D4
+function state.player.bagCapacity:read()
+    local bagLevel = memory.readbyteunsigned(BAG_LEVEL_PTR)
+    local bagCapacityPtr = BAG_CAPACITY_TABLE_HEAD + 4*bagLevel
+    -- The table is an array of contiguous 4-byte signed integers, with the
+    -- head value containing the bag capacity for bag level 0, the next element
+    -- the capacity for bag level 1, etc. Minimum possible value is 1.
+    return math.max(memoryrange.readbytesSigned(bagCapacityPtr, 4), 1)
+end
+
 -- Whether the player can detect all enemies on the floor
 state.player.canSeeEnemies = StateData:new()
 function state.player.canSeeEnemies:read()

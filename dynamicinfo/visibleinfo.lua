@@ -58,6 +58,7 @@ proxyFields = {
     'player.leader',
     'player.money',
     'player.bag',
+    'player.bagCapacity',
     'player.canSeeEnemies',
     'player.canSeeItems',
     'player.canSeeTrapsAndHiddenStairs',
