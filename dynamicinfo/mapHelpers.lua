@@ -86,12 +86,12 @@ function mapHelpers.visitedOrOnScreen(x, y, x0, y0, layout)
     return layout[y][x].visited or mapHelpers.onScreen(x, y, x0, y0)
 end
 
--- Whether or not a position (x, y) is "visible" when standing at a given postion (x0, y0),
+-- Whether or not a position (x, y) is "visible" when standing at a given position (x0, y0),
 -- in the context of the full dungeon layout.
 function mapHelpers.inVisibilityRegion(x, y, x0, y0, dungeon)
-    -- If there's lighting, the visibility region is just whatever is on screen
-    if not dungeon.conditions.darkness() then
-        return mapHelpers.onScreen(x, y, x0, y0)
+    -- If there's lighting, the visibility region additionally includes anything on-screen
+    if not dungeon.conditions.darkness() and mapHelpers.onScreen(x, y, x0, y0) then
+        return true
     end
 
     local layout = dungeon.layout()
