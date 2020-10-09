@@ -6,6 +6,6 @@ _Explorers of Sky_ (and _Pokémon_ in general) has fairly rich game mechanics, m
 - [Item characteristics](item.lua)
 - [Move characteristics](move.lua)
 - [WIP] [Move power calculation](power.lua)
-- [TODO] [Pokémon species characteristics](species.lua)
+- [Pokémon species characteristics](species.lua)
 
 All reference submodules, when imported, define an aptly named subtable in the `mechanics` global variable.
