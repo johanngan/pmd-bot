@@ -87,6 +87,7 @@ Returned in a list by the `team()` and `enemies()` fields, and also returned by 
 - `features`: Mostly stuff on the "Features" page in-game
     - `species`: The [species ID](../codes/species.lua)
     - `apparentSpecies`: The apparent [species ID](../codes/species.lua). Normally the same as `species`, but can differ if the monster used Transform.
+    - `gender`: The [gender ID](../codes/gender.lua). Note that gender is not usually random, and will typically be set to its default for the species.
     - `primaryType`: The [type ID](../codes/type.lua) of the monster's primary type
     - `secondaryType`: The [type ID](../codes/type.lua) of the monster's secondary type
     - `primaryAbility`: The [ability ID](../codes/ability.lua) of the monster's primary ability

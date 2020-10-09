@@ -6,6 +6,7 @@ require 'table'
 
 require 'utils.copy'
 require 'utils.stringutils'
+require 'mechanics.species'
 require 'dynamicinfo.StateData'
 require 'dynamicinfo.stateinfo'
 local mapHelpers = require 'dynamicinfo.mapHelpers'
@@ -148,11 +149,21 @@ function state.dungeon.entities.enemies:read()
             local newEnemy = {}
             if mapHelpers.onScreen(x, y, x0, y0) then
                 newEnemy = copy.deepcopySimple(enemy)
-                -- Don't know the real species;
-                -- for convenience set it to the apparent one rather than nil
-                -- TODO: Obscure the real type and ability fields along with
-                -- the real species
-                newEnemy.features.species = newEnemy.features.apparentSpecies
+                if enemy.features.species ~= enemy.features.apparentSpecies then
+                    -- Don't know the real species;
+                    -- for convenience set it to the apparent one rather than nil
+                    newEnemy.features.species = newEnemy.features.apparentSpecies
+                    -- The types and abilities should appear as the apparent species', not
+                    -- the true species'
+                    local apparentTypes = mechanics.species.types[newEnemy.features.apparentSpecies]
+                    local apparentAbilities = mechanics.species.abilities[newEnemy.features.apparentSpecies]
+                    newEnemy.features.primaryType = apparentTypes.primary
+                    newEnemy.features.secondaryType = apparentTypes.secondary
+                    newEnemy.features.primaryAbility = apparentAbilities.primary
+                    newEnemy.features.secondaryAbility = apparentAbilities.secondary
+                end
+                -- The gender isn't readily visible
+                newEnemy.features.gender = nil
                 -- No stats known, only modifiers (which you could argue those
                 -- are only partially knowable, but ehhhh...seems hard)
                 newEnemy.stats = {modifiers = newEnemy.stats.modifiers}

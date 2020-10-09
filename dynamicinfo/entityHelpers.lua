@@ -1,8 +1,10 @@
 -- Helpers for reading entities (monsters, items, and traps) from memory
 
+require 'math'
 require 'table'
 require 'utils.memoryrange'
 require 'mechanics.item'
+require 'mechanics.species'
 local statusHelpers = require 'dynamicinfo.statusHelpers'
 
 local entityHelpers = {}
@@ -73,8 +75,13 @@ function entityHelpers.readMonster(address)
 
     -- Stuff seen on the "Features" page in-game, but add species, because belongs conceptually
     monster.features = {}
-    -- Need to mod with 600 since the non-default genders have different IDs for some reason
-    monster.features.species = memory.readwordunsigned(infoTableStart + 0x002) % N_DEFAULT_GENDER
+    -- The non-default genders have different IDs for some reason. This means that:
+    --  1. The actual species is the ID % 600
+    --  2. The gender "selection" (default or non-default) is the ID // 600
+    local monsterID = memory.readwordunsigned(infoTableStart + 0x002)
+    monster.features.species = monsterID % N_DEFAULT_GENDER
+    monster.features.gender = mechanics.species.genders[monster.features.species][
+        math.floor(monsterID / N_DEFAULT_GENDER)]
     -- This could be different if the monster used Transform
     monster.features.apparentSpecies = memory.readwordunsigned(infoTableStart + 0x004) % N_DEFAULT_GENDER
 
