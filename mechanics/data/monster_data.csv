@@ -1,4 +1,4 @@
-ID:int,species:str,primaryType:int,secondaryType:int,primaryAbility:int,secondaryAbility:int,primaryGender:int,secondaryGender:int,baseHP:int,baseAtk:int,baseDef:int,baseSpAtk:int,baseSpDef:int,weight:int,size:int,mobility:int,IQGroup:int,bodySize:int,canMove:bool,expYield:int,recruitRate1:number,recruitRate2:number,specialItemSpawn:bool,exclusiveItem1a:int,exclusiveItem1b:int,exclusiveItem2:int,exclusiveItem3:int
+ID:int,name:str,primaryType:int,secondaryType:int,primaryAbility:int,secondaryAbility:int,primaryGender:int,secondaryGender:int,baseHP:int,baseAtk:int,baseDef:int,baseSpAtk:int,baseSpDef:int,weight:int,size:int,mobility:int,IQGroup:int,bodySize:int,canMove:bool,expYield:int,recruitRate1:number,recruitRate2:number,specialItemSpawn:bool,exclusiveItem1a:int,exclusiveItem1b:int,exclusiveItem2:int,exclusiveItem3:int
 0,??????????,1,0,26,0,0,0,1,0,0,0,1,256,99,0,15,1,1,80,-99.9,-99.9,0,0,0,0,0
 1,Bulbasaur,4,8,26,0,1,2,22,3,2,4,3,153,27,0,5,1,1,7,8.2,8.2,0,574,575,576,577
 2,Ivysaur,4,8,26,0,1,2,22,3,2,4,3,153,33,0,5,1,1,31,-10.0,-10.0,0,578,579,580,581
