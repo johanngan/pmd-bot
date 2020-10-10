@@ -1,4 +1,4 @@
-ID:int,name:str,type:int,sprite:int,color:int,buyPrice:int,sellPrice:int,relatedMove:int
+ID:int,name:str,category:int,sprite:int,color:int,buyPrice:int,sellPrice:int,relatedMove:int
 0,$$$,0,14,5,0,0,0
 1,Stick,0,0,2,2,1,0
 2,Iron Thorn,0,0,20,4,2,0

@@ -9,7 +9,7 @@ _Explorers of Sky_ represents a lot of data using internal ID codes. This includ
 - [IQ groups](iqGroup.lua)
 - [Items](item.lua)
 - [Item sprites](itemSprite.lua)
-- [Item types](itemType.lua)
+- [Item categories](itemCategory.lua)
 - [Mobility types](mobility.lua)
 - [Pokémon moves](move.lua)
 - [Move damage categories](moveCategory.lua)

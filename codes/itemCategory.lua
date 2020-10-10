@@ -4,12 +4,12 @@ if codes == nil then
     codes = {}
 end
 
--- Enum for item type IDs, according to the internal item_p.bin file.
+-- Enum for item category IDs, according to the internal item_p.bin file.
 -- The actual names aren't in the files and were chosen manually.
 --
 -- Anything tagged with "Unused" is an index never referenced in the
 -- internal item_p.bin file, and is included here as a placeholder.
-codes.ITEM_TYPE, codes.ITEM_TYPE_NAMES = enum.register({
+codes.ITEM_CATEGORY, codes.ITEM_CATEGORY_NAMES = enum.register({
     'ThrowingSpike',
     'ThrowingStone',
     'EdibleWithEffect',   -- Edible items with effects, like Seeds and Vitamins
@@ -26,4 +26,4 @@ codes.ITEM_TYPE, codes.ITEM_TYPE_NAMES = enum.register({
     'TreasureBox2',
     'TreasureBox3',
     'ExclusiveItem'
-}, 0, 'item type')
+}, 0, 'category')
