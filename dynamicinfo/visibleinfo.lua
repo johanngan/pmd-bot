@@ -174,6 +174,7 @@ function state.dungeon.entities.enemies:read()
                 -- which is semantically different from an empty list (means "no moves")
                 newEnemy.moves = nil
                 newEnemy.belly = nil
+                newEnemy.maxBelly = nil
                 -- Like noted with team members, statuses aren't explicitly known
                 -- but are probably implicitly knowable, so keep them. But maybe
                 -- in the future this should be handled more carefully...

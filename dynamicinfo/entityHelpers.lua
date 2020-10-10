@@ -159,6 +159,11 @@ function entityHelpers.readMonster(address)
         memory.readwordsigned(infoTableStart + 0x146) +
         memory.readwordsigned(infoTableStart + 0x148) / 1000
     )
+    -- Max belly. Integer part stored in one variable, and thousandths in another
+    monster.maxBelly = (
+        memory.readwordsigned(infoTableStart + 0x14A) +
+        memory.readwordsigned(infoTableStart + 0x14C) / 1000
+    )
 
     return monster
 end
