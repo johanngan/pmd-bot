@@ -7,6 +7,7 @@ require 'table'
 require 'utils.copy'
 require 'utils.stringutils'
 require 'mechanics.species'
+local rangeutils = require 'mechanics.rangeutils'
 require 'dynamicinfo.StateData'
 require 'dynamicinfo.stateinfo'
 local mapHelpers = require 'dynamicinfo.mapHelpers'
@@ -84,7 +85,7 @@ function state.dungeon.layout:read()
         for x, tile in ipairs(row) do
             -- Filter out any information that the player isn't privy to
             local newTile = {}
-            if mapHelpers.onMapOrScreen(x, y, x0, y0, fullLayout) then
+            if rangeutils.onMapOrScreen(x, y, x0, y0, fullLayout) then
                 newTile = copy.deepcopySimple(fullLayout[y][x])
 
                 if not (x == x0 and y == y0) then
@@ -104,7 +105,7 @@ function state.dungeon.layout:read()
                     )
                 end
 
-                if not mapHelpers.visitedOrOnScreen(x, y, x0, y0, fullLayout) then
+                if not rangeutils.visitedOrOnScreen(x, y, x0, y0, fullLayout) then
                     -- Hard to know this for sure without visiting
                     newTile.inShop = nil
                 end
@@ -145,9 +146,9 @@ function state.dungeon.entities.enemies:read()
         local x = enemy.xPosition
         local y = enemy.yPosition
         if stateinfo.state.player.canSeeEnemies() or
-            mapHelpers.inVisibilityRegion(x, y, x0, y0, stateinfo.state.dungeon) then
+            rangeutils.inVisibilityRegion(x, y, x0, y0, stateinfo.state.dungeon) then
             local newEnemy = {}
-            if mapHelpers.onScreen(x, y, x0, y0) then
+            if rangeutils.onScreen(x, y, x0, y0) then
                 newEnemy = copy.deepcopySimple(enemy)
                 if enemy.features.species ~= enemy.features.apparentSpecies then
                     -- Don't know the real species;
@@ -207,9 +208,9 @@ function state.dungeon.entities.items:read()
         local x = item.xPosition
         local y = item.yPosition        
         if stateinfo.state.player.canSeeItems() or
-            mapHelpers.inVisibilityRegion(x, y, x0, y0, stateinfo.state.dungeon) then
+            rangeutils.inVisibilityRegion(x, y, x0, y0, stateinfo.state.dungeon) then
             local newItem = {}
-            if mapHelpers.onScreen(x, y, x0, y0) then
+            if rangeutils.onScreen(x, y, x0, y0) then
                 -- Note: the item position just being visited isn't enough because
                 -- items can be dropped off-screen, and you won't have seen them before
                 newItem = copy.deepcopySimple(item)
@@ -244,10 +245,10 @@ function state.dungeon.entities.traps:read()
         local y = trap.yPosition
         -- Filter out any traps we don't know about
         if (stateinfo.state.player.canSeeTrapsAndHiddenStairs() or trap.isRevealed) and
-            mapHelpers.onMapOrScreen(x, y, x0, y0, stateinfo.state.dungeon.layout()) then
+            rangeutils.onMapOrScreen(x, y, x0, y0, stateinfo.state.dungeon.layout()) then
             local newTrap = copy.deepcopySimple(trap)
             if not (trap.isRevealed or
-               mapHelpers.onScreen(x, y, x0, y0, stateinfo.state.dungeon.layout())) then
+               rangeutils.onScreen(x, y, x0, y0, stateinfo.state.dungeon.layout())) then
                 -- We haven't ever seen the trap, so we don't know what type it is
                 -- Note: the trap position just being visited isn't enough because
                 -- an unrevealed trap in a visited + offscreen room could become
@@ -272,7 +273,7 @@ function state.dungeon.entities.hiddenStairs:read()
         -- If hidden stairs exist, make sure we actually know they're there
         if (stateinfo.state.player.canSeeStairs()
             or ((stateinfo.state.player.canSeeTrapsAndHiddenStairs() or hiddenStairs.isRevealed)
-                and mapHelpers.onMapOrScreen(hiddenStairs.xPosition, hiddenStairs.yPosition,
+                and rangeutils.onMapOrScreen(hiddenStairs.xPosition, hiddenStairs.yPosition,
                                              x0, y0, stateinfo.state.dungeon.layout())
             )
         ) then
