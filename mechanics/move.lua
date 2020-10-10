@@ -1,3 +1,9 @@
+require 'math'
+
+require 'codes.moveRange'
+require 'codes.terrain'
+require 'utils.pathfinder'
+local rangeutils = require 'mechanics.rangeutils'
 require 'mechanics.LookupTable'
 
 if mechanics == nil then
@@ -5,3 +11,116 @@ if mechanics == nil then
 end
 
 mechanics.move = LookupTable:new('mechanics/data/move_data.csv')
+
+-- Functions for testing if a target is in range of a move range class.
+-- All the functions take in positions for a target (x, y) and a user (x0, y0),
+-- and a floor layout object. They return true if the target is in range,
+-- false if the target is out of range, or nil if it's uncertain.
+local function inRangeSpecial(x, y, x0, y0, layout)
+    -- These moves are special; no way to know the range without more info
+    return nil
+end
+
+local function inRangeUser(x, y, x0, y0, layout)
+    -- These moves can be used anywhere
+    return true
+end
+
+local function inRangeUnderfoot(x, y, x0, y0, layout)
+    -- These moves can be used on any open floor tiles within a room,
+    -- with the exception of junctions (room exits), stairs, and shops.
+    -- (halls, walls, or any other out-of-room-tiles are not allowed)
+    local tile = layout[y0][x0]
+    return tile.terrain == codes.TERRAIN.Normal and tile.room >= 0
+        and not tile.isJunction and not tile.isStairs and not tile.inShop
+end
+
+-- "Walkable" for attacks when pathfinding
+local function attackCanPass(terrain)
+    return terrain == codes.TERRAIN.Normal
+        or terrain == codes.TERRAIN.WaterOrLava
+        or terrain == codes.TERRAIN.Chasm
+end
+local function inRangeFront(x, y, x0, y0, layout)
+    local path = pathfinder.getPath(layout, x0, y0, x, y, attackCanPass)
+    -- Path includes starting point; 1 step away gives a path of 2
+    return path ~= nil and #path <= 2
+end
+
+local function inRangeFrontWithCornerCutting(x, y, x0, y0, layout)
+    return rangeutils.inRange(x, y, x0, y0, 1) and attackCanPass(layout[y][x].terrain)
+end
+
+local function inRangeFrontAndSides(x, y, x0, y0, layout)
+    -- Wide Slash can hit in walls
+    return rangeutils.inRange(x, y, x0, y0, 1)
+end
+
+local function inRangeNearby(x, y, x0, y0, layout)
+    -- 1-tile AOE moves. These also hit in walls
+    return rangeutils.inRange(x, y, x0, y0, 1)
+end
+
+local function sign(x)
+    return (x > 0 and 1) or (x < 0 and -1) or 0
+end
+-- General function for n=2, n=10
+local function inRangeFrontN(x, y, x0, y0, layout, n)
+    local dx = x - x0
+    local dy = y - y0
+    local dx_abs = math.abs(dx)
+    local dy_abs = math.abs(dy)
+    if dx_abs <= n and dy_abs <= n and
+        (dx == 0 or dy == 0 or dx_abs == dy_abs) then
+        -- The positioning is right; now check all tiles in between the user/target
+        local dx_sgn = sign(dx)
+        local dy_sgn = sign(dy)
+        for i=1,math.max(dx_abs, dy_abs) do
+            if not attackCanPass(layout[y0 + i*dy_sgn][x0 + i*dx_sgn].terrain) then
+                return false
+            end
+        end
+        return true
+    end
+    return false
+end
+local function inRangeFront2(x, y, x0, y0, layout)
+    return inRangeFrontN(x, y, x0, y0, layout, 2)
+end
+
+local function inRangeNearby2(x, y, x0, y0, layout)
+    -- Just Explosion. 2-tile AOE
+    return rangeutils.inRange(x, y, x0, y0, 2)
+end
+
+local function inRangeFront10(x, y, x0, y0, layout)
+    return inRangeFrontN(x, y, x0, y0, layout, 10)
+end
+
+local function inRangeRoom(x, y, x0, y0, layout)
+    -- If in room: all tiles in the room + the surrounding boundary
+    local roomRange = rangeutils.inRoomRange(x, y, x0, y0, layout)
+    if roomRange ~= nil then return roomRange end
+    -- If in hall: within a 2 tile radius
+    return rangeutils.inRange(x, y, x0, y0, 2)
+end
+
+local function inRangeFloor(x, y, x0, y0, layout)
+    -- Everything is in range
+    return true
+end
+
+mechanics.move.inRange = {
+    [codes.MOVE_RANGE.Special] = inRangeSpecial,
+    [codes.MOVE_RANGE.User] = inRangeUser,
+    [codes.MOVE_RANGE.Underfoot] = inRangeUnderfoot,
+    [codes.MOVE_RANGE.Front] = inRangeFront,
+    [codes.MOVE_RANGE.FrontWithCornerCutting] = inRangeFrontWithCornerCutting,
+    [codes.MOVE_RANGE.FrontAndSides] = inRangeFrontAndSides,
+    [codes.MOVE_RANGE.Nearby] = inRangeNearby,
+    [codes.MOVE_RANGE.Front2] = inRangeFront2,
+    [codes.MOVE_RANGE.Nearby2] = inRangeNearby2,
+    [codes.MOVE_RANGE.Front10] = inRangeFront10,
+    [codes.MOVE_RANGE.Room] = inRangeRoom,
+    [codes.MOVE_RANGE.Floor] = inRangeFloor,
+}
