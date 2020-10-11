@@ -1,5 +1,7 @@
 require 'math'
 
+require 'codes.move'
+require 'codes.moveCategory'
 require 'codes.moveRange'
 require 'codes.terrain'
 require 'utils.pathfinder'
@@ -124,3 +126,27 @@ mechanics.move.inRange = {
     [codes.MOVE_RANGE.Room] = inRangeRoom,
     [codes.MOVE_RANGE.Floor] = inRangeFloor,
 }
+
+-- Move moves with a nonstatus category are offensive in a typical sense,
+-- with the exception of these moves. Only the table keys matter here;
+-- the values are dummy values
+local NONOFFENSIVE_NONSTATUS_MOVES = {
+    [codes.MOVE.Nothing] = true,
+    [codes.MOVE.VitalThrow] = true,
+    [codes.MOVE.Pursuit] = true,
+    [codes.MOVE.Strength] = true,
+    [codes.MOVE.Counter] = true,
+    [codes.MOVE.Bide] = true,
+    [codes.MOVE.KnockOff] = true,
+    [codes.MOVE.MirrorCoat] = true,
+    [codes.MOVE.Revenge] = true,
+    [codes.MOVE.Avalanche] = true,
+    [codes.MOVE.Payback] = true,
+    [codes.MOVE.MetalBurst] = true,
+}
+-- Check if a move is offensive or not
+function mechanics.move.isOffensive(moveID)
+    local cat = mechanics.move(moveID).category
+    return (cat == codes.MOVE_CATEGORY.Physical or cat == codes.MOVE_CATEGORY.Special)
+        and not NONOFFENSIVE_NONSTATUS_MOVES[moveID]
+end
