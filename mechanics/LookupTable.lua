@@ -6,6 +6,7 @@ require 'math'
 require 'string'
 require 'table'
 
+require 'utils.containers'
 require 'utils.stringutils'
 
 LookupTable = {}
@@ -58,13 +59,6 @@ function LookupTable:keyRow(key)
     return key + 1
 end
 
-local function arrayContains(array, value)
-    for _, element in ipairs(array) do
-        if element == value then return true end
-    end
-    return false
-end
-
 local NUMBER_TYPE = "number"
 local INTEGER_TYPE = "integer"
 local STRING_TYPE = "string"
@@ -78,7 +72,7 @@ local function interpretDataType(dtype)
 
     local allTypes = {numberTypeNames, integerTypeNames, stringTypeNames, booleanTypeNames}
     for _, typeNames in ipairs(allTypes) do
-        if arrayContains(typeNames, dtype) then return typeNames[1] end
+        if containers.arrayContains(typeNames, dtype) then return typeNames[1] end
     end
     -- Failed to match any types
     return nil
@@ -95,8 +89,8 @@ local function strToBool(strval)
     local strvalLower = string.lower(strval) -- Case-insensitive
     local trueNames = {"true", "t", "yes", "y"}
     local falseNames = {"false", "f", "no", "n"}
-    if arrayContains(trueNames, strvalLower) then return true end
-    if arrayContains(falseNames, strvalLower) then return false end
+    if containers.arrayContains(trueNames, strvalLower) then return true end
+    if containers.arrayContains(falseNames, strvalLower) then return false end
 
     -- Nothing works. Error out
     error('Could not cast "' .. strval .. '" to boolean')
