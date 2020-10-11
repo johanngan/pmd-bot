@@ -1,6 +1,8 @@
 require 'table'
 
 require 'codes.species'
+require 'codes.mobility'
+require 'codes.terrain'
 require 'mechanics.LookupTable'
 
 if mechanics == nil then
@@ -45,3 +47,52 @@ if (mechanics.species.genders == nil
     end
     mechanics.species:flushCache()
 end
+
+-- Functions specifying what kinds of terrain are walkable for a given mobility type
+-- All the functions take in a terrain code and return true of false if the terrain
+-- is walkable, or nil if it's uncertain. An optional final parameter specifies if
+-- the dungeon has lava, which disambiguates the WaterOrLava terrain code.
+local function walkableNormal(terrain, lava)
+    return terrain == codes.TERRAIN.Normal
+end
+
+local function walkableUnused(terrain, lava)
+    -- Who knows...
+    return nil
+end
+
+local function walkableHovering(terrain, lava)
+    return terrain == codes.TERRAIN.Normal
+        or terrain == codes.TERRAIN.WaterOrLava
+        or terrain == codes.TERRAIN.Chasm
+end
+
+local function walkableIntangible(terrain, lava)
+    -- Can go through anything
+    return true
+end
+
+local function walkableLava(terrain, lava)
+    if terrain == codes.TERRAIN.WaterOrLava then return lava end
+    return terrain == codes.TERRAIN.Normal
+end
+
+local function walkableWater(terrain, lava)
+    if terrain == codes.TERRAIN.WaterOrLava then
+        if lava ~= nil then
+            return not lava
+        else
+            return nil
+        end
+    end
+    return terrain == codes.TERRAIN.Normal
+end
+
+mechanics.species.walkable = {
+    [codes.MOBILITY.Normal] = walkableNormal,
+    [codes.MOBILITY.Unused0x01] = walkableUnused,
+    [codes.MOBILITY.Hovering] = walkableHovering,
+    [codes.MOBILITY.Intangible] = walkableIntangible,
+    [codes.MOBILITY.Lava] = walkableLava,
+    [codes.MOBILITY.Water] = walkableWater,
+}
