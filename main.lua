@@ -36,6 +36,7 @@ while true do
             state.dungeon.counters.wind() > currentWind then
             currentFloor = state.dungeon.floor()
             state = stateinfo.reloadEveryFloor(state)
+            visible = visibleinfo.reloadEveryFloor(visible)
             emu.frameadvance()  -- intermediate frame advance to combat lag
         end
         currentWind = state.dungeon.counters.wind()

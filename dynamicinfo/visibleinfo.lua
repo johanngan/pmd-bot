@@ -74,6 +74,15 @@ end
 
 -- Known floor layout
 state.dungeon.layout = StateData:new()
+-- Memoize tiles that have been on-screen to mimic human memory
+-- _seenTiles[y][x] will be true if seen or nil if not
+function state.dungeon.layout:resetSeenTiles()
+    state.dungeon.layout._seenTiles = {}
+    for y=1,mapHelpers.NROWS do
+        state.dungeon.layout._seenTiles[y] = {}
+    end
+end
+state.dungeon.layout:resetSeenTiles()   -- Initialize the first time
 function state.dungeon.layout:read()
     local layout = {}
     local fullLayout = stateinfo.state.dungeon.layout()
@@ -83,9 +92,15 @@ function state.dungeon.layout:read()
     for y, row in ipairs(fullLayout) do
         local newRow = {}
         for x, tile in ipairs(row) do
+            if rangeutils.onScreen(x, y, x0, y0) then
+                -- Memoize this position
+                self._seenTiles[y][x] = true
+            end
+
             -- Filter out any information that the player isn't privy to
             local newTile = {}
-            if rangeutils.onMapOrScreen(x, y, x0, y0, fullLayout) then
+            if rangeutils.onMapOrScreen(x, y, x0, y0, fullLayout)
+                or self._seenTiles[y][x] ~= nil then
                 newTile = copy.deepcopySimple(fullLayout[y][x])
 
                 if not (x == x0 and y == y0) then
@@ -105,7 +120,8 @@ function state.dungeon.layout:read()
                     )
                 end
 
-                if not rangeutils.visitedOrOnScreen(x, y, x0, y0, fullLayout) then
+                if not rangeutils.visitedOrOnScreen(x, y, x0, y0, fullLayout)
+                    and self._seenTiles[y][x] ~= nil then
                     -- Hard to know this for sure without visiting
                     newTile.inShop = nil
                 end
@@ -338,6 +354,13 @@ local function flagListForReload(stateDataList)
     for _, data in ipairs(stateDataList) do
         data:flagForReload()
     end
+end
+
+-- Forces reload for appropriate stuff every floor
+function visibleinfo.reloadEveryFloor(state)
+    -- Need to reset the seen tile memo, which isn't done by the normal cache reload
+    state.dungeon.layout:resetSeenTiles()
+    return state
 end
 
 -- Forces reload for appropriate stuff every turn
