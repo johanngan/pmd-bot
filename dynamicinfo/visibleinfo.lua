@@ -211,9 +211,12 @@ function state.dungeon.entities.items:read()
         if stateinfo.state.player.canSeeItems() or
             rangeutils.inVisibilityRegion(x, y, x0, y0, stateinfo.state.dungeon) then
             local newItem = {}
-            if rangeutils.onScreen(x, y, x0, y0) then
+            if rangeutils.onScreen(x, y, x0, y0) or
+                (item.inShop and stateinfo.state.dungeon.layout()[y][x].visited) then
                 -- Note: the item position just being visited isn't enough because
                 -- items can be dropped off-screen, and you won't have seen them before
+                -- The one exception: if an item is in a shop and that shop was visited,
+                -- it's probably relatively safe to assume it was on screen at some point.
                 newItem = copy.deepcopySimple(item)
                 -- If we're standing on the item, we know everything
                 if not (x == x0 and y == y0) then
