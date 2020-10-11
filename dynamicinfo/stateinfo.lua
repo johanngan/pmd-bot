@@ -61,6 +61,14 @@ function state.dungeon.layout:read()
     end
     return layout
 end
+-- This is a lightweight method to refresh just the visibility fields
+-- in the layout tiles
+function state.dungeon.layout:refreshTileVisibility()
+    local layout = self()
+    for y=1,mapHelpers.NROWS do
+        mapHelpers.refreshTileRowVisibility(layout[y], y)
+    end
+end
 
 -- Convenience field for the stairs position
 -- Note that this might be normal stairs or hidden stairs; whichever
@@ -279,7 +287,7 @@ end
 -- Forces reload for appropriate stuff every floor
 function stateinfo.reloadEveryFloor(state)
     flagListForReload({
-        state.dungeon.layout,
+        state.dungeon.layout,   -- This is expensive! Doing this every turn tanks performance.
         state.dungeon.stairs,
         state.dungeon.conditions.naturalWeather,
     })
@@ -314,6 +322,9 @@ function stateinfo.reloadEveryTurn(state)
         state.player.canSeeTrapsAndHiddenStairs,
         state.player.canSeeStairs,
     })
+    -- Refresh the visibility status of tiles. This is much lighter weight than
+    -- a full reload.
+    state.dungeon.layout:refreshTileVisibility()
     return state
 end
 

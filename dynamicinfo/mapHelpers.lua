@@ -36,14 +36,35 @@ function mapHelpers.parseTiles(bytes)
     return tiles
 end
 
--- Read the row of tiles at a given y value (starts at 1)
+-- Calculates the starting address of a row at some y-position (starting at x=1)
 local UPPER_LEFT_CORNER = 0x021BE288    -- at (x, y) = (1, 1)
+local function calcRowStartAddr(y)
+    return UPPER_LEFT_CORNER + (y-1)*(mapHelpers.NCOLS+2)*TILE_BYTES
+end
+
+-- Read the row of tiles at a given y value (starts at 1)
 function mapHelpers.readTileRow(y)
     -- Offset by 2 extra tiles each row because there's a rectangular boundary
     -- of tiles around the dungeon's "interactable tiles". These tiles at x = {0, 55}
     -- and y = {0, 31} are always impassable, so there's no point in reading them
-    return mapHelpers.parseTiles(memory.readbyterange(UPPER_LEFT_CORNER +
-        (y-1)*(mapHelpers.NCOLS+2)*TILE_BYTES, mapHelpers.NCOLS*TILE_BYTES))
+    return mapHelpers.parseTiles(memory.readbyterange(
+        calcRowStartAddr(y), mapHelpers.NCOLS*TILE_BYTES))
+end
+
+-- Update just the visibility of a tile, without touching other stuff.
+-- Mutates a tile object given the starting address of its data block.
+function mapHelpers.refreshTileVisibility(tile, addr)
+    local bitfield = memory.readbyteunsigned(addr + 0x02)
+    tile.visibleOnMap = AND(bitfield, 0x1) ~= 0
+    tile.visited = AND(bitfield, 0x2) ~= 0
+end
+
+-- Refresh the visibility of a row of tiles at a given y-position
+function mapHelpers.refreshTileRowVisibility(row, y)
+    local rowStartAddr = calcRowStartAddr(y)
+    for x, tile in ipairs(row) do
+        mapHelpers.refreshTileVisibility(tile, rowStartAddr + (x-1)*TILE_BYTES)
+    end
 end
 
 -- Find the stairs in some floor layout (grid of tiles, stored row-major)
