@@ -183,6 +183,26 @@ function pathfinder.comparePositions(pos1, pos2)
     return pos1[1] == pos2[1] and pos1[2] == pos2[2]
 end
 
+-- Utility function: check if a path contains a position {x, y}
+function pathfinder.pathContainsPosition(path, pos)
+    for _, step in ipairs(path) do
+        if pathfinder.comparePositions(step, pos) then
+            return true
+        end
+    end
+    return false
+end
+
+-- Utility function: check if a path contains at least one of a list of positions
+function pathfinder.pathIntersects(path, posList)
+    for _, pos in ipairs(posList) do
+        if pathfinder.pathContainsPosition(path, pos) then
+            return true
+        end
+    end
+    return false
+end
+
 -- Utility function: calculate the step-distance between two points
 function pathfinder.stepDistance(pos1, pos2)
     return math.max(math.abs(pos1[1] - pos2[1]), math.abs(pos1[2] - pos2[2]))
