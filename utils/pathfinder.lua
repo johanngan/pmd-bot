@@ -75,8 +75,19 @@ local dirMap = {
         [1] = codes.DIRECTION.DownRight,
     },
 }
+local function sign(x)
+    return (x > 0 and 1) or (x < 0 and -1) or 0
+end
+-- Returns nil if there's no clean direction.
 function pathfinder.getDirection(dx, dy)
-    return dirMap[dx][dy]
+    -- Normalize by |dx| if possible, otherwise normalize by |dy|
+    if dx ~= 0 then
+        dy = dy / math.abs(dx)
+        dx = sign(dx)
+    else
+        dy = sign(dy)
+    end
+    return dirMap[dx] and dirMap[dx][dy]
 end
 
 -- Given a path as a list of (x, y) coordinates, return a list of moves that
