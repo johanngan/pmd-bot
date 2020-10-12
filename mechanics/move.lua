@@ -4,6 +4,7 @@ require 'codes.move'
 require 'codes.moveCategory'
 require 'codes.moveRange'
 require 'codes.terrain'
+require 'utils.mathutils'
 require 'utils.pathfinder'
 local rangeutils = require 'mechanics.rangeutils'
 require 'mechanics.LookupTable'
@@ -63,9 +64,6 @@ local function inRangeNearby(x, y, x0, y0, layout)
     return rangeutils.inRange(x, y, x0, y0, 1)
 end
 
-local function sign(x)
-    return (x > 0 and 1) or (x < 0 and -1) or 0
-end
 -- General function for n=2, n=10
 local function inRangeFrontN(x, y, x0, y0, layout, n)
     local dx = x - x0
@@ -75,8 +73,8 @@ local function inRangeFrontN(x, y, x0, y0, layout, n)
     if dx_abs <= n and dy_abs <= n and
         (dx == 0 or dy == 0 or dx_abs == dy_abs) then
         -- The positioning is right; now check all tiles in between the user/target
-        local dx_sgn = sign(dx)
-        local dy_sgn = sign(dy)
+        local dx_sgn = mathutils.sign(dx)
+        local dy_sgn = mathutils.sign(dy)
         for i=1,math.max(dx_abs, dy_abs) do
             if not attackCanPass(layout[y0 + i*dy_sgn][x0 + i*dx_sgn].terrain) then
                 return false
