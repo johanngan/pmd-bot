@@ -41,21 +41,54 @@ local function cornerCuttable(terrain)
         or terrain == codes.TERRAIN.Chasm
 end
 
--- Given a layout object (from state.dungeon.layout), find a path.
--- Optionally provide a "walkable" terrain code or function of the form:
+-- Given a grid map (from layoutToMap()), find a path.
+-- Provide a "walkable" terrain code or function of the form:
 --     walkable(terrain) -> true/false
--- to specify which types of terrain are walkable. Defaults to just normal terrain
+-- to specify which types of terrain are walkable.
+-- Optionally a "cuttable" parameter, similar to walkable, but specifying which types
+-- of terrain are corner cuttable. Uses the default cornerCuttable if none is provided
 -- Return the path as a list of (x, y) pairs, or nil if the pathfinding failed
-function pathfinder.getPath(layout, startx, starty, endx, endy, walkable)
-    local grid = Grid(layoutToMap(layout))
-    local walkable = walkable or codes.TERRAIN.Normal
-    local finder = Pathfinder(grid, 'ASTAR', walkable, cornerCuttable)
+local function getPathFromMap(map, startx, starty, endx, endy, walkable, cuttable)
+    local cuttable = cuttable or cornerCuttable
+    local finder = Pathfinder(Grid(map), 'ASTAR', walkable, cuttable)
     finder:setTunnelling(false)
     local path = finder:getPath(startx, starty, endx, endy)
+
     if path then
         return pathToList(path)
     end
     return nil
+end
+
+local AVOID_CODE = -1   -- Mock terrain code for corner-cuttable position to avoid
+-- Given a layout object (from state.dungeon.layout), find a path.
+-- Optionally provide a "walkable" terrain code or function of the form:
+--     walkable(terrain) -> true/false
+-- to specify which types of terrain are walkable. Defaults to just normal terrain
+-- Optionally provide a list of (x, y) pairs to avoid if possible. If avoiding
+-- isn't possible, the returned path may not respect the wish.
+-- Return the path as a list of (x, y) pairs, or nil if the pathfinding failed
+function pathfinder.getPath(layout, startx, starty, endx, endy, walkable, avoidIfPossible)
+    local walkable = walkable or codes.TERRAIN.Normal
+    if avoidIfPossible and #avoidIfPossible > 0 then
+        -- Replace the specific grid spaces with the special avoid code
+        local terrainMap = layoutToMap(layout)
+        for _, avoid in ipairs(avoidIfPossible) do
+            terrainMap[avoid[2]][avoid[1]] = AVOID_CODE
+        end
+        -- Wrap walkable in a function for consistent calling
+        local walkableFn = type(walkable) == 'function' and walkable or
+            function(terrain) return terrain == walkable end
+        local function walkFn(terrain) return walkableFn(terrain) and terrain ~= AVOID_CODE end
+        local function cutFn(terrain) return cornerCuttable(terrain) or terrain == AVOID_CODE end
+
+        local path = getPathFromMap(terrainMap, startx, starty, endx, endy, walkFn, cutFn)
+        if path then
+            return path
+        end
+        -- If that failed, forget about avoiding and do normal pathfinding
+    end
+    return getPathFromMap(layoutToMap(layout), startx, starty, endx, endy, walkable)
 end
 
 -- The "separation vector" direction for some (dx, dy) between two adjacent tiles
