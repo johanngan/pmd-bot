@@ -168,7 +168,7 @@ function mechanics.move.hasFriendlyFire(moveID, allowIntended)
     return friendlyFire ~= nil and friendlyFire >= threshold
 end
 
--- Move moves with a nonstatus category are offensive in a typical sense,
+-- Most moves with a nonstatus category are offensive in a typical sense,
 -- with the exception of these moves. Only the table keys matter here;
 -- the values are dummy values
 local NONOFFENSIVE_NONSTATUS_MOVES = {
@@ -185,9 +185,28 @@ local NONOFFENSIVE_NONSTATUS_MOVES = {
     [codes.MOVE.Payback] = true,
     [codes.MOVE.MetalBurst] = true,
 }
--- Check if a move is offensive or not
+-- Most status moves are non-offensive, with the exception of these moves
+-- 1 means the "status" move is offensive, -1 means it's unknown (depends)
+local POSSIBLY_OFFENSIVE_STATUS_MOVES = {
+    [codes.MOVE.NaturePower] = 1,   -- Will be some offensive move
+    [codes.MOVE.SleepTalk] = -1,
+    [codes.MOVE.Assist] = -1,
+    [codes.MOVE.Metronome] = -1,
+    [codes.MOVE.MeFirst] = -1,  -- Usually offensive, but fails if the target has no offensive moves
+}
+
+-- Check if a move is offensive or not. Returns nil if unknown
 function mechanics.move.isOffensive(moveID)
     local cat = mechanics.move(moveID).category
-    return (cat == codes.MOVE_CATEGORY.Physical or cat == codes.MOVE_CATEGORY.Special)
-        and not NONOFFENSIVE_NONSTATUS_MOVES[moveID]
+    if cat == codes.MOVE_CATEGORY.Status then
+        local statusOffensive = POSSIBLY_OFFENSIVE_STATUS_MOVES[moveID]
+        if statusOffensive ~= nil then
+            if statusOffensive == -1 then
+                return nil
+            end
+            return true
+        end
+        return false
+    end
+    return not NONOFFENSIVE_NONSTATUS_MOVES[moveID]
 end
