@@ -127,6 +127,47 @@ mechanics.move.inRange = {
     [codes.MOVE_RANGE.Floor] = inRangeFloor,
 }
 
+-- Maps moves that can hit multiple targest to the
+-- maximum number of targets they can hit, not including the user
+-- -1 denotes unknown
+local AOE_RANGES = {
+    [codes.MOVE_RANGE.Special] = -1,    -- Unknown
+    [codes.MOVE_RANGE.FrontAndSides] = 5,
+    [codes.MOVE_RANGE.Nearby] = 8,
+    [codes.MOVE_RANGE.Nearby2] = 24,
+    [codes.MOVE_RANGE.Room] = math.huge,    -- Arbitrarily large
+    [codes.MOVE_RANGE.Floor] = math.huge,   -- Arbitrarily large
+}
+-- Check if a move can hit multiple targets at once.
+-- Optionally, specify how many targets is considered "AOE".
+-- Returns nil if unknown
+function mechanics.move.isAOE(moveID, nEnemies)
+    local aoeRange = AOE_RANGES[mechanics.move(moveID).range]
+    if aoeRange == -1 then return nil end
+    local nEnemies = nEnemies or 2
+    return aoeRange ~= nil and aoeRange >= nEnemies
+end
+
+-- Maps moves to whether or not they can hit teammates. A value of
+-- 1 means the intended targets are teammates, 2 means teammates probably
+-- aren't intended targets. -1 Means unknown
+local FRIENDLY_FIRE = {
+    [codes.MOVE_TARGET.Party] = 1,
+    [codes.MOVE_TARGET.All] = 2,
+    [codes.MOVE_TARGET.AllExceptUser] = 2,
+    [codes.MOVE_TARGET.Teammates] = 1,
+    [codes.MOVE_TARGET.Special] = -1,
+}
+-- Check if a move can hit teammates, optionally, include moves whose
+-- intended targets are teammates (like certain status moves)
+-- Returns nil if unknown
+function mechanics.move.hasFriendlyFire(moveID, allowIntended)
+    local friendlyFire = FRIENDLY_FIRE[mechanics.move(moveID).target]
+    if friendlyFire == -1 then return nil end
+    local threshold = allowIntended and 1 or 2
+    return friendlyFire ~= nil and friendlyFire >= threshold
+end
+
 -- Move moves with a nonstatus category are offensive in a typical sense,
 -- with the exception of these moves. Only the table keys matter here;
 -- the values are dummy values
