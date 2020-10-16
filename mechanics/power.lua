@@ -6,6 +6,7 @@
 require 'math'
 
 require 'codes.type'
+require 'codes.ability'
 local typeMatchups = require 'mechanics.typeMatchups'
 
 if mechanics == nil then
@@ -64,22 +65,126 @@ function mechanics.power.typeEffectiveness(attackType, targetType1, targetType2,
             mechanics.power.typeChart(attackType, targetType2, erraticPlayer))
 end
 
+
+-- Functions for calculating a damage multiplier due to certain special abilities
+-- All the functions (for an ability, not including helpers) take the attack type
+-- and the target's types
+local function multSpecificType(attackType, specificType, multiplier)
+    return attackType == specificType and (multiplier or 0) or 1
+end
+
+local function multiplierThickFat(attackType, targetType1, targetType2)
+    return multSpecificType(attackType, codes.TYPE.Fire, 0.5)
+        * multSpecificType(attackType, codes.TYPE.Ice, 0.5)
+end
+
+local function multiplierVoltAbsorb(attackType, targetType1, targetType2)
+    return multSpecificType(attackType, codes.TYPE.Electric, -1)
+end
+
+local function multiplierWaterAbsorb(attackType, targetType1, targetType2)
+    return multSpecificType(attackType, codes.TYPE.Water, -1)
+end
+
+local function multiplierLightningRod(attackType, targetType1, targetType2)
+    return multSpecificType(attackType, codes.TYPE.Electric)
+end
+
+local function multiplierWonderGuard(attackType, targetType1, targetType2)
+    if attackType == codes.TYPE.None or
+        (mechanics.power.typeChart(attackType, targetType1) *
+            mechanics.power.typeChart(attackType, targetType2)) > 1 then
+        return 1
+    end
+    return 0
+end
+
+local function multiplierLevitate(attackType, targetType1, targetType2)
+    return multSpecificType(attackType, codes.TYPE.Ground)
+end
+
+local function multiplierFlashFire(attackType, targetType1, targetType2)
+    return multSpecificType(attackType, codes.TYPE.Fire)
+end
+
+local function multiplierDrySkin(attackType, targetType1, targetType2)
+    return multSpecificType(attackType, codes.TYPE.Water, -1)
+        * multSpecificType(attackType, codes.TYPE.Fire, 1.5)
+end
+
+local function multiplierHeatproof(attackType, targetType1, targetType2)
+    return multSpecificType(attackType, codes.TYPE.Fire, 0.5)
+end
+
+local function multiplierMotorDrive(attackType, targetType1, targetType2)
+    return multSpecificType(attackType, codes.TYPE.Electric)
+end
+
+local function multiplierSolidRock(attackType, targetType1, targetType2)
+    if mechanics.power.typeChart(attackType, targetType1) *
+        mechanics.power.typeChart(attackType, targetType2) > 1 then
+        return 0.75
+    end
+    return 1
+end
+
+local function multiplierFilter(attackType, targetType1, targetType2)
+    return multiplierSolidRock(attackType, targetType1, targetType2)
+end
+
+local function multiplierStormDrain(attackType, targetType1, targetType2)
+    return multSpecificType(attackType, codes.TYPE.Water)
+end
+
+local ABILITY_MULTIPLIERS = {
+    [codes.ABILITY.ThickFat] = multiplierThickFat,
+    [codes.ABILITY.VoltAbsorb] = multiplierVoltAbsorb,
+    [codes.ABILITY.WaterAbsorb] = multiplierWaterAbsorb,
+    [codes.ABILITY.LightningRod] = multiplierLightningRod,
+    [codes.ABILITY.WonderGuard] = multiplierWonderGuard,
+    [codes.ABILITY.Levitate] = multiplierLevitate,
+    [codes.ABILITY.FlashFire] = multiplierFlashFire,
+    [codes.ABILITY.DrySkin] = multiplierDrySkin,
+    [codes.ABILITY.Heatproof] = multiplierHeatproof,
+    [codes.ABILITY.MotorDrive] = multiplierMotorDrive,
+    [codes.ABILITY.SolidRock] = multiplierSolidRock,
+    [codes.ABILITY.Filter] = multiplierFilter,
+    [codes.ABILITY.StormDrain] = multiplierStormDrain,
+}
+
+function mechanics.power.abilityMultiplier(attackType, targetType1, targetType2, ability)
+    local targetType1 = targetType1 or codes.TYPE.None
+    local targetType2 = targetType2 or codes.TYPE.None
+    local multFunction = ABILITY_MULTIPLIERS[ability]
+    return multFunction and multFunction(attackType, targetType1, targetType2) or 1
+end
+
 -- Extract a primary/secondary type from a single type/dual type input
 local function extractTypes(typeList)
     local typeList = (type(typeList) == 'table') and typeList or {typeList}
     return typeList[1], typeList[2] or codes.TYPE.None
 end
 
+-- Extract a primary/secondary ability from a nil/single/dual ability input
+local function extractAbilities(abilityList)
+    local abilityList = abilityList or codes.ABILITY.None
+    local abilityList = (type(abilityList) == 'table') and abilityList or {abilityList}
+    return abilityList[1], abilityList[2] or codes.ABILITY.None
+end
+
 -- Calculate a damage heuristic of (multiplier) * (power) that doesn't only
 -- requires visible information
-function mechanics.power.calcDamageHeuristic(
-    movePower, moveType, attackerTypes, defenderTypes, erraticPlayer)
+function mechanics.power.calcDamageHeuristic(movePower, moveType,
+    attackerTypes, defenderTypes, defenderAbilities, erraticPlayer)
     -- Starting damage heuristic
     local heuristic = movePower
 
-    -- Unpack types
+    -- Unpack types/abilities
     local attackerType1, attackerType2 = extractTypes(attackerTypes)
     local defenderType1, defenderType2 = extractTypes(defenderTypes)
+    local defenderAbility1, defenderAbility2 = extractAbilities(defenderAbilities)
+    -- Don't count the same ability twice
+    if defenderAbility1 == defenderAbility2 then defenderAbility2 = codes.ABILITY.None end
 
     -- STAB
     if (moveType == attackerType1 or moveType == attackerType2)
@@ -90,6 +195,20 @@ function mechanics.power.calcDamageHeuristic(
     -- Type effectiveness
     heuristic = heuristic * mechanics.power.typeEffectiveness(
         moveType, defenderType1, defenderType2, erraticPlayer)
+
+    -- Special ability effects
+    local abilityMult1 = mechanics.power.abilityMultiplier(
+        moveType, defenderType1, defenderType2, defenderAbility1)
+    local abilityMult2 = mechanics.power.abilityMultiplier(
+        moveType, defenderType1, defenderType2, defenderAbility2)
+    if abilityMult1 < 0 and abilityMult2 < 0 then
+        -- If both multipliers are negative, use the one with larger absolute value
+        local mult = (abilityMult1 < abilityMult2) and abilityMult1 or abilityMult2
+        heuristic = heuristic * mult
+    else
+        -- Otherwise, apply both multipliers
+        heuristic = heuristic * abilityMult1 * abilityMult2
+    end
 
     return heuristic
 end
