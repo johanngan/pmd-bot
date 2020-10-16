@@ -127,8 +127,7 @@ end
 -- in range of the user.
 function smartactions.useMoveIfInRange(moveIdx, moveList, user, target, layout, verbose)
     local moveID = moveList[moveIdx+1].moveID    -- Access using 1-indexing
-    local moveRange = mechanics.move(moveID).range
-    if mechanics.move.inRange[moveRange](target.xPosition, target.yPosition,
+    if mechanics.move.inRange(moveID, target.xPosition, target.yPosition,
         user.xPosition, user.yPosition, layout) then
         return smartactions.useMoveIfPossible(moveIdx, moveList, verbose)
     end

@@ -111,7 +111,7 @@ local function inRangeFloor(x, y, x0, y0, layout)
     return true
 end
 
-mechanics.move.inRange = {
+mechanics.move.rangeFunctions = {
     [codes.MOVE_RANGE.Special] = inRangeSpecial,
     [codes.MOVE_RANGE.User] = inRangeUser,
     [codes.MOVE_RANGE.Underfoot] = inRangeUnderfoot,
@@ -125,6 +125,11 @@ mechanics.move.inRange = {
     [codes.MOVE_RANGE.Room] = inRangeRoom,
     [codes.MOVE_RANGE.Floor] = inRangeFloor,
 }
+
+function mechanics.move.inRange(moveID, x, y, x0, y0, layout)
+    return mechanics.move.rangeFunctions[mechanics.move(moveID).range](
+        x, y, x0, y0, layout)
+end
 
 -- Maps moves that can hit multiple targest to the
 -- maximum number of targets they can hit, not including the user
