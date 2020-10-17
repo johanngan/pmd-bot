@@ -159,26 +159,47 @@ function basicactions.face(direction, verbose)
     emu.frameadvance()
 end
 
+-- Just pressing X repeatedly to open a specific menu is somewhat dangerous
+-- because X can't close menus. This function adds some extra logic
+-- that tracks the current menu, and retries closing all menus if
+-- it stays the same for too long.
+local function guardedXPresses(targetMenu, maxIdleCycles)
+    -- Max # of iterations to try pressing X on the same menu before
+    -- retrying to close all menus
+    local maxIdleCycles = maxIdleCycles or 3
+
+    basicactions.closeMenus(targetMenu)
+    local prevMenu = menuinfo.getMenu()
+    local idleCycles = 0
+    while menuinfo.getMenu() ~= targetMenu do
+        joypad.set({X=true})
+        waitForMenuTransition()
+
+        -- Guard logic; if the menu isn't changing, increment a counter
+        -- If that counter exceeds the threshold, retry closing all menus
+        if prevMenu == menuinfo.getMenu() then
+            idleCycles = idleCycles + 1
+        end
+        if idleCycles > maxIdleCycles then
+            idleCycles = 0
+            basicactions.closeMenus(targetMenu)
+        end
+        prevMenu = menuinfo.getMenu()
+    end
+end
+
 -- Open the main menu
 function basicactions.openMainMenu(verbose)
     messages.reportIfVerbose('Opening main menu.', verbose)
 
-    basicactions.closeMenus(codes.MENU.Main)
-    while menuinfo.getMenu() ~= codes.MENU.Main do
-        joypad.set({X=true})
-        waitForMenuTransition()
-    end
+    guardedXPresses(codes.MENU.Main)
 end
 
 -- Open the moves menu
 function basicactions.openMovesMenu(verbose)
     messages.reportIfVerbose('Opening moves menu.', verbose)
 
-    basicactions.closeMenus(codes.MENU.Moves)
-    while menuinfo.getMenu() ~= codes.MENU.Moves do
-        joypad.set({X=true})
-        waitForMenuTransition()
-    end
+    guardedXPresses(codes.MENU.Moves)
 end
 
 -- Open the treasure bag menu
