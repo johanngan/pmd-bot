@@ -690,7 +690,7 @@ function Agent:act(state, visible)
         if self.target.type == TARGET.Explore then
             text = 'Exploring'
         else
-            text = 'Moving towards target'
+            text = 'Moving to target'
             if self.target.name then
                 text = text .. ': ' .. self.target.name
             end
