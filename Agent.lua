@@ -93,13 +93,13 @@ end
 
 -- Compute the path to the target from some origin if necessary.
 -- The resulting path is stored in the pathMoves property.
-function Agent:findTargetPath(x0, y0, layout, avoid)
+function Agent:findTargetPath(x0, y0, layout, avoidIfPossible)
     if not self.pathMoves or #self.pathMoves == 0 or
         not pathfinder.comparePositions({x0, y0}, self.pathMoves[1].start) then
         -- Path is nonexistent or obsolete. Find a new path
         local path = assert(
             pathfinder.getPath(layout, x0, y0, self.target.pos[1], self.target.pos[2],
-                nil, avoid),
+                nil, nil, avoidIfPossible),
             'Something went wrong. Unable to find path.'
         )
         self.pathMoves = pathfinder.getMoves(path)
@@ -123,17 +123,15 @@ local function hasStatus(monster, statusType)
 end
 
 -- Scan a list of entities and check if any are in visibility range and within
--- some path length. If so, return the closest one, along with the path to it.
--- Also return the total number of entities nearby.
+-- some path length. Return a list of the closest ones and the paths to them, with
+-- the form {entity, path} for each item.
 -- Optionally specify a checkValidity(entity) function that only returns an entity
 -- if it satisfies the given validity check, and a walkableWithEntity(terrain, entity) function
 -- for the pathfinder
 local function scanNearbyEntities(entities, x0, y0, dungeon,
-    checkValidity, walkableWithEntity, avoid, maxSteps)
+    checkValidity, walkableWithEntity, avoidIfPossible, maxSteps)
     local maxSteps = maxSteps or 10
-    local nearestEntity = nil
-    local shortestPath = nil
-    local nEntities = 0
+    local nearestEntities = {}
     for _, entity in ipairs(entities) do
         if rangeutils.inVisibilityRegion(entity.xPosition, entity.yPosition, x0, y0, dungeon)
             and (checkValidity == nil or checkValidity(entity)) then
@@ -143,18 +141,19 @@ local function scanNearbyEntities(entities, x0, y0, dungeon,
                 or nil
             -- Search for a path to the entity
             local path = pathfinder.getPath(dungeon.layout(),
-                x0, y0, entity.xPosition, entity.yPosition, walkable, avoid)
+                x0, y0, entity.xPosition, entity.yPosition, walkable, nil, avoidIfPossible)
             -- maxSteps + 1 because path includes the starting point
             if path and #path <= maxSteps + 1 then
-                nEntities = nEntities + 1
-                if not shortestPath or #path < #shortestPath then
-                    nearestEntity = entity
-                    shortestPath = path
+                if #nearestEntities > 0 and #path < #(nearestEntities[1].path) then
+                    nearestEntities = {}
+                end
+                if #nearestEntities == 0 or #path == #(nearestEntities[1].path) then
+                    table.insert(nearestEntities, {entity=entity, path=path})
                 end
             end
         end
     end
-    return nearestEntity, shortestPath, nEntities
+    return nearestEntities
 end
 
 -- Checks how many offensive moves still have PP, and also the total
@@ -348,10 +347,10 @@ function Agent:act(state, visible)
     end
 
     -- Positions that we know have traps and want to avoid
-    local avoid = {}
+    local avoidIfPossible = {}
     for _, trap in ipairs(availableInfo.dungeon.entities.traps()) do
         if trap.trapType ~= codes.TRAP.WonderTile and trap.isTriggerableByTeam then
-            table.insert(avoid, {trap.xPosition, trap.yPosition})
+            table.insert(avoidIfPossible, {trap.xPosition, trap.yPosition})
         end
     end
 
@@ -376,11 +375,15 @@ function Agent:act(state, visible)
     if not self.target.pos or self.target.soft then
         local explore = true    -- Defaults to true unless another target is found
         -- When checking for items, don't touch Kecleon's stuff
-        local nearestItem, path = scanNearbyEntities(availableInfo.dungeon.entities.items(),
+        local nearestItems = scanNearbyEntities(availableInfo.dungeon.entities.items(),
             leader.xPosition, leader.yPosition, availableInfo.dungeon,
             function(item) return not item.inShop end,
-            nil, avoid)
-        if nearestItem and #availableInfo.player.bag() < availableInfo.player.bagCapacity() then
+            nil, avoidIfPossible)
+        if #nearestItems > 0 and
+            #availableInfo.player.bag() < availableInfo.player.bagCapacity() then
+            -- Just pick the first item found if there are multiple equally close ones
+            local nearestItem, path = nearestItems[1].entity, nearestItems[1].path
+
             -- An item is nearby and there's space, so target that
             local soft = false
             local targetName = ''
@@ -405,7 +408,7 @@ function Agent:act(state, visible)
             -- current layout information
             local x, y = availableInfo.dungeon.stairs()
             local path = pathfinder.getPath(availableInfo.dungeon.layout(),
-                leader.xPosition, leader.yPosition, x, y, nil, avoid)
+                leader.xPosition, leader.yPosition, x, y, nil, nil, avoidIfPossible)
             if path then
                 -- Set a soft target; if an item becomes visible, we'll want to target that instead
                 self:setTarget({availableInfo.dungeon.stairs()}, TARGET.Stairs, 'Stairs', true)
@@ -450,7 +453,7 @@ function Agent:act(state, visible)
     -- terrains the enemy can walk on.
     -- XXX: Assume water not lava for now, until mechanics.dungeon is implemented...
     local DUNGEON_HAS_LAVA = false
-    local nearestEnemy, pathToEnemy, nEnemies = scanNearbyEntities(
+    local nearestEnemies = scanNearbyEntities(
         availableInfo.dungeon.entities.enemies(),
         leader.xPosition, leader.yPosition, availableInfo.dungeon,
         function(enemy)
@@ -467,134 +470,154 @@ function Agent:act(state, visible)
                 mechanics.species(enemy.features.species).mobility](terrain, DUNGEON_HAS_LAVA)
         end
     )
-    -- Only pay attention to the enemy if it's on screen
-    if nearestEnemy and rangeutils.onScreen(nearestEnemy.xPosition, nearestEnemy.yPosition,
-        leader.xPosition, leader.yPosition) then
+    -- Only pay attention to enemies if they're on screen
+    local nearestEnemiesOnScreen = {}
+    for i, enemyWithPath in ipairs(nearestEnemies) do
+        local enemy = enemyWithPath.entity
+        if rangeutils.onScreen(enemy.xPosition, enemy.yPosition,
+            leader.xPosition, leader.yPosition) then
+            table.insert(nearestEnemiesOnScreen, enemyWithPath)
+        end
+    end
+    if #nearestEnemiesOnScreen > 0 then
         -- An enemy is in the vicinity and can approach us
 
-        -- Determine if the enemy is close enough that it needs immediate attention
-        local enemyIsClose = false
-        local pathMovesToEnemy = pathfinder.getMoves(pathToEnemy)
-        if not rangeutils.inVisibilityRegion(self.target.pos[1], self.target.pos[2],
-            leader.xPosition, leader.yPosition, availableInfo.dungeon) then
-            -- If we're moving to a target not in visibility range, (e.g., we're exploring,
-            -- or an omniscient agent is heading towards the stairs), then "close" means
-            -- within 2 tiles
-            enemyIsClose = #pathMovesToEnemy <= 2
-        else
-            -- Otherwise, "close" means that the enemy is at least as close
-            -- to the target as the leader
-            -- Compute the target path first, if needed
-            self:findTargetPath(leader.xPosition, leader.yPosition,
-                availableInfo.dungeon.layout(), avoid)
-            -- Next, compute the path from the enemy to the target
-            local enemySpecies = nearestEnemy.features.species
-            local enemyPathToTarget = pathfinder.getPath(
-                availableInfo.dungeon.layout(),
-                nearestEnemy.xPosition, nearestEnemy.yPosition,
-                self.target.pos[1], self.target.pos[2],
-                function(terrain)
-                    -- Fallback if we don't know the species
-                    if enemySpecies == nil then return terrain == codes.TERRAIN.Normal end
-                    return mechanics.species.walkable[mechanics.species(enemySpecies).mobility](
-                        terrain, DUNGEON_HAS_LAVA
-                    )
-                end
-            )
-            -- enemyPathToTarget has absolute positions, meaning it has the starting point,
-            -- whereas self.pathMoves is relative moves, meaning it doesn't have the starting
-            -- point. User #enemyPathToTarget - 1 to compensate
-            enemyIsClose = enemyPathToTarget ~= nil and #enemyPathToTarget - 1 <= #self.pathMoves
+        -- For the logic that follows, we need to consider enemies, which are impassable
+        -- and MUST be avoided.
+        local mustAvoid = {}
+        for _, enemy in ipairs(availableInfo.dungeon.entities.enemies()) do
+            table.insert(mustAvoid, {enemy.xPosition, enemy.yPosition})
         end
 
-        -- Do a few preparatory checks before engaging with the enemy
-        local engageWithEnemy = true
-        -- If the enemy is close by, need to skip the intermediate logic and deal with it now
-        if not enemyIsClose then
-            -- If the stairs are here, just make a beeline for them
-            if self.target.type == TARGET.Stairs then
-                engageWithEnemy = false
+        -- Go through enemies one-by-one until an action is taken
+        for _, enemyWithPath in ipairs(nearestEnemiesOnScreen) do
+            local nearestEnemy, pathToEnemy = enemyWithPath.entity, enemyWithPath.path
+
+            -- Determine if the enemy is close enough that it needs immediate attention
+            local enemyIsClose = false
+            local pathMovesToEnemy = pathfinder.getMoves(pathToEnemy)
+            if not rangeutils.inVisibilityRegion(self.target.pos[1], self.target.pos[2],
+                leader.xPosition, leader.yPosition, availableInfo.dungeon) then
+                -- If we're moving to a target not in visibility range, (e.g., we're exploring,
+                -- or an omniscient agent is heading towards the stairs), then "close" means
+                -- within 2 tiles
+                enemyIsClose = #pathMovesToEnemy <= 2
             else
-                -- We're not escaping at this point, so take some precautions before
-                -- the enemy gets too close
+                -- Otherwise, "close" means that the enemy is at least as close
+                -- to the target as the leader
+                -- Force recompute the target path first.
+                local pathToTarget = pathfinder.getPath(availableInfo.dungeon.layout(),
+                    leader.xPosition, leader.yPosition, self.target.pos[1], self.target.pos[2],
+                    nil, mustAvoid, avoidIfPossible)
+                -- Next, compute the path from the enemy to the target
+                local enemySpecies = nearestEnemy.features.species
+                local enemyPathToTarget = pathfinder.getPath(
+                    availableInfo.dungeon.layout(),
+                    nearestEnemy.xPosition, nearestEnemy.yPosition,
+                    self.target.pos[1], self.target.pos[2],
+                    function(terrain)
+                        -- Fallback if we don't know the species
+                        if enemySpecies == nil then return terrain == codes.TERRAIN.Normal end
+                        return mechanics.species.walkable[mechanics.species(enemySpecies).mobility](
+                            terrain, DUNGEON_HAS_LAVA
+                        )
+                    end
+                )
+                -- If pathToTarget is nil, the enemy is probably in the way
+                enemyIsClose = pathToTarget == nil or
+                    (enemyPathToTarget ~= nil and #enemyPathToTarget <= #pathToTarget)
+            end
 
-                -- Heal if HP is moderately low and there's healing items in the bag
-                -- "Moderately low" means 37.5% HP or lower
-                if smartactions.healIfLowHP(availableInfo.player.bag(), leader.stats.HP,
-                    leader.stats.maxHP, 0.375 * leader.stats.maxHP, true, true) then
-                    return
-                end
-
-                -- Restore PP if a Max Elixir is in the bag and all offensive moves are out of PP
-                if checkOffensiveMovePP(leader.moves) == 0 and
-                    smartactions.useMaxElixirIfPossible(availableInfo.player.bag(), true) then
-                    return
-                end
-
-                -- If belly is empty, restore it
-                if smartactions.eatFoodIfBellyEmpty(
-                    availableInfo.player.bag(), leader.belly, true) then
-                    return
-                end
-
-                -- If going for an item, just go for it
-                if self.target.type == TARGET.Item then
+            -- Do a few preparatory checks before engaging with the enemy
+            local engageWithEnemy = true
+            -- If the enemy is close by, need to skip the intermediate logic and deal with it now
+            if not enemyIsClose then
+                -- If the stairs are here, just make a beeline for them
+                if self.target.type == TARGET.Stairs then
                     engageWithEnemy = false
                 else
-                    -- If there's nothing else to do, and belly is even somewhat low,
-                    -- we might as well eat something (provided we're not being wasteful)
-                    if smartactions.eatFoodIfHungry(availableInfo.player.bag(), leader.belly,
-                        leader.maxBelly, leader.maxBelly - 50, false, true) then
+                    -- We're not escaping at this point, so take some precautions before
+                    -- the enemy gets too close
+
+                    -- Heal if HP is moderately low and there's healing items in the bag
+                    -- "Moderately low" means 37.5% HP or lower
+                    if smartactions.healIfLowHP(availableInfo.player.bag(), leader.stats.HP,
+                        leader.stats.maxHP, 0.375 * leader.stats.maxHP, true, true) then
                         return
+                    end
+
+                    -- Restore PP if a Max Elixir is in the bag and all offensive moves are out of PP
+                    if checkOffensiveMovePP(leader.moves) == 0 and
+                        smartactions.useMaxElixirIfPossible(availableInfo.player.bag(), true) then
+                        return
+                    end
+
+                    -- If belly is empty, restore it
+                    if smartactions.eatFoodIfBellyEmpty(
+                        availableInfo.player.bag(), leader.belly, true) then
+                        return
+                    end
+
+                    -- If going for an item, just go for it
+                    if self.target.type == TARGET.Item then
+                        engageWithEnemy = false
+                    else
+                        -- If there's nothing else to do, and belly is even somewhat low,
+                        -- we might as well eat something (provided we're not being wasteful)
+                        if smartactions.eatFoodIfHungry(availableInfo.player.bag(), leader.belly,
+                            leader.maxBelly, leader.maxBelly - 50, false, true) then
+                            return
+                        end
                     end
                 end
             end
-        end
 
-        if engageWithEnemy then
-            -- We've decided to engage. Now deal with the enemy
-            -- If no teammates are in the way, first try to attack with something in-range
-            local teammatePositions = {}
-            for i, teammate in ipairs(availableInfo.dungeon.entities.team()) do
-                -- Don't include the leader
-                if i > 1 then
-                    table.insert(teammatePositions, {teammate.xPosition, teammate.yPosition})
+            if engageWithEnemy then
+                -- We've decided to engage. Now deal with the enemy
+                -- If no teammates are in the way, first try to attack with something in-range
+                local teammatePositions = {}
+                for i, teammate in ipairs(availableInfo.dungeon.entities.team()) do
+                    -- Don't include the leader
+                    if i > 1 then
+                        table.insert(teammatePositions, {teammate.xPosition, teammate.yPosition})
+                    end
                 end
-            end
-            if not pathfinder.pathIntersects(pathToEnemy, teammatePositions) and
-                self:attackEnemy(nearestEnemy, leader, availableInfo) then
-                return
-            end
-            -- If that didn't work, see how to get to the enemy
-            -- pathToEnemy was computed from the enemy's perspective. Now we recompute the
-            -- path with the intention of following it ourselves.
-            pathToEnemy = pathfinder.getPath(availableInfo.dungeon.layout(),
-                leader.xPosition, leader.yPosition,
-                nearestEnemy.xPosition, nearestEnemy.yPosition,
-                nil, avoid)
-            if pathToEnemy then
-                -- If we can find a path, approach
-                local text = 'Approaching enemy'
-                if nearestEnemy.features.species then
-                    text = text .. ' ' .. codes.SPECIES_NAMES[nearestEnemy.features.species]
-                end
-                text = text .. '.'
-                messages.report(text)
-
-                -- Use random directional inputs if confused; see more detailed comment
-                -- near the end of the code
-                if hasStatus(leader, codes.STATUS.Confused) and
-                    #availableInfo.dungeon.entities.team() > 1 then
-                    messages.report('Confused. Resting in place.')
-                    basicactions.rest()
+                if not pathfinder.pathIntersects(pathToEnemy, teammatePositions) and
+                    self:attackEnemy(nearestEnemy, leader, availableInfo) then
                     return
                 end
-                basicactions.walk(pathfinder.getMoves(pathToEnemy)[1].direction)
-                return
+                -- If that didn't work, see how to get to the enemy
+                -- pathToEnemy was computed from the enemy's perspective. Now we recompute the
+                -- path with the intention of following it ourselves.
+                pathToEnemy = pathfinder.getPath(availableInfo.dungeon.layout(),
+                    leader.xPosition, leader.yPosition,
+                    nearestEnemy.xPosition, nearestEnemy.yPosition,
+                    nil, mustAvoid, avoidIfPossible)
+                if pathToEnemy then
+                    -- If we can find a path, approach
+                    local text = 'Approaching enemy'
+                    if nearestEnemy.features.species then
+                        text = text .. ' ' .. codes.SPECIES_NAMES[nearestEnemy.features.species]
+                    end
+                    text = text .. '.'
+                    messages.report(text)
+
+                    -- Use random directional inputs if confused; see more detailed comment
+                    -- near the end of the code
+                    if hasStatus(leader, codes.STATUS.Confused) and
+                        #availableInfo.dungeon.entities.team() > 1 then
+                        messages.report('Confused. Resting in place.')
+                        basicactions.rest()
+                        return
+                    end
+                    basicactions.walk(pathfinder.getMoves(pathToEnemy)[1].direction)
+                    return
+                end
+                -- Otherwise, the enemy can reach us, but we can't reach it. Just ignore the
+                -- enemy being there and check the next one. If there are no more enemies
+                -- to check, just continue proceeding towards the target. If one of them
+                -- comes to a place we can reach, we'll deal with it then.
             end
-            -- Otherwise, the enemy can reach us, but we can't reach it. Just ignore the
-            -- enemy being there and continue proceeding towards the target. If it comes
-            -- to a place we can reach, we'll deal with it then.
         end
     else
         -- No enemies are in the vicinity
@@ -646,7 +669,8 @@ function Agent:act(state, visible)
     end
 
     -- If no other action was taken, walk towards the target
-    self:findTargetPath(leader.xPosition, leader.yPosition, availableInfo.dungeon.layout(), avoid)
+    self:findTargetPath(leader.xPosition, leader.yPosition,
+        availableInfo.dungeon.layout(), avoidIfPossible)
     if #self.pathMoves > 0 then
         -- Not already on target
         local text = ''

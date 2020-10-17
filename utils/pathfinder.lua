@@ -4,6 +4,7 @@ require 'math'
 require 'table'
 
 require 'utils.containers'
+require 'utils.copy'
 require 'utils.mathutils'
 require 'codes.terrain'
 require 'codes.direction'
@@ -66,30 +67,43 @@ local AVOID_CODE = -1   -- Mock terrain code for corner-cuttable position to avo
 -- Optionally provide a "walkable" terrain code or function of the form:
 --     walkable(terrain) -> true/false
 -- to specify which types of terrain are walkable. Defaults to just normal terrain
--- Optionally provide a list of (x, y) pairs to avoid if possible. If avoiding
--- isn't possible, the returned path may not respect the wish.
+-- Optionally provide a list of (x, y) pairs that must be avoided, and ones to avoid
+-- if possible. If avoiding the latter isn't possible, the returned path may not
+-- respect the wish.
 -- Return the path as a list of (x, y) pairs, or nil if the pathfinding failed
-function pathfinder.getPath(layout, startx, starty, endx, endy, walkable, avoidIfPossible)
+function pathfinder.getPath(layout, startx, starty, endx, endy,
+    walkable, mustAvoid, avoidIfPossible)
     local walkable = walkable or codes.TERRAIN.Normal
+    -- Wrap walkable in a function for consistent calling
+    local walkableFn = type(walkable) == 'function' and walkable or
+        function(terrain) return terrain == walkable end
+    local function walkFn(terrain) return walkableFn(terrain) and terrain ~= AVOID_CODE end
+    local function cutFn(terrain) return cornerCuttable(terrain) or terrain == AVOID_CODE end
+
+    -- Replace the grid spaces that MUST be avoided with the special avoid code
+    local baseTerrainMap = layoutToMap(layout)
+    if mustAvoid and #mustAvoid > 0 then
+        for _, avoid in ipairs(mustAvoid) do
+            baseTerrainMap[avoid[2]][avoid[1]] = AVOID_CODE
+        end
+    end
+
     if avoidIfPossible and #avoidIfPossible > 0 then
-        -- Replace the specific grid spaces with the special avoid code
-        local terrainMap = layoutToMap(layout)
+        -- Replace the specific grid spaces that would be nice to avoid with the
+        -- special avoid code
+        local terrainMap = copy.deepcopySimple(baseTerrainMap)
         for _, avoid in ipairs(avoidIfPossible) do
             terrainMap[avoid[2]][avoid[1]] = AVOID_CODE
         end
-        -- Wrap walkable in a function for consistent calling
-        local walkableFn = type(walkable) == 'function' and walkable or
-            function(terrain) return terrain == walkable end
-        local function walkFn(terrain) return walkableFn(terrain) and terrain ~= AVOID_CODE end
-        local function cutFn(terrain) return cornerCuttable(terrain) or terrain == AVOID_CODE end
 
         local path = getPathFromMap(terrainMap, startx, starty, endx, endy, walkFn, cutFn)
         if path then
             return path
         end
-        -- If that failed, forget about avoiding and do normal pathfinding
+        -- If that failed, forget about the optional avoids and do pathfinding without them
     end
-    return getPathFromMap(layoutToMap(layout), startx, starty, endx, endy, walkable)
+
+    return getPathFromMap(baseTerrainMap, startx, starty, endx, endy, walkFn, cutFn)
 end
 
 -- The "separation vector" direction for some (dx, dy) between two adjacent tiles
