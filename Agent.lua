@@ -306,17 +306,19 @@ function Agent:act(state, visible)
         return
     end
 
-    -- If there are 3 or more enemies in range and the leader has an AOE
-    -- move (without friendly fire if there are teammates), use it. If there's more than
-    -- one such moves, use the one with a highest range and base power.
-    -- Check for good offensive AOE moves
+    -- Check for good offensive AOE moves (without friendly fire if there are teammates)
+    -- Also check how many still have PP
     local teammatesExist = #availableInfo.dungeon.entities.team() > 1
     local AOEMoves = {}
+    local nAOEMovesWithPP = 0
     for i, move in ipairs(leader.moves) do
         -- Exclude Wide Slash; it's partly directional so the logic would be more complicated
         if mechanics.move.isOffensive(move.moveID) and mechanics.move.isAOE(move.moveID, 8)
             and not (teammatesExist and mechanics.move.hasFriendlyFire(move.moveID)) then
             table.insert(AOEMoves, i)
+            if move.PP > 0 then
+                nAOEMovesWithPP = nAOEMovesWithPP + 1
+            end
         end
         -- Sort by highest range, then highest base power
         table.sort(AOEMoves, function(i1, i2)
@@ -326,6 +328,17 @@ function Agent:act(state, visible)
             return info1.basePower > info2.basePower
         end)
     end
+
+    -- If the leader has good AOE moves but all of them are out of PP, try to use a
+    -- Max Elixir.
+    if #AOEMoves > 0 and nAOEMovesWithPP == 0 then
+        if smartactions.useMaxElixirIfPossible(availableInfo.player.bag(), true) then
+            return
+        end
+    end
+
+    -- If there are 3 or more enemies in range and the leader has a good offensive AOE
+    -- move, use the best one available.
     for _, idx in ipairs(AOEMoves) do
         -- Count how many enemies are in range of this move
         local move = leader.moves[idx]
