@@ -602,10 +602,18 @@ function Agent:act(state, visible)
                 -- If that didn't work, see how to get to the enemy
                 -- pathToEnemy was computed from the enemy's perspective. Now we recompute the
                 -- path with the intention of following it ourselves.
+                -- Omit the enemy's position from mustAvoid
+                local mustAvoidExceptEnemy = {}
+                for _, pos in ipairs(mustAvoid) do
+                    if not pathfinder.comparePositions(pos,
+                        {nearestEnemy.xPosition, nearestEnemy.yPosition}) then
+                        table.insert(mustAvoidExceptEnemy, pos)
+                    end
+                end
                 pathToEnemy = pathfinder.getPath(availableInfo.dungeon.layout(),
                     leader.xPosition, leader.yPosition,
                     nearestEnemy.xPosition, nearestEnemy.yPosition,
-                    nil, mustAvoid, avoidIfPossible)
+                    nil, mustAvoidExceptEnemy, avoidIfPossible)
                 if pathToEnemy then
                     -- If we can find a path, approach
                     local text = 'Approaching enemy'
