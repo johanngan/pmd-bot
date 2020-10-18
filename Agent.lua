@@ -93,15 +93,38 @@ end
 
 -- Compute the path to the target from some origin if necessary.
 -- The resulting path is stored in the pathMoves property.
-function Agent:findTargetPath(x0, y0, layout, avoidIfPossible)
+function Agent:findTargetPath(x0, y0, layout, mustAvoid, avoidIfPossible)
+    local mustAvoid = mustAvoid or {}
     if not self.pathMoves or #self.pathMoves == 0 or
-        not pathfinder.comparePositions({x0, y0}, self.pathMoves[1].start) then
-        -- Path is nonexistent or obsolete. Find a new path
-        local path = assert(
-            pathfinder.getPath(layout, x0, y0, self.target.pos[1], self.target.pos[2],
-                nil, nil, avoidIfPossible),
-            'Something went wrong. Unable to find path.'
-        )
+        not pathfinder.comparePositions({x0, y0}, self.pathMoves[1].start) or
+        -- Note: the "path" argument of pathContainsPosition doesn't have to be
+        -- continuous; mustAvoid is a list of (x, y) pairs so is still a valid "path"
+        pathfinder.pathContainsPosition(mustAvoid, self.pathMoves[1].dest) then
+        -- Path is nonexistent, obsolete, or invalid. Find a new path
+        -- Omit the target tile itself from the must avoid list
+        local mustAvoidOmitTarget = {}
+        for _, avoid in ipairs(mustAvoid) do
+            if not pathfinder.comparePositions(avoid, self.target.pos) then
+                table.insert(mustAvoidOmitTarget, avoid)
+            end
+        end
+        local path = pathfinder.getPath(layout, x0, y0, self.target.pos[1], self.target.pos[2],
+            nil, mustAvoidOmitTarget, avoidIfPossible)
+        if not path then
+            -- "must avoid" was a lie...as a last ditch effort, drop most of
+            -- the must avoid requirement (unless it triggered the path recomputation; keep that).
+            -- If that still fails, something has gone wrong
+            local mustAvoidMinimal = nil
+            if self.pathMoves and
+                pathfinder.pathContainsPosition(mustAvoid, self.pathMoves[1].dest) then
+                mustAvoidMinimal = {self.pathMoves[1].dest}
+            end
+            path = assert(
+                pathfinder.getPath(layout, x0, y0, self.target.pos[1], self.target.pos[2],
+                    nil, mustAvoidMinimal, avoidIfPossible),
+                'Something went wrong. Unable to find path.'
+            )
+        end
         self.pathMoves = pathfinder.getMoves(path)
     end
 end
@@ -359,6 +382,12 @@ function Agent:act(state, visible)
         end
     end
 
+    -- For certain logic, we need to consider enemies, which are impassable
+    -- and MUST be avoided.
+    local mustAvoid = {}
+    for _, enemy in ipairs(availableInfo.dungeon.entities.enemies()) do
+        table.insert(mustAvoid, {enemy.xPosition, enemy.yPosition})
+    end
     -- Positions that we know have traps and want to avoid
     local avoidIfPossible = {}
     for _, trap in ipairs(availableInfo.dungeon.entities.traps()) do
@@ -448,8 +477,8 @@ function Agent:act(state, visible)
             if pos then
                 -- Explore targets are always soft, and can be changed at a moment's notice
                 self:setTarget(pos, TARGET.Explore, nil, true)
-                -- Don't save the path; we want to recompute it again to factor in traps,
-                -- which exploreLayout() doesn't do.
+                -- Don't save the path; we want to recompute it again to factor in traps
+                -- and enemies, which exploreLayout() doesn't do.
             end
         end
         -- If the target is off-screen, force it to be soft
@@ -494,13 +523,6 @@ function Agent:act(state, visible)
     end
     if #nearestEnemiesOnScreen > 0 then
         -- An enemy is in the vicinity and can approach us
-
-        -- For the logic that follows, we need to consider enemies, which are impassable
-        -- and MUST be avoided.
-        local mustAvoid = {}
-        for _, enemy in ipairs(availableInfo.dungeon.entities.enemies()) do
-            table.insert(mustAvoid, {enemy.xPosition, enemy.yPosition})
-        end
 
         -- Go through enemies one-by-one until an action is taken
         for _, enemyWithPath in ipairs(nearestEnemiesOnScreen) do
@@ -691,7 +713,7 @@ function Agent:act(state, visible)
 
     -- If no other action was taken, walk towards the target
     self:findTargetPath(leader.xPosition, leader.yPosition,
-        availableInfo.dungeon.layout(), avoidIfPossible)
+        availableInfo.dungeon.layout(), mustAvoid, avoidIfPossible)
     if #self.pathMoves > 0 then
         -- Not already on target
         local text = ''
