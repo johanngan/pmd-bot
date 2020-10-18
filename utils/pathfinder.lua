@@ -135,8 +135,20 @@ function pathfinder.getDirection(dx, dy)
     return dirMap[dx] and dirMap[dx][dy]
 end
 
+local dirMapInv = {}
+for dx, dxList in pairs(dirMap) do
+    for dy, dir in pairs(dxList) do
+        dirMapInv[dir] = {dx, dy}
+    end
+end
+-- A sort of inverse of getDirection. Returns dx, dy for a given direction
+function pathfinder.resolveDirection(dir)
+    return unpack(dirMapInv[dir])
+end
+
 -- Given a path as a list of (x, y) coordinates, return a list of moves that
--- consist of start (xy pair) and direction (DIRECTION enum) fields
+-- consist of start (xy pair), direction (DIRECTION enum), and destination (xy pair)
+-- fields
 function pathfinder.getMoves(pathlist)
     local movelist = {}
     local endPos = pathlist[1]
@@ -145,7 +157,7 @@ function pathfinder.getMoves(pathlist)
         endPos = pathlist[i]
         local dx, dy = endPos[1]-startPos[1], endPos[2]-startPos[2]
         table.insert(movelist,
-            {start=startPos, direction=pathfinder.getDirection(dx, dy)}
+            {start=startPos, direction=pathfinder.getDirection(dx, dy), dest=endPos}
         )
     end
     return movelist
