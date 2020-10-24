@@ -4,6 +4,7 @@
 require 'string'
 require 'table'
 
+require 'codes.terrain'
 require 'utils.copy'
 require 'utils.stringutils'
 require 'mechanics.species'
@@ -280,10 +281,13 @@ function state.dungeon.entities.items:read()
         local infoLevel = self:_checkSeenInfo(item)
 
         -- We only know about an item if we can see all items on the floor,
-        -- or it's in the visibility region, or it's on a visited tile
+        -- or it's in the visibility region, or it's on a visited tile.
+        -- If it's in a wall, always ignore it; it won't be visible even
+        -- under full item visibility.
         local inVisRegion = rangeutils.inVisibilityRegion(x, y, x0, y0, stateinfo.state.dungeon)
-        if stateinfo.state.player.canSeeItems() or inVisRegion or
-            stateinfo.state.dungeon.layout()[y][x].visited then
+        if (stateinfo.state.player.canSeeItems() or inVisRegion or
+            stateinfo.state.dungeon.layout()[y][x].visited)
+            and stateinfo.state.dungeon.layout()[y][x].terrain ~= codes.TERRAIN.Wall then
             local newItem = {}
             if infoLevel ~= nil or (inVisRegion and rangeutils.onScreen(x, y, x0, y0)) then
                 -- Note: the item position just being visited isn't enough because
