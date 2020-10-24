@@ -212,35 +212,93 @@ function state.dungeon.entities.enemies:read()
     return enemies
 end
 
+local function linearPos(x, y)
+    -- 1-indexed, row-major
+    return (y-1)*mapHelpers.NCOLS + x
+end
+
 -- List of known items
 state.dungeon.entities.items = StateData:new()
+-- Memoize items that have been seen to mimic human memory
+-- _seenItems[linearPosition] will be {itemType, infoLevel, isStale} if seen or
+-- nil if not. infoLevel will be 2 if full info about the item is known
+-- (e.g., if the item has been stepped on), or 1 if partial info about the item
+-- is known (e.g., the item is in the room).
+local INFOLEVEL_PARTIAL = 1
+local INFOLEVEL_FULL = 2
+state.dungeon.entities.items._seenItems = {}
+function state.dungeon.entities.items:_checkSeenInfo(item)
+    local pos = linearPos(item.xPosition, item.yPosition)
+    local infoLevel = nil
+    -- If the item was seen before and is still there, unstale the item
+    if self._seenItems[pos] ~= nil and self._seenItems[pos].itemType == item.itemType then
+        -- Unstale the item if it was stale
+        self._seenItems[pos].isStale = false
+        -- Return what's known about the item
+        infoLevel = self._seenItems[pos].infoLevel
+    end
+    return infoLevel
+end
+function state.dungeon.entities.items:_addSeenInfo(item, infoLevel)
+    -- Only actually add if there's not already a fresh entry in the memo with an
+    -- info level greater than the given one
+    local oldInfoLevel = self:_checkSeenInfo(item)
+    if oldInfoLevel == nil or infoLevel > oldInfoLevel then
+        self._seenItems[linearPos(item.xPosition, item.yPosition)] = {
+            itemType = item.itemType,
+            infoLevel = infoLevel,
+            isStale = false,
+        }
+    end
+end
+function state.dungeon.entities.items:_makeSeenItemsStale()
+    -- Make all seen item entries stale
+    for pos, _ in pairs(self._seenItems) do
+        self._seenItems[pos].isStale = true
+    end
+end
+function state.dungeon.entities.items:_sweepStaleSeenItems()
+    -- Clear out stale seen item entries
+    for pos, seenItem in pairs(self._seenItems) do
+        if seenItem.isStale then
+            self._seenItems[pos] = nil
+        end
+    end
+end
 function state.dungeon.entities.items:read()
     local items = {}
     local leader = stateinfo.state.player.leader()
     local x0 = leader.xPosition
     local y0 = leader.yPosition
+
     for _, item in ipairs(stateinfo.state.dungeon.entities.items()) do
-        -- We only know about an item if we can see all items on the floor,
-        -- or it's in the visibility region
         local x = item.xPosition
-        local y = item.yPosition        
-        if stateinfo.state.player.canSeeItems() or
-            rangeutils.inVisibilityRegion(x, y, x0, y0, stateinfo.state.dungeon) then
+        local y = item.yPosition
+        -- Check how much is known about this item already. Will be nil if
+        -- nothing is known, 1 if partial info is known, or 2 if full info
+        -- is known
+        local infoLevel = self:_checkSeenInfo(item)
+
+        -- We only know about an item if we can see all items on the floor,
+        -- or it's in the visibility region, or it's on a visited tile
+        local inVisRegion = rangeutils.inVisibilityRegion(x, y, x0, y0, stateinfo.state.dungeon)
+        if stateinfo.state.player.canSeeItems() or inVisRegion or
+            stateinfo.state.dungeon.layout()[y][x].visited then
             local newItem = {}
-            if rangeutils.onScreen(x, y, x0, y0) or
-                (item.inShop and stateinfo.state.dungeon.layout()[y][x].visited) then
+            if infoLevel ~= nil or (inVisRegion and rangeutils.onScreen(x, y, x0, y0)) then
                 -- Note: the item position just being visited isn't enough because
                 -- items can be dropped off-screen, and you won't have seen them before
-                -- The one exception: if an item is in a shop and that shop was visited,
-                -- it's probably relatively safe to assume it was on screen at some point.
                 newItem = copy.deepcopySimple(item)
-                -- If we're standing on the item, we know everything
-                if not (x == x0 and y == y0) then
+                local newInfoLevel = INFOLEVEL_FULL
+                -- If we're standing on the item or have in the past, we know everything.
+                if infoLevel ~= INFOLEVEL_FULL and not (x == x0 and y == y0) then
                     -- Otherwise, we lack some info
                     newItem.isSticky = nil
                     newItem.amount = nil
                     newItem.itemType = nil
+                    newInfoLevel = INFOLEVEL_PARTIAL
                 end
+                self:_addSeenInfo(item, newInfoLevel)
             else
                 -- Off-screen; we only know where the item is
                 newItem.xPosition = item.xPosition
@@ -250,6 +308,10 @@ function state.dungeon.entities.items:read()
             table.insert(items, newItem)
         end
     end
+    -- Cleanup: first sweep out any stale items, then flag the remaining ones as stale
+    self:_sweepStaleSeenItems()
+    self:_makeSeenItemsStale()
+
     return items
 end
 
