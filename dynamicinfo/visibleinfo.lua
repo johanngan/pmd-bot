@@ -77,9 +77,9 @@ state.dungeon.layout = StateData:new()
 -- Memoize tiles that have been on-screen to mimic human memory
 -- _seenTiles[y][x] will be true if seen or nil if not
 function state.dungeon.layout:resetSeenTiles()
-    state.dungeon.layout._seenTiles = {}
+    self._seenTiles = {}
     for y=1,mapHelpers.NROWS do
-        state.dungeon.layout._seenTiles[y] = {}
+        self._seenTiles[y] = {}
     end
 end
 state.dungeon.layout:resetSeenTiles()   -- Initialize the first time
