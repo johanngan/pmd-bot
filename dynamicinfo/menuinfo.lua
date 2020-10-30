@@ -26,6 +26,7 @@ local menuCodes = {
     [221] = MENU.ItemFor,   -- 2-member party
     [253] = MENU.ItemFor,   -- 3-member party
     [269] = MENU.ItemFor,   -- 4-member party
+    [323] = MENU.ItemSwap,  -- Selecting Swap on a held or underfoot item
     [121] = MENU.Team, -- 1-member party
     [151] = MENU.Team, -- 2-member party
     [181] = MENU.Team, -- 3-member party
@@ -65,6 +66,7 @@ local volatileCursorInfo = {
     [MENU.Bag] = 0x020B34A4,
     [MENU.ItemAction] = 0x020B3474,
     [MENU.ItemFor] = 0x020B34D4,
+    [MENU.ItemSwap] = 0x020B34A4,
     [MENU.Team] = 0x20B34BC,
     [MENU.LeaderAction] = 0x020B3474,
     [MENU.TeammateAction] = 0x020B3474,
@@ -90,6 +92,7 @@ menuinfo.maxMenuLengths = {
     [MENU.Bag] = 8,
     [MENU.ItemAction] = 6,
     [MENU.ItemFor] = 4,
+    [MENU.ItemSwap] = 8,
     [MENU.Team] = 4,
     [MENU.LeaderAction] = 5,
     [MENU.TeammateAction] = 7,
@@ -192,7 +195,7 @@ function menuinfo.getMenuPageIndex()
     local currentMenu = menuinfo.getMenu()
 
     -- These are the only menus that you should ask for a page index on
-    if currentMenu == MENU.Bag or currentMenu == MENU.IQ then
+    if currentMenu == MENU.Bag or currentMenu == MENU.ItemSwap or currentMenu == MENU.IQ then
         return getVolatilePageIndex(volatileCursorInfo[currentMenu])
     end
 

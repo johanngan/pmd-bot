@@ -15,6 +15,7 @@ codes.MENU, codes.MENU_NAMES = enum.register({
     'Bag',
     'ItemAction',
     'ItemFor',
+    'ItemSwap',
     'Team',
     'LeaderAction',
     'TeammateAction',
