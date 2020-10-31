@@ -324,7 +324,7 @@ function Agent:act(state, visible)
     --      (this roughly coincides with when the UI starts flashing)
     local threshold = 0.25 * (leader.stats.maxHP + 1) - 1
     -- ceil(threshold) - 1 because the parameter is treated as inclusive in this function
-    if smartactions.healIfLowHP(availableInfo.player.bag(), leader.stats.HP,
+    if smartactions.healIfLowHP(availableInfo, leader.stats.HP,
         leader.stats.maxHP, math.ceil(threshold) - 1, true, true) then
         return
     end
@@ -355,7 +355,7 @@ function Agent:act(state, visible)
     -- If the leader has good AOE moves but all of them are out of PP, try to use a
     -- Max Elixir.
     if #AOEMoves > 0 and nAOEMovesWithPP == 0 then
-        if smartactions.useMaxElixirIfPossible(availableInfo.player.bag(), true) then
+        if smartactions.useMaxElixirIfPossible(availableInfo, true) then
             return
         end
     end
@@ -576,20 +576,19 @@ function Agent:act(state, visible)
 
                     -- Heal if HP is moderately low and there's healing items in the bag
                     -- "Moderately low" means 37.5% HP or lower
-                    if smartactions.healIfLowHP(availableInfo.player.bag(), leader.stats.HP,
+                    if smartactions.healIfLowHP(availableInfo, leader.stats.HP,
                         leader.stats.maxHP, 0.375 * leader.stats.maxHP, true, true) then
                         return
                     end
 
                     -- Restore PP if a Max Elixir is in the bag and all offensive moves are out of PP
                     if checkOffensiveMovePP(leader.moves) == 0 and
-                        smartactions.useMaxElixirIfPossible(availableInfo.player.bag(), true) then
+                        smartactions.useMaxElixirIfPossible(availableInfo, true) then
                         return
                     end
 
                     -- If belly is empty, restore it
-                    if smartactions.eatFoodIfBellyEmpty(
-                        availableInfo.player.bag(), leader.belly, true) then
+                    if smartactions.eatFoodIfBellyEmpty(availableInfo, leader.belly, true) then
                         return
                     end
 
@@ -599,7 +598,7 @@ function Agent:act(state, visible)
                     else
                         -- If there's nothing else to do, and belly is even somewhat low,
                         -- we might as well eat something (provided we're not being wasteful)
-                        if smartactions.eatFoodIfHungry(availableInfo.player.bag(), leader.belly,
+                        if smartactions.eatFoodIfHungry(availableInfo, leader.belly,
                             leader.maxBelly, leader.maxBelly - 50, false, true) then
                             return
                         end
@@ -666,14 +665,13 @@ function Agent:act(state, visible)
         -- No enemies are in the vicinity
 
         -- Eat food if belly is empty and there's food in the bag
-        if smartactions.eatFoodIfBellyEmpty(availableInfo.player.bag(),
-            leader.belly, true) then
+        if smartactions.eatFoodIfBellyEmpty(availableInfo, leader.belly, true) then
             return
         end
         -- Eat food if belly is low (50 below max), there's food in the bag, and it can
         -- be done without being wasteful
-        if smartactions.eatFoodIfHungry(availableInfo.player.bag(),
-            leader.belly, leader.maxBelly, leader.maxBelly - 50, false, true) then
+        if smartactions.eatFoodIfHungry(availableInfo, leader.belly,
+            leader.maxBelly, leader.maxBelly - 50, false, true) then
             return
         end
 
@@ -696,7 +694,7 @@ function Agent:act(state, visible)
             -- "Low PP" means if 25% or less (rounded) of offensive moves still have PP
             local nOffensiveMovesWithPP, nOffensiveMoves = checkOffensiveMovePP(leader.moves)
             if nOffensiveMovesWithPP <= mathutils.round(0.25 * nOffensiveMoves) and
-                smartactions.useMaxElixirIfPossible(availableInfo.player.bag(), true) then
+                smartactions.useMaxElixirIfPossible(availableInfo, true) then
                 return
             end
         end

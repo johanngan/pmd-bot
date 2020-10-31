@@ -8,8 +8,8 @@ _Explorers of Sky_ represents a lot of data using internal ID codes. This includ
 - [Genders](gender.lua)
 - [IQ groups](iqGroup.lua)
 - [Items](item.lua)
-- [Item sprites](itemSprite.lua)
 - [Item categories](itemCategory.lua)
+- [Item sprites](itemSprite.lua)
 - [Mobility types](mobility.lua)
 - [Pokémon moves](move.lua)
 - [Move damage categories](moveCategory.lua)
@@ -20,6 +20,6 @@ _Explorers of Sky_ represents a lot of data using internal ID codes. This includ
 - [Pokémon types](type.lua)
 - [Weather conditions in dungeons](weather.lua)
 
-Additionally, PMD-Bot also defines ID codes for different [menus](menu.lua), [colors](color.lua), [move ranges](moveRange.lua), and [move targets](moveTarget.lua).
+Additionally, PMD-Bot also defines ID codes for different [menus](menu.lua), [colors](color.lua), [item menu types](itemMenuType.lua), [move ranges](moveRange.lua), and [move targets](moveTarget.lua).
 
 All ID code submodules, when imported, define two subtables in the `codes` global variable: a map from readable names to their ID codes (for use in botting code), and an inverse map (for message reporting and debugging). The inverse map has the suffix `_NAMES`.

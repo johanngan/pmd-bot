@@ -9,9 +9,10 @@ end
 
 mechanics.item = LookupTable:new('mechanics/data/item_data.csv')
 
--- Generate a lightweight, in-memory reference for stateinfo
-if mechanics.item.sprites == nil then
+-- Generate a lightweight, in-memory reference for stateinfo and smartactions
+if mechanics.item.sprites == nil or mechanics.item.menuTypes == nil then
     mechanics.item.sprites = {}
+    mechanics.item.menuTypes = {}
 
     local function sprite(itemInfo)
         return {type = itemInfo.sprite, color = itemInfo.color}
@@ -27,6 +28,7 @@ if mechanics.item.sprites == nil then
     local fullItemList = mechanics.item(itemCodes)
     for i, id in ipairs(itemCodes) do
         mechanics.item.sprites[id] = sprite(fullItemList[i])
+        mechanics.item.menuTypes[id] = fullItemList[i].menuType
     end
     mechanics.item:flushCache()
 end
