@@ -82,6 +82,33 @@ local function navMenuIndex(currentIndex, targetIndex, incDirection, decDirectio
     end
 end
 
+-- Navigate to a certain cursor index in a menu
+local function navCursorIndex(targetIndex)
+    while menuinfo.getMenuCursorIndex() ~= targetIndex do
+        navMenuIndex(menuinfo.getMenuCursorIndex(), targetIndex)
+    end
+end
+
+-- Navigate to a certain page index in a menu
+local function navPageIndex(targetIndex)
+    -- If the current menu doesn't support a page index, just abort
+    if pcall(menuinfo.getMenuPageIndex) then
+        while menuinfo.getMenuPageIndex() ~= targetIndex do
+            navMenuIndex(menuinfo.getMenuPageIndex(), targetIndex,
+                codes.DIRECTION.Right, codes.DIRECTION.Left)
+        end
+    end
+end
+
+-- Navigate to a certain absolute index in a paged menu
+local function navAbsoluteIndex(targetIndex, pageLength)
+    local relIndex = targetIndex % pageLength
+    local pageIndex = math.floor(targetIndex / pageLength)
+
+    navPageIndex(pageIndex)
+    navCursorIndex(relIndex)
+end
+
 ---- END INTERNAL STUFF ----
 
 ---- BEGIN PUBLIC STUFF ----
@@ -213,16 +240,21 @@ function basicactions.openBagMenu(verbose)
     end
 end
 
+-- Make a selection on an open menu
+function basicactions.makeMenuSelection(index, verbose)
+    messages.reportIfVerbose('Selection menu option ' .. (index+1), verbose)
+
+    navCursorIndex(index)
+    joypad.set({A=true})
+    waitForMenuTransition()
+end
+
 -- Open the ground menu
 function basicactions.openGroundMenu(verbose)
     messages.reportIfVerbose('Checking underfoot.', verbose)
 
     basicactions.openMainMenu()
-    while menuinfo.getMenuCursorIndex() ~= 4 do
-        navMenuIndex(menuinfo.getMenuCursorIndex(), 4)
-    end
-    joypad.set({A=true})
-    waitForMenuTransition()
+    basicactions.makeMenuSelection(4)
 end
 
 -- Use a move at a given index
@@ -230,36 +262,20 @@ function basicactions.useMove(index, verbose)
     messages.reportIfVerbose('Using move ' .. (index+1) .. '.', verbose)
 
     basicactions.openMovesMenu()
-    while menuinfo.getMenuCursorIndex() ~= index do
-        navMenuIndex(menuinfo.getMenuCursorIndex(), index)
-    end
+    navCursorIndex(index)
     repeat
         joypad.set({A=true})
         waitForMenuTransition()
     until menuinfo.getMenu() == codes.MENU.MoveAction
-    while menuinfo.getMenuCursorIndex() ~= 0 do
-        navMenuIndex(menuinfo.getMenuCursorIndex(), 0)
-    end
-    joypad.set({A=true})
-    waitForMenuTransition()
+    basicactions.makeMenuSelection(0)
 end
 
 -- Select an item at some index
 function basicactions.selectItem(index, verbose)
     messages.reportIfVerbose('Selecting item ' .. (index+1) .. '.', verbose)
 
-    local menuLength = menuinfo.maxMenuLengths[codes.MENU.Bag]
-    local relIndex = index % menuLength
-    local pageIndex = math.floor(index / menuLength)
-
     basicactions.openBagMenu()
-    while menuinfo.getMenuPageIndex() ~= pageIndex do
-        navMenuIndex(menuinfo.getMenuPageIndex(), pageIndex,
-            codes.DIRECTION.Right, codes.DIRECTION.Left)
-    end
-    while menuinfo.getMenuCursorIndex() ~= relIndex do
-        navMenuIndex(menuinfo.getMenuCursorIndex(), relIndex)
-    end
+    navAbsoluteIndex(index, menuinfo.maxMenuLengths[codes.MENU.Bag])
     repeat
         joypad.set({A=true})
         waitForMenuTransition()
@@ -272,9 +288,19 @@ function basicactions.itemAction(index, actionIndex, verbose)
         (actionIndex+1) .. '.', verbose)
 
     basicactions.selectItem(index)
-    while menuinfo.getMenuCursorIndex() ~= actionIndex do
-        navMenuIndex(menuinfo.getMenuCursorIndex(), actionIndex)
+    basicactions.makeMenuSelection(actionIndex)
+end
+
+-- Take a followup action for an item
+function basicactions.itemFollowupAction(followupMenu, followupIndex, verbose)
+    messages.reportIfVerbose('Following up with action ' ..
+        (followupIndex+1) .. '.', verbose)
+
+    while menuinfo.getMenu() ~= followupMenu do
+        joypad.set({A=true})
+        waitForMenuTransition()
     end
+    navAbsoluteIndex(followupIndex, menuinfo.maxMenuLengths[followupMenu])
     joypad.set({A=true})
     waitForMenuTransition()
 end
@@ -291,15 +317,7 @@ function basicactions.itemActionOnTeammate(index, actionIndex, teammate, verbose
     local teammate = teammate or 0    -- Default to using on the leader
 
     basicactions.itemAction(index, actionIndex)
-    while menuinfo.getMenu() ~= codes.MENU.ItemFor do
-        joypad.set({A=true})
-        waitForMenuTransition()
-    end
-    while menuinfo.getMenuCursorIndex() ~= teammate do
-        navMenuIndex(menuinfo.getMenuCursorIndex(), teammate)
-    end
-    joypad.set({A=true})
-    waitForMenuTransition()
+    basicactions.itemFollowupAction(codes.MENU.ItemFor, teammate)
 end
 
 -- Use an item at a given index
@@ -352,11 +370,7 @@ function basicactions.climbStairs(verbose)
             basicactions.openGroundMenu()
         end
     end
-    while menuinfo.getMenuCursorIndex() ~= 0 do
-        navMenuIndex(menuinfo.getMenuCursorIndex(), 0)
-    end
-    joypad.set({A=true})
-    waitForMenuTransition()
+    basicactions.makeMenuSelection(0)
 end
 
 -- Pick an option in a Yes/No prompt. 0 for yes, 1 for no. Defaults to no
@@ -366,11 +380,7 @@ function basicactions.selectYesNo(selection, verbose)
     -- If not in a Yes/No prompt, just return
     if menuinfo.getMenu() ~= codes.MENU.YesNo then return end
     local selection = selection or 1
-    while menuinfo.getMenuCursorIndex() ~= selection do
-        navMenuIndex(menuinfo.getMenuCursorIndex(), selection)
-    end
-    joypad.set({A=true})
-    waitForMenuTransition()
+    basicactions.makeMenuSelection(selection)
 end
 
 -- Pick a move to forget when learning a new move (if you already have 4 moves).
@@ -381,16 +391,12 @@ function basicactions.selectMoveToForget(selection, verbose)
     -- If not in a new move prompt, just return
     if menuinfo.getMenu() ~= codes.MENU.NewMove then return end
     local selection = selection or 4
-    while menuinfo.getMenuCursorIndex() ~= selection do
-        navMenuIndex(menuinfo.getMenuCursorIndex(), selection)
-    end
+    navCursorIndex(selection)
     repeat
         joypad.set({A=true})
         waitForMenuTransition()
     until menuinfo.getMenu() == codes.MENU.NewMoveAction
-    while menuinfo.getMenuCursorIndex() ~= 0 do
-        navMenuIndex(menuinfo.getMenuCursorIndex(), 0)
-    end
+    navCursorIndex(0)
     repeat
         joypad.set({A=true})
         waitForMenuTransition()
