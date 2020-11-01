@@ -15,7 +15,7 @@ codes.MOVE_RANGE, codes.MOVE_RANGE_NAMES = enum.register({
     'Underfoot',    -- The tile underneath the user
     'Front',        -- Directly in front, doesn't cut corners
     'FrontWithCornerCutting',   -- Directly in front, and cuts corners
-    'FrontAndSides',    -- Wide Slash. This also cuts corners
+    'FrontSpread',  -- Wide Slash. This also cuts corners
     'Nearby',   -- All tiles directly around the user
     'Front2',   -- 2 tiles ahead. This also cuts corners
     'Nearby2',  -- Within 2 spaces around the user

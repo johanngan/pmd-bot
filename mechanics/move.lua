@@ -55,7 +55,7 @@ local function inRangeFrontWithCornerCutting(x, y, x0, y0, layout)
     return rangeutils.inRange(x, y, x0, y0, 1) and attackCanPass(layout[y][x].terrain)
 end
 
-local function inRangeFrontAndSides(x, y, x0, y0, layout)
+local function inRangeFrontSpread(x, y, x0, y0, layout)
     -- Wide Slash can hit in walls
     return rangeutils.inRange(x, y, x0, y0, 1)
 end
@@ -117,7 +117,7 @@ mechanics.move.rangeFunctions = {
     [codes.MOVE_RANGE.Underfoot] = inRangeUnderfoot,
     [codes.MOVE_RANGE.Front] = inRangeFront,
     [codes.MOVE_RANGE.FrontWithCornerCutting] = inRangeFrontWithCornerCutting,
-    [codes.MOVE_RANGE.FrontAndSides] = inRangeFrontAndSides,
+    [codes.MOVE_RANGE.FrontSpread] = inRangeFrontSpread,
     [codes.MOVE_RANGE.Nearby] = inRangeNearby,
     [codes.MOVE_RANGE.Front2] = inRangeFront2,
     [codes.MOVE_RANGE.Nearby2] = inRangeNearby2,
@@ -136,7 +136,7 @@ end
 -- -1 denotes unknown
 local AOE_RANGES = {
     [codes.MOVE_RANGE.Special] = -1,    -- Unknown
-    [codes.MOVE_RANGE.FrontAndSides] = 5,
+    [codes.MOVE_RANGE.FrontSpread] = 3,
     [codes.MOVE_RANGE.Nearby] = 8,
     [codes.MOVE_RANGE.Nearby2] = 24,
     [codes.MOVE_RANGE.Room] = math.huge,    -- Arbitrarily large
