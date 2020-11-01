@@ -13,11 +13,11 @@ Broadly, PMD-Bot runs using a three-step process, repeated every turn:
 For a more detailed discussion, see [Writing a bot](#writing-a-bot).
 
 ## Dependencies
-- [A modified version of the Jumper library](https://github.com/johanngan/Jumper) for pathfinding.
+- [A modified version of the Jumper library](https://github.com/johanngan/Jumper) for pathfinding (included as a submodule of this repository).
 
 ## Installation
-1. Retrieve the repository locally (for example, by doing `git clone https://github.com/johanngan/pmd-bot.git` through the command line).
-2. Retrieve the [modified Jumper library](https://github.com/johanngan/Jumper), and copy the `jumper/` directory into PMD-Bot's top-level directory (the same level as this README).
+1. Retrieve the repository locally with the Jumper submodule (for example, by doing `git clone --recursive https://github.com/johanngan/pmd-bot.git` through the command line).
+2. If you cloned the project but forgot to pull the submodule with the `--recursive` option, run `git submodule update --init` from within the PMD-Bot repository to set up the modified Jumper library.
 
 ## Usage
 ### Prerequisites

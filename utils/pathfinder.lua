@@ -8,8 +8,8 @@ require 'utils.copy'
 require 'utils.mathutils'
 require 'codes.terrain'
 require 'codes.direction'
-local Grid = require 'jumper.grid'
-local Pathfinder = require 'jumper.pathfinder'
+local Grid = require 'Jumper.jumper.grid'
+local Pathfinder = require 'Jumper.jumper.pathfinder'
 
 pathfinder = {}
 

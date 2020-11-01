@@ -1,0 +1,4 @@
+[submodule "Jumper"]
+	path = Jumper
+	url = https://github.com/johanngan/Jumper
+	update = rebase
