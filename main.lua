@@ -5,7 +5,7 @@ require 'utils.messages'
 require 'dynamicinfo.stateinfo'
 require 'dynamicinfo.visibleinfo'
 require 'dynamicinfo.menuinfo'
-require 'Agent'
+require 'agent.Agent'
 
 -- Temporarily set the leader's nickname to "Lua"
 nicknames.setLeaderNicknameTemp('Lua')

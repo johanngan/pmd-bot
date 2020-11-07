@@ -28,9 +28,11 @@ For a more detailed discussion, see [Writing a bot](#writing-a-bot).
     - If you need some help, here's a link to the [necessary Lua binaries](https://sourceforge.net/projects/luabinaries/files/5.1.5/Tools%20Executables/lua-5.1.5_Win64_bin.zip/download). Extract the archive and copy `lua5.1.dll` and `lua51.dll` into the same directory as your DeSmuME executable file. After doing this, you should be able to run Lua scripts on DeSmuME.
 
 ### Writing a bot
-Most of the botting logic is written in the file [`Agent.lua`](Agent.lua). This repository comes with an example bot, but you can change the bot as you see fit. You'll mainly be modifying the `Agent:act()` method, which contains the main logic for the bot. You might also change `Agent:attackEnemy()`, which holds attack selection logic, but this is really just a helper function; you could instead just cram this logic directly into `Agent:act()`. Additionally, if you want to set up state information for your bot, you can do so in `Agent:init()`, which is called only once at startup.
+Bots are defined through the `Agent` class, which is used by the main execution loop in [`main.lua`](main.lua). The `Agent:act()` method contains the main logic for the bot. This method is called every turn with the current dungeon information, and should take some action each turn in response to the environment. If you want to set up state information for your bot, you can do so in `Agent:new()`, which is called only once at instantiation.
 
-The bot makes direct use of the following utilities:
+This repository comes with example bots in the [`agent`](agent) directory. However, you can modify them or write new ones to suit your needs. To write a new bot, create a file that implements the `Agent` class (with `new(state, visible)` and `act(state, visible)` methods). To switch out the current bot with another, modify the `require` statement in [`main.lua`](main.lua) to use the file containing the desired bot.
+
+The example bots make direct use of the following utilities:
 
 - [Dungeon state information](dynamicinfo) is accessed through the _full_ `state` (`stateinfo.state`) and _visible_ `state` (`visibleinfo.state`) objects passed to `Agent:act()`.
 - [Actions in game](actions) are performed using the `actions` module.
@@ -38,7 +40,7 @@ The bot makes direct use of the following utilities:
 - [Game mechanics utilities](mechanics) are referenced from the `mechanics` module.
 - [Other utilities](utils) include pathfinding and message reporting, which are handled in their respective submodules in `utils`.
 
-Modifying `Agent.lua` should be sufficient for many use cases. However, if you need to change the nature of the main execution loop, you can modify [`main.lua`](main.lua).
+Modifying [`Agent.lua`](agent/Agent.lua) should be sufficient for many use cases. However, if you need to change the nature of the main execution loop, you can also modify [`main.lua`](main.lua).
 
 ### Running a bot
 These instructions assume the interface of DeSmuME 0.9.12, but hopefully they won't change much in future versions.
