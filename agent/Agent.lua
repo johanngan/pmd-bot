@@ -12,8 +12,6 @@ require 'codes.color'
 require 'codes.item'
 require 'codes.itemSprite'
 require 'codes.menu'
-require 'codes.move'
-require 'codes.moveRange'
 require 'codes.species'
 require 'codes.status'
 require 'codes.terrain'
@@ -24,11 +22,12 @@ require 'actions.basicactions'
 require 'actions.smartactions'
 
 require 'mechanics.move'
-require 'mechanics.power'
 require 'mechanics.species'
 local rangeutils = require 'mechanics.rangeutils'
 
 require 'dynamicinfo.menuinfo'
+
+local moveLogic = require 'agent.logic.moveLogic'
 
 Agent = {}
 Agent.name = 'Agent'
@@ -174,124 +173,13 @@ local function scanNearbyEntities(entities, x0, y0, dungeon,
     return nearestEntities
 end
 
--- Checks how many offensive moves still have PP, and also the total
--- number of offensive moves
-local function checkOffensiveMovePP(moves)
-    local nOffensiveMoves = 0
-    local nOffensiveMovesWithPP = 0
-    for _, move in ipairs(moves) do
-        if mechanics.move.isOffensive(move.moveID) then
-            nOffensiveMoves = nOffensiveMoves + 1
-            if move.PP > 0 then
-                nOffensiveMovesWithPP = nOffensiveMovesWithPP + 1
-            end
-        end
-    end
-    return nOffensiveMovesWithPP, nOffensiveMoves
-end
-
 -- Decide how to attack an enemy given the circumstances, and perform the action.
 -- Returns true if the attack was successfully used, or false if not.
 -- If you're using different Pokemon, it might be sufficient just to rewrite this
 -- method, and leave the main dungeon-crawling logic as is.
 function Agent:attackEnemy(enemy, leader, availableInfo)
-    local attackerTypes = {leader.features.primaryType, leader.features.secondaryType}
-    local defenderTypes = {enemy.features.primaryType, enemy.features.secondaryType}
-    local defenderAbilities = {enemy.features.primaryAbility, enemy.features.secondaryAbility}
-    local function expectedDamageHeuristic(move)
-        local moveInfo = mechanics.move(move.moveID)
-        local ginseng = move.ginsengBoost or 0
-        ginseng = moveInfo.boostableByGinseng and ginseng or 0
-        local power = mechanics.power.applyGinsengBoost(moveInfo.basePower, ginseng)
-        local damage = mechanics.power.calcDamageHeuristic(power,
-            moveInfo.type, attackerTypes, defenderTypes, defenderAbilities)
-        -- Weight the damage heuristic by the move accuracy
-        -- "Male" accuracy is the "base" accuracy; "Female" accuracy is higher
-        damage = damage * moveInfo.accuracyMale / 100
-        -- If the move is multihitting, also factor that in
-        -- strikes == 0 means a random # of hits (2-5). Use 3, the expected # of hits
-        -- (from the main series in Gen IV)
-        local strikes = moveInfo.strikes > 0 and moveInfo.strikes or 3
-        damage = damage * strikes
-        return damage
-    end
-
-    local function isUsable(move)
-        return move.PP > 0 and not move.isSealed and not move.isDisabled
-            and not move.subsequentInLinkChain
-    end
-    local function hitsTeammatesAOE(moveID)
-        return mechanics.move.isAOE(moveID) and mechanics.move.hasFriendlyFire(moveID)
-    end
-    local teammatesExist = #availableInfo.dungeon.entities.team() > 1
-    local movepool = {}
-    for i, move in ipairs(leader.moves) do
-        if isUsable(move)
-            and mechanics.move.isOffensive(move.moveID)
-            and mechanics.move(move.moveID).range < codes.MOVE_RANGE.Room
-            and not (teammatesExist and hitsTeammatesAOE(move.moveID))
-            and expectedDamageHeuristic(move) > 0 then
-            table.insert(movepool, {
-                idx=i,
-                damage=expectedDamageHeuristic(move),
-                pp=move.PP,
-            })
-        end
-    end
-
-    -- Out of the selected moves, try the highest-damaging ones first,
-    -- based on a damage heuristic. Break ties by PP.
-    table.sort(movepool, function(a, b)
-        if a.damage == b.damage then return a.pp > b.pp end
-        return a.damage > b.damage
-    end)
-    -- Append an invalid index (basic attack) as a last resort
-    table.insert(movepool, {idx=-1, damage=0})
-    
-    -- Similar to smartactions.useMoveIfInRange, but turn to face the enemy if
-    -- the range check passes. Also falls back to the basic attack if idx is invalid.
-    local function tryAttack(idx)
-        local move = leader.moves[idx]
-        local moveID = move and move.moveID or codes.MOVE.regularattack
-        if not mechanics.move.inRange(moveID, enemy.xPosition, enemy.yPosition,
-            leader.xPosition, leader.yPosition, availableInfo.dungeon.layout()) then
-            return false
-        end
-
-        -- The direction to face the enemy if needed/possible
-        local direction = pathfinder.getDirection(
-            enemy.xPosition - leader.xPosition,
-            enemy.yPosition - leader.yPosition
-        )
-        if direction and leader.direction ~= direction then
-            basicactions.face(direction)
-        end
-
-        if moveID == codes.MOVE.regularattack then
-            basicactions.attack(true)
-            return true
-        end
-        -- idx-1 to convert 1-indexing to 0-indexing
-        return smartactions.useMoveIfPossible(idx-1, leader.moves, true)
-    end
-
-    -- If the enemy is threatening (STAB super effective), attack it with
-    -- any move possible, rather than waiting for the best move to be in range.
-    -- Otherwise, only try to use the best move; if out of range, do nothing.
-    -- This helps (just a little bit) to mitigate projectile spam.
-    local threatened = 
-        (mechanics.power.typeEffectiveness(enemy.features.primaryType,
-        leader.features.primaryType, leader.features.secondaryType) > 1) or
-        (mechanics.power.typeEffectiveness(enemy.features.secondaryType,
-        leader.features.primaryType, leader.features.secondaryType) > 1)
-    local highestDamage = movepool[1].damage
-    for _, idxAndDamage in ipairs(movepool) do
-        if not threatened and idxAndDamage.damage < highestDamage then break end
-        if tryAttack(idxAndDamage.idx) then return true end
-    end
-
-    -- No attacks were used
-    return false
+    -- Wrap in an Agent method in case we want to use internal state in the future
+    return moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
 end
 
 -- Perform some actions based on the current state of the dungeon (and the bot's own state)
@@ -326,30 +214,12 @@ function Agent:act(state, visible)
 
     -- Check for good offensive AOE moves (without friendly fire if there are teammates)
     -- Also check how many still have PP
-    local teammatesExist = #availableInfo.dungeon.entities.team() > 1
-    local AOEMoves = {}
-    local nAOEMovesWithPP = 0
-    for i, move in ipairs(leader.moves) do
-        -- Exclude Wide Slash; it's partly directional so the logic would be more complicated
-        if mechanics.move.isOffensive(move.moveID) and mechanics.move.isAOE(move.moveID, 8)
-            and not (teammatesExist and mechanics.move.hasFriendlyFire(move.moveID)) then
-            table.insert(AOEMoves, i)
-            if move.PP > 0 then
-                nAOEMovesWithPP = nAOEMovesWithPP + 1
-            end
-        end
-        -- Sort by highest range, then highest base power
-        table.sort(AOEMoves, function(i1, i2)
-            local info1 = mechanics.move(leader.moves[i1].moveID)
-            local info2 = mechanics.move(leader.moves[i2].moveID)
-            if info1.range ~= info2.range then return info1.range > info2.range end
-            return info1.basePower > info2.basePower
-        end)
-    end
+    local AOEMoveIdxs, nAOEMovesWithPP = moveLogic.getOffensiveAOEMoves(
+        leader.moves, #availableInfo.dungeon.entities.team() > 1)
 
     -- If the leader has good AOE moves but all of them are out of PP, try to use a
     -- Max Elixir.
-    if #AOEMoves > 0 and nAOEMovesWithPP == 0 then
+    if #AOEMoveIdxs > 0 and nAOEMovesWithPP == 0 then
         if smartactions.useMaxElixirIfPossible(availableInfo, true) then
             return
         end
@@ -357,7 +227,7 @@ function Agent:act(state, visible)
 
     -- If there are 3 or more enemies in range and the leader has a good offensive AOE
     -- move, use the best one available.
-    for _, idx in ipairs(AOEMoves) do
+    for _, idx in ipairs(AOEMoveIdxs) do
         -- Count how many enemies are in range of this move
         local move = leader.moves[idx]
         local nEnemiesInRange = 0
@@ -577,7 +447,7 @@ function Agent:act(state, visible)
                     end
 
                     -- Restore PP if a Max Elixir is in the bag and all offensive moves are out of PP
-                    if checkOffensiveMovePP(leader.moves) == 0 and
+                    if moveLogic.checkOffensiveMoves(leader.moves) == 0 and
                         smartactions.useMaxElixirIfPossible(availableInfo, true) then
                         return
                     end
@@ -687,7 +557,7 @@ function Agent:act(state, visible)
 
             -- If PP is low, use a Max Elixir if possible
             -- "Low PP" means if 25% or less (rounded) of offensive moves still have PP
-            local nOffensiveMovesWithPP, nOffensiveMoves = checkOffensiveMovePP(leader.moves)
+            local nOffensiveMovesWithPP, nOffensiveMoves = moveLogic.checkOffensiveMoves(leader.moves)
             if nOffensiveMovesWithPP <= mathutils.round(0.25 * nOffensiveMoves) and
                 smartactions.useMaxElixirIfPossible(availableInfo, true) then
                 return
