@@ -272,24 +272,36 @@ function Agent:act(state, visible)
         if itemIsGone then self:setTarget(nil) end
     end
     if self:isTargetPos({leader.xPosition, leader.yPosition}) then
-        -- If the target has been reached, clear it
+        -- If the target was an item (if we get in here, the item must still be there),
+        -- Pick it up or swap it out if it makes sense to
+        if self.target.type == TARGET.Item and
+            not smartactions.pickUpItemIfPossible(-1, availableInfo, true) then
+            if itemLogic.swapItemUnderfoot(availableInfo) then
+                -- Swapping uses up the turn
+                return
+            end
+        end
+        -- The target has been reached, so clear it
         self:setTarget(nil)
     end
 
     -- If there is no target, or the target is a soft one, recompute a target
     if not self.target.pos or self.target.soft then
         local explore = true    -- Defaults to true unless another target is found
-        -- When checking for items, don't touch Kecleon's stuff
+        -- When checking for items, don't touch Kecleon's stuff, and only pay attention to
+        -- items either if the bag has room, or they're worth swapping into the bag
         local nearestItems = scanNearbyEntities(availableInfo.dungeon.entities.items(),
             leader.xPosition, leader.yPosition, availableInfo.dungeon,
-            function(item) return not item.inShop end,
+            function(item)
+                return itemLogic.shouldPickUp(item, availableInfo.player.bag(),
+                    availableInfo.player.bagCapacity())
+            end,
             nil, avoidIfPossible)
-        if #nearestItems > 0 and
-            #availableInfo.player.bag() < availableInfo.player.bagCapacity() then
+        if #nearestItems > 0 then
             -- Just pick the first item found if there are multiple equally close ones
             local nearestItem, path = nearestItems[1].entity, nearestItems[1].path
 
-            -- An item is nearby and there's space, so target that.
+            -- A desirable item is nearby, so target that.
             -- If we haven't seen the item yet, we'll want to reload when the sprite
             -- becomes visible.
             local targetName = itemLogic.resolveItemName(nearestItem)
