@@ -287,6 +287,7 @@ end
 -- Forces reload for appropriate stuff every floor
 function stateinfo.reloadEveryFloor(state)
     flagListForReload({
+        state.dungeon.visibilityRadius,
         state.dungeon.layout,   -- This is expensive! Doing this every turn tanks performance.
         state.dungeon.stairs,
         state.dungeon.conditions.naturalWeather,
