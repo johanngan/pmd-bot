@@ -8,9 +8,6 @@ require 'utils.mathutils'
 require 'utils.messages'
 require 'utils.pathfinder'
 
-require 'codes.color'
-require 'codes.item'
-require 'codes.itemSprite'
 require 'codes.menu'
 require 'codes.species'
 require 'codes.status'
@@ -27,6 +24,7 @@ local rangeutils = require 'mechanics.rangeutils'
 
 require 'dynamicinfo.menuinfo'
 
+local itemLogic = require 'agent.logic.itemLogic'
 local moveLogic = require 'agent.logic.moveLogic'
 
 Agent = {}
@@ -291,22 +289,12 @@ function Agent:act(state, visible)
             -- Just pick the first item found if there are multiple equally close ones
             local nearestItem, path = nearestItems[1].entity, nearestItems[1].path
 
-            -- An item is nearby and there's space, so target that
-            local soft = false
-            local targetName = ''
-            if nearestItem.itemType then
-                targetName = codes.ITEM_NAMES[nearestItem.itemType]
-            elseif nearestItem.sprite.type then
-                -- The actual item type isn't known, so describe the sprite instead
-                targetName = codes.COLOR_NAMES[nearestItem.sprite.color] .. ' '
-                    .. codes.ITEM_SPRITE_NAMES[nearestItem.sprite.type]
-            else
-                -- The item isn't visible at all
-                targetName = 'Item'
-                soft = true -- We'll want to reload this when the sprite becomes visible
-            end
+            -- An item is nearby and there's space, so target that.
+            -- If we haven't seen the item yet, we'll want to reload when the sprite
+            -- becomes visible.
+            local targetName = itemLogic.resolveItemName(nearestItem)
             self:setTarget({nearestItem.xPosition, nearestItem.yPosition},
-                TARGET.Item, targetName, soft)
+                TARGET.Item, targetName, targetName == itemLogic.DEFAULT_ITEM_NAME)
             -- Might as well save the path we just calculated
             self.pathMoves = pathfinder.getMoves(path)
             explore = false
