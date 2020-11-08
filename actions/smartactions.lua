@@ -146,6 +146,16 @@ local function placeOptionStatus(x, y, layout, traps)
     return true
 end
 
+-- Gets the item at a certain position, or nil if there's nothing
+local function groundItem(items, x, y)
+    for _, item in ipairs(items) do
+        if item.xPosition == x and item.yPosition == y then
+            return item
+        end
+    end
+    return nil
+end
+
 -- Perform some action with an item if possible.
 -- itemIdx is 0-indexed. A value of -1 means the item underfoot.
 -- followupIdx is also 0-indexed, if non-nil.
@@ -157,13 +167,7 @@ local function itemActionIfPossible(actionCode, itemIdx, state, followupIdx, ver
     local underfoot = (itemIdx == -1)
     local item = nil
     if underfoot then
-        for _, groundItem in ipairs(state.dungeon.entities.items()) do
-            if groundItem.xPosition == leader.xPosition and
-                groundItem.yPosition == leader.yPosition then
-                item = groundItem
-                break
-            end
-        end
+        item = groundItem(state.dungeon.entities.items(), leader.xPosition, leader.yPosition)
         -- If no items matched, there are no items underfoot
         if not item then return false end
     else
@@ -320,12 +324,26 @@ end
 
 -- itemIdx and swapBagIdx are both 0-indexed
 function smartactions.swapItemIfPossible(itemIdx, state, swapBagIdx, verbose)
+    -- If swapBagIdx is -1, make it nil to signify underfoot
+    if swapBagIdx == -1 then swapBagIdx = nil end
+
     local verboseMessage = nil
     if verbose then
         verboseMessage = 'Swapping out'
+        local otherItem, conjunction = nil, 'and'
         if swapBagIdx then
-            verboseMessage = {'Swapping', 'and ' ..
-                codes.ITEM_NAMES[state.player.bag()[swapBagIdx+1].itemType]}
+            otherItem = state.player.bag()[swapBagIdx+1]
+        else
+            -- Look underfoot
+            local leader = state.player.leader()
+            otherItem = groundItem(state.dungeon.entities.items(),
+                leader.xPosition, leader.yPosition)
+            conjunction = 'for'
+        end
+        -- If there's another item, include it in the message
+        if otherItem then
+            verboseMessage = {'Swapping', conjunction .. ' ' ..
+                codes.ITEM_NAMES[otherItem.itemType]}
         end
     end
 
