@@ -129,11 +129,6 @@ function Agent:findTargetPath(x0, y0, layout, mustAvoid, avoidIfPossible)
     end
 end
 
--- Return the tile under an entity
-local function tileUnder(entity, layout)
-    return layout[entity.yPosition][entity.xPosition]
-end
-
 -- Checks if a monster has some status. Returns nil if uncertain
 local function hasStatus(monster, statusType)
     if monster.statuses == nil then return nil end
