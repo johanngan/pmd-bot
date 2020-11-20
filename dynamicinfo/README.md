@@ -74,6 +74,7 @@ Returned in a grid by the `layout()` field. Tiles have the following fields:
 ### Monsters
 Returned in a list by the `team()` and `enemies()` fields, and also returned by the `leader()` field. Monsters have the following structure:
 
+- `index`: The monster's internal index. This is an integer from 0-19 (inclusive) that will be unique while the monster is active. Team members will have indexes from 0-3 and enemies will have indexes from 4-19. Note that when an enemy becomes inactive, it gives up ownership of the index, and new enemies that spawn (even on the same turn) can claim it.
 - `xPosition`: The monster's _x_ position in the dungeon
 - `yPosition`: The monster's _y_ position in the dungeon
 - `isEnemy`: Flag for whether or not the monster is an enemy

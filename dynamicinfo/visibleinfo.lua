@@ -197,6 +197,9 @@ function state.dungeon.entities.enemies:read()
                 -- in the future this should be handled more carefully...
             else
                 -- Off-screen; we only know that it is an enemy, and where it is
+                -- Technically index is internal, but is mainly useful as a unique,
+                -- per-enemy identifier
+                newEnemy.index = enemy.index
                 newEnemy.xPosition = enemy.xPosition
                 newEnemy.yPosition = enemy.yPosition
                 newEnemy.isEnemy = enemy.isEnemy

@@ -27,7 +27,7 @@ end
 -- in the active pointer list. Return a list with all of them that lie in the range
 -- [allIdxLo, allIdxHi] within the list of all monster pointers. Indexes start from 0.
 local ALL_MONSTER_PTRS_START = 0x021CC85C  -- Start of internal list of all monster ptrs
-local ACTIVE_MONSTER_PTRS_START = 0x21CC8AC    -- Start of internal list of all active monster ptrs
+local ACTIVE_MONSTER_PTRS_START = 0x021CC8AC    -- Start of internal list of all active monster ptrs
 function entityHelpers.getActiveMonstersPtrs(activeIdxLo, activeIdxHi, allIdxLo, allIdxHi)
     local activePtrs = memoryrange.readListUnsigned(
         ACTIVE_MONSTER_PTRS_START + 4*activeIdxLo, 4, activeIdxHi-activeIdxLo+1)
@@ -40,6 +40,13 @@ function entityHelpers.getActiveMonstersPtrs(activeIdxLo, activeIdxHi, allIdxLo,
         end
     end
     return filteredActivePtrs
+end
+
+-- Get the monster index (0-indexed) given the pointer to its data block
+local FIRST_MONSTER_POINTER = 0x021CCB00
+local ENTITY_DATA_BLOCK_SIZE = 184
+function entityHelpers.monsterIdxFromPtr(ptr)
+    return (ptr - FIRST_MONSTER_POINTER) / ENTITY_DATA_BLOCK_SIZE
 end
 
 -- Read a single move given its data block address
@@ -67,6 +74,7 @@ end
 local N_DEFAULT_GENDER = 600 -- Number of monster entities with their default genders
 function entityHelpers.readMonster(address)
     local monster = {}
+    monster.index = entityHelpers.monsterIdxFromPtr(address)
     monster.xPosition = memory.readwordsigned(address + 0x04)
     monster.yPosition = memory.readwordsigned(address + 0x06)
 
@@ -177,11 +185,10 @@ end
 
 -- Get pointer to active non-monster entities in a given index range (starting at 0)
 local FIRST_NON_MONSTER_PTR = 0x021CD960
-local DATA_BLOCK_SIZE = 184
 function entityHelpers.getActiveNonMonsterPtrs(idxLo, idxHi)
     local activePtrs = {}
     for i=idxLo,idxHi do
-        local ptr = FIRST_NON_MONSTER_PTR + i*DATA_BLOCK_SIZE
+        local ptr = FIRST_NON_MONSTER_PTR + i*ENTITY_DATA_BLOCK_SIZE
         -- The first byte is nonzero if active
         if memory.readbyteunsigned(ptr) ~= 0 then
             table.insert(activePtrs, ptr)
