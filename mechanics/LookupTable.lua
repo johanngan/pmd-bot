@@ -101,9 +101,9 @@ end
 function LookupTable:parseField(fieldStr, fieldname)
     -- If the fieldname is tagged with a data type (with the suffix ":%s*<dtype>"),
     -- then parse it as such.
-    local fname, dtype = string.match(fieldname, "(.*%S)%s*:%s*([^:%s]+)$")
-    if dtype ~= nil then
-        dtype = interpretDataType(dtype)
+    local fname, dtypeStr = string.match(fieldname, "(.*%S)%s*:%s*([^:%s]+)$")
+    if dtypeStr ~= nil then
+        local dtype = interpretDataType(dtypeStr)
         if dtype == NUMBER_TYPE or dtype == INTEGER_TYPE then
             -- Convert to number
             local n = tonumber(fieldStr) or error(
@@ -116,7 +116,7 @@ function LookupTable:parseField(fieldStr, fieldname)
         elseif dtype == BOOLEAN_TYPE then
             return fname, strToBool(fieldStr)
         else
-            error("Invalid data type " .. dtype)
+            error("Invalid data type " .. dtypeStr)
         end
     end
     -- No valid data type specified. Assume numeric data,
