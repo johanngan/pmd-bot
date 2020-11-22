@@ -64,6 +64,14 @@ local INTEGER_TYPE = "integer"
 local STRING_TYPE = "string"
 local BOOLEAN_TYPE = "boolean"
 local function interpretDataType(dtype)
+    -- If the data type string ends in a question mark, the field is nullable
+    local nullable = false
+    if string.sub(dtype, -1) == '?' then
+        nullable = true
+        -- Strip off the question mark
+        dtype = string.sub(dtype, 1, -2)
+    end
+
     local dtype = string.lower(dtype)   -- Case-insensitive
     local numberTypeNames = {NUMBER_TYPE, "numeric", "n", "float", "f", "double"}
     local integerTypeNames = {INTEGER_TYPE, "int", "i", "d"}
@@ -72,10 +80,12 @@ local function interpretDataType(dtype)
 
     local allTypes = {numberTypeNames, integerTypeNames, stringTypeNames, booleanTypeNames}
     for _, typeNames in ipairs(allTypes) do
-        if containers.arrayContains(typeNames, dtype) then return typeNames[1] end
+        if containers.arrayContains(typeNames, dtype) then
+            return typeNames[1], nullable
+        end
     end
     -- Failed to match any types
-    return nil
+    return nil, nullable
 end
 
 local function strToBool(strval)
@@ -103,7 +113,12 @@ function LookupTable:parseField(fieldStr, fieldname)
     -- then parse it as such.
     local fname, dtypeStr = string.match(fieldname, "(.*%S)%s*:%s*([^:%s]+)$")
     if dtypeStr ~= nil then
-        local dtype = interpretDataType(dtypeStr)
+        local dtype, nullable = interpretDataType(dtypeStr)
+        -- If nullable and the string is empty, return nil for the value
+        if nullable and fieldStr == '' then
+            return fname, nil
+        end
+
         if dtype == NUMBER_TYPE or dtype == INTEGER_TYPE then
             -- Convert to number
             local n = tonumber(fieldStr) or error(
