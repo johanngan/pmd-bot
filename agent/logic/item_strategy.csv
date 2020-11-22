@@ -1,0 +1,1401 @@
+ID:int,name:str,priority:int,heldPriority:int?,discardByUsing:bool
+0,$$$,0,,0
+1,Stick,6,,0
+2,Iron Thorn,9,,0
+3,Silver Spike,12,,0
+4,Gold Fang,13,,0
+5,Cacnea Spike,14,,0
+6,Corsola Twig,15,,0
+7,Gravelerock,8,,0
+8,Geo Pebble,6,,0
+9,Gold Thorn,20,,0
+10,Rare Fossil,20,,0
+11,$$$,0,,0
+12,$$$,0,,0
+13,No-Slip Cap,1,,0
+14,Y-Ray Specs,1,,0
+15,Gaggle Specs,1,,0
+16,Mobile Scarf,27,2,0
+17,Heal Ribbon,12,5,0
+18,Twist Band,12,6,0
+19,Scope Lens,12,6,0
+20,Patsy Band,1,,0
+21,No-Stick Cap,12,6,0
+22,Pierce Band,16,4,0
+23,Joy Ribbon,12,3,0
+24,X-Ray Specs,27,12,0
+25,Persim Band,12,6,0
+26,Power Band,12,9,0
+27,Pecha Scarf,16,7,0
+28,Insomniscope,12,6,0
+29,Warp Scarf,21,1,0
+30,Tight Belt,27,12,0
+31,Sneak Scarf,12,4,0
+32,Gold Ribbon,19,,0
+33,Goggle Specs,27,12,0
+34,Diet Ribbon,1,,0
+35,Trap Scarf,12,9,0
+36,Racket Band,1,,0
+37,Def. Scarf,12,9,0
+38,Stamina Band,12,6,0
+39,Plain Ribbon,1,,0
+40,Special Band,12,9,0
+41,Zinc Band,12,9,0
+42,Detect Band,12,7,0
+43,Space Globe,29,13,0
+44,Dodge Scarf,12,6,0
+45,Bounce Band,12,6,0
+46,Curve Band,12,3,0
+47,Whiff Specs,1,,0
+48,No-Aim Scope,1,,0
+49,Lockon Specs,12,4,0
+50,Munch Belt,12,9,0
+51,Pass Scarf,21,9,0
+52,Weather Band,20,7,0
+53,Friend Bow,25,9,0
+54,Beauty Scarf,12,,0
+55,Sun Ribbon,12,,0
+56,Lunar Ribbon,12,,0
+57,Golden Mask,28,12,0
+58,Amber Tear,27,11,0
+59,Icy Flute,20,6,0
+60,Fiery Drum,20,6,0
+61,Terra Cymbal,20,6,0
+62,Aqua-Monica,20,6,0
+63,Rock Horn,20,6,0
+64,Grass Cornet,20,6,0
+65,Sky Melodica,20,6,0
+66,Miracle Chest,27,9,0
+67,Wonder Chest,26,8,0
+68,IQ Booster,27,3,0
+69,Heal Seed,21,,1
+70,Oran Berry,21,,1
+71,Sitrus Berry,23,,1
+72,Eyedrop Seed,10,,1
+73,Reviver Seed,25,,0
+74,Blinker Seed,20,,0
+75,Doom Seed,20,,0
+76,X-Eye Seed,20,,0
+77,Life Seed,23,,1
+78,Rawst Berry,6,,1
+79,Hunger Seed,20,,0
+80,Quick Seed,12,,1
+81,Pecha Berry,12,,1
+82,Cheri Berry,6,,1
+83,Totter Seed,17,,0
+84,Sleep Seed,20,,0
+85,Plain Seed,2,,1
+86,Warp Seed,17,,0
+87,Blast Seed,12,,0
+88,Ginseng,23,,1
+89,Joy Seed,23,,1
+90,Chesto Berry,7,,1
+91,Stun Seed,20,,0
+92,Gabite Scale,21,,1
+93,Golden Seed,24,,1
+94,Vile Seed,20,,0
+95,Pure Seed,23,,1
+96,Violent Seed,21,,1
+97,Vanish Seed,23,,1
+98,$$$,0,,0
+99,Max Elixir,20,,1
+100,Protein,23,,1
+101,Calcium,23,,1
+102,Iron,23,,1
+103,Nectar,12,,1
+104,Dropeye Seed,1,,0
+105,Reviser Seed,1,,1
+106,Slip Seed,4,,1
+107,Via Seed,17,,0
+108,Zinc,23,,1
+109,Apple,18,,1
+110,Big Apple,20,,1
+111,Grimy Food,6,,0
+112,Huge Apple,21,,1
+113,$$$,0,,0
+114,$$$,0,,0
+115,Golden Apple,23,,1
+116,Mix Elixir,2,,1
+117,Oren Berry,2,,0
+118,Dough Seed,4,,1
+119,White Gummi,12,,1
+120,Red Gummi,12,,1
+121,Blue Gummi,12,,1
+122,Grass Gummi,12,,1
+123,Yellow Gummi,12,,1
+124,Clear Gummi,12,,1
+125,Orange Gummi,12,,1
+126,Pink Gummi,12,,1
+127,Brown Gummi,12,,1
+128,Sky Gummi,12,,1
+129,Gold Gummi,12,,1
+130,Green Gummi,12,,1
+131,Gray Gummi,12,,1
+132,Purple Gummi,12,,1
+133,Royal Gummi,12,,1
+134,Black Gummi,12,,1
+135,Silver Gummi,12,,1
+136,Wonder Gummi,23,,1
+137,Gravelyrock,4,,1
+138,$$$,0,,0
+139,Upgrade,12,,0
+140,King's Rock,12,,0
+141,Thunderstone,12,,0
+142,Deepseascale,12,,0
+143,Deepseatooth,12,,0
+144,Sun Stone,12,,0
+145,Moon Stone,12,,0
+146,Fire Stone,12,,0
+147,Water Stone,12,,0
+148,Metal Coat,12,,0
+149,Leaf Stone,12,,0
+150,Dragon Scale,12,,0
+151,Link Cable,12,,0
+152,Dubious Disc,12,,0
+153,Protector,12,,0
+154,Reaper Cloth,12,,0
+155,Razor Fang,12,,0
+156,Razor Claw,12,,0
+157,Electirizer,12,,0
+158,Magmarizer,12,,0
+159,Oval Stone,12,,0
+160,Dawn Stone,12,,0
+161,Shiny Stone,12,,0
+162,Dusk Stone,12,,0
+163,Coronet Rock,12,,0
+164,Mossy Rock,12,,0
+165,Frozen Rock,12,,0
+166,$$$,0,,0
+167,Gone Pebble,2,,1
+168,Wander Gummi,20,,0
+169,Prize Ticket,4,,0
+170,Silver Ticket,9,,0
+171,Gold Ticket,12,,0
+172,Prism Ticket,20,,0
+173,Mystery Part,25,,0
+174,Secret Slab,25,,0
+175,$$$,0,,0
+176,$$$,0,,0
+177,$$$,0,,0
+178,Wonder Egg,11,,0
+179,Gracidea,11,,0
+180,Sky Gift,4,,0
+181,$$$,0,,0
+182,Key,25,,0
+183,Poké,30,,0
+184,$$$,0,,0
+185,$$$,0,,0
+186,Lost Loot,25,,0
+187,Used TM,1,,0
+188,Focus Punch,12,,0
+189,Dragon Claw,12,,0
+190,Water Pulse,12,,0
+191,Calm Mind,12,,0
+192,Roar,12,,0
+193,Toxic,12,,0
+194,Hail,12,,0
+195,Bulk Up,12,,0
+196,Bullet Seed,12,,0
+197,Hidden Power,12,,0
+198,$$$,0,,0
+199,Taunt,12,,0
+200,Ice Beam,12,,0
+201,Blizzard,12,,0
+202,Hyper Beam,12,,0
+203,Light Screen,12,,0
+204,Protect,12,,0
+205,$$$,0,,0
+206,Giga Drain,12,,0
+207,Safeguard,12,,0
+208,Frustration,12,,0
+209,SolarBeam,12,,0
+210,Iron Tail,12,,0
+211,Thunderbolt,12,,0
+212,Thunder,12,,0
+213,Earthquake,12,,0
+214,Return,12,,0
+215,Dig,12,,0
+216,Psychic,12,,0
+217,Shadow Ball,12,,0
+218,Brick Break,12,,0
+219,$$$,0,,0
+220,Reflect,12,,0
+221,Shock Wave,12,,0
+222,Flamethrower,12,,0
+223,Sludge Bomb,12,,0
+224,$$$,0,,0
+225,Fire Blast,12,,0
+226,$$$,0,,0
+227,Aerial Ace,12,,0
+228,Torment,12,,0
+229,Facade,12,,0
+230,Secret Power,12,,0
+231,Rest,12,,0
+232,Attract,12,,0
+233,Thief,12,,0
+234,Steel Wing,12,,0
+235,Skill Swap,12,,0
+236,$$$,0,,0
+237,Overheat,12,,0
+238,Roost,12,,0
+239,Focus Blast,12,,0
+240,Energy Ball,12,,0
+241,False Swipe,12,,0
+242,Brine,12,,0
+243,Fling,12,,0
+244,Charge Beam,12,,0
+245,Endure,12,,0
+246,Dragon Pulse,12,,0
+247,Drain Punch,12,,0
+248,Will-O-Wisp,12,,0
+249,Silver Wind,12,,0
+250,Embargo,12,,0
+251,Explosion,12,,0
+252,Shadow Claw,12,,0
+253,Payback,12,,0
+254,Recycle,12,,0
+255,Giga Impact,12,,0
+256,Rock Polish,12,,0
+257,Wide Slash,12,,0
+258,$$$,0,,0
+259,$$$,0,,0
+260,Vacuum-Cut,12,,0
+261,Dive,12,,0
+262,Flash,12,,0
+263,Stone Edge,12,,0
+264,Avalanche,12,,0
+265,Thunder Wave,12,,0
+266,Gyro Ball,12,,0
+267,Swords Dance,12,,0
+268,Stealth Rock,12,,0
+269,Psych Up,12,,0
+270,Captivate,12,,0
+271,Dark Pulse,12,,0
+272,Rock Slide,12,,0
+273,X-Scissor,12,,0
+274,Sleep Talk,12,,0
+275,Natural Gift,12,,0
+276,Poison Jab,12,,0
+277,Dream Eater,12,,0
+278,Grass Knot,12,,0
+279,Swagger,12,,0
+280,Pluck,12,,0
+281,U-turn,12,,0
+282,Substitute,12,,0
+283,Flash Cannon,12,,0
+284,Trick Room,12,,0
+285,Cut,12,,0
+286,Fly,12,,0
+287,Surf,12,,0
+288,Strength,12,,0
+289,Defog,12,,0
+290,Rock Smash,12,,0
+291,Waterfall,12,,0
+292,Rock Climb,12,,0
+293,$$$,0,,0
+294,$$$,0,,0
+295,$$$,0,,0
+296,$$$,0,,0
+297,$$$,0,,0
+298,$$$,0,,0
+299,$$$,0,,0
+300,$$$,0,,0
+301,Hail Orb,3,,0
+302,Sunny Orb,12,,0
+303,Rainy Orb,12,,0
+304,Evasion Orb,8,,1
+305,Sandy Orb,3,,0
+306,Rocky Orb,6,,0
+307,Snatch Orb,4,,1
+308,See-Trap Orb,6,,1
+309,Mug Orb,6,,0
+310,Rebound Orb,4,,1
+311,Lob Orb,4,,0
+312,Switcher Orb,12,,0
+313,Blowback Orb,5,,0
+314,Warp Orb,20,,0
+315,Transfer Orb,4,,0
+316,Slow Orb,12,,0
+317,Quick Orb,12,,1
+318,Luminous Orb,23,,1
+319,Petrify Orb,23,,0
+320,Stayaway Orb,20,,0
+321,Pounce Orb,4,,0
+322,Trawl Orb,20,,0
+323,Cleanse Orb,21,,1
+324,$$$,0,,0
+325,Decoy Orb,20,,0
+326,Slumber Orb,23,,0
+327,Totter Orb,22,,0
+328,Two-Edge Orb,12,,0
+329,Silence Orb,4,,0
+330,Escape Orb,21,,0
+331,Scanner Orb,20,,1
+332,Radar Orb,20,,1
+333,Drought Orb,4,,0
+334,Trapbust Orb,6,,1
+335,Rollcall Orb,12,,0
+336,Invisify Orb,23,,1
+337,One-Shot Orb,12,,0
+338,Identify Orb,4,,1
+339,$$$,0,,0
+340,Shocker Orb,20,,0
+341,Sizebust Orb,4,,0
+342,One-Room Orb,16,,0
+343,Fill-In Orb,4,,0
+344,Trapper Orb,3,,1
+345,$$$,0,,0
+346,Itemizer Orb,20,,0
+347,Hurl Orb,3,,0
+348,Mobile Orb,23,,1
+349,$$$,0,,0
+350,Stairs Orb,22,,1
+351,Longtoss Orb,3,,1
+352,Pierce Orb,4,,1
+353,$$$,0,,0
+354,Spurn Orb,23,,0
+355,Foe-Hold Orb,23,,0
+356,All-Mach Orb,12,,1
+357,Foe-Fear Orb,23,,0
+358,All-Hit Orb,12,,1
+359,Foe-Seal Orb,23,,0
+360,$$$,0,,0
+361,$$$,0,,0
+362,Link Box,12,,0
+363,$$$,0,,0
+364,Gorgeous Box,10,,0
+365,Gorgeous Box,10,,0
+366,Gorgeous Box,10,,0
+367,Heavy Box,10,,0
+368,Heavy Box,10,,0
+369,Heavy Box,10,,0
+370,Shiny Box,10,,0
+371,Shiny Box,10,,0
+372,Shiny Box,10,,0
+373,Nifty Box,10,,0
+374,Nifty Box,10,,0
+375,Nifty Box,10,,0
+376,Dainty Box,10,,0
+377,Dainty Box,10,,0
+378,Dainty Box,10,,0
+379,Glittery Box,10,,0
+380,Glittery Box,10,,0
+381,Glittery Box,10,,0
+382,Pretty Box,10,,0
+383,Pretty Box,10,,0
+384,Pretty Box,10,,0
+385,Deluxe Box,10,,0
+386,Deluxe Box,10,,0
+387,Deluxe Box,10,,0
+388,Light Box,10,,0
+389,Light Box,10,,0
+390,Light Box,10,,0
+391,Cute Box,10,,0
+392,Cute Box,10,,0
+393,Cute Box,10,,0
+394,Hard Box,10,,0
+395,Hard Box,10,,0
+396,Hard Box,10,,0
+397,Sinister Box,10,,0
+398,Sinister Box,10,,0
+399,Sinister Box,10,,0
+400,A-Stone,12,,0
+401,B-Stone,12,,0
+402,C-Stone,12,,0
+403,D-Stone,12,,0
+404,E-Stone,12,,0
+405,F-Stone,12,,0
+406,G-Stone,12,,0
+407,H-Stone,12,,0
+408,I-Stone,12,,0
+409,J-Stone,12,,0
+410,K-Stone,12,,0
+411,L-Stone,12,,0
+412,M-Stone,12,,0
+413,N-Stone,12,,0
+414,O-Stone,12,,0
+415,P-Stone,12,,0
+416,Q-Stone,12,,0
+417,R-Stone,12,,0
+418,S-Stone,12,,0
+419,T-Stone,12,,0
+420,U-Stone,12,,0
+421,V-Stone,12,,0
+422,W-Stone,12,,0
+423,X-Stone,12,,0
+424,Y-Stone,12,,0
+425,Z-Stone,12,,0
+426,!-Stone,12,,0
+427,?-Stone,12,,0
+428,Silver Bow,27,10,0
+429,Brown Bow,27,10,0
+430,Red Bow,27,10,0
+431,Pink Bow,27,10,0
+432,Orange Bow,27,10,0
+433,Yellow Bow,27,10,0
+434,Lime Bow,27,10,0
+435,Green Bow,27,10,0
+436,Viridian Bow,27,10,0
+437,Minty Bow,27,10,0
+438,Sky Blue Bow,27,10,0
+439,Blue Bow,27,10,0
+440,Cobalt Bow,27,10,0
+441,Purple Bow,27,10,0
+442,Violet Bow,27,10,0
+443,Fuchsia Bow,27,10,0
+444,Prism Ruff,27,,0
+445,Aqua Collar,27,,0
+446,Volt Collar,27,,0
+447,Fire Collar,27,,0
+448,Light Collar,27,,0
+449,Dusk Collar,27,,0
+450,Virid Collar,27,,0
+451,Icy Collar,27,,0
+452,Pep Sash,27,,0
+453,Counter Ruff,27,,0
+454,Victory Belt,27,,0
+455,Power Bangle,27,,0
+456,Thundershard,27,,0
+457,Fallen Star,27,,0
+458,Fluff Dust,27,,0
+459,Egg Shard,27,,0
+460,Heroic Medal,27,,0
+461,Chic Shard,27,,0
+462,Yellow Jewel,27,,0
+463,Red Jewel,27,,0
+464,Blue Jewel,27,,0
+465,Laugh Dust,27,,0
+466,Guard Sand,27,,0
+467,Purple Jewel,27,,0
+468,White Jewel,27,,0
+469,Brave Dust,27,,0
+470,Heal Dew,27,,0
+471,Marine Cache,27,,0
+472,Freeze Veil,27,,0
+473,Thunder Veil,27,,0
+474,Fire Veil,27,,0
+475,Havoc Robe,27,,0
+476,Life Ring,27,,0
+477,Bolt Fang,27,,0
+478,Flare Fang,27,,0
+479,Aqua Mantle,27,,0
+480,Silver Veil,27,,0
+481,Rainbow Veil,27,,0
+482,Chrono Veil,27,,0
+483,Rock Sash,27,,0
+484,Ice Sash,27,,0
+485,Steel Sash,27,,0
+486,Heart Brooch,27,,0
+487,Eon Veil,27,,0
+488,Seabed Veil,27,,0
+489,Terra Ring,27,,0
+490,SkyHigh Veil,27,,0
+491,Wish Mantle,27,,0
+492,Revive Robe,27,,0
+493,Shadow Veil,27,,0
+494,Plasma Veil,27,,0
+495,Edify Robe,27,,0
+496,Charity Robe,27,,0
+497,Hope Robe,27,,0
+498,Time Shield,27,,0
+499,Air Blade,27,,0
+500,Searing Ring,27,,0
+501,Ancient Ring,27,,0
+502,Nether Veil,27,,0
+503,Lunar Veil,27,,0
+504,Tidal Cape,27,,0
+505,Eclipse Robe,27,,0
+506,White Silk,27,,0
+507,Normal Dust,27,,0
+508,White Gem,27,,0
+509,Joy Globe,27,,0
+510,Red Silk,27,,0
+511,Fire Dust,27,,0
+512,Fiery Gem,27,,0
+513,Fiery Globe,27,,0
+514,Blue Silk,27,,0
+515,Water Dust,27,,0
+516,Aqua Gem,27,,0
+517,Aqua Globe,27,,0
+518,Grass Silk,27,,0
+519,Grass Dust,27,,0
+520,Grass Gem,27,,0
+521,Soothe Globe,27,,0
+522,Yellow Silk,27,,0
+523,Thunder Dust,27,,0
+524,Thunder Gem,27,,0
+525,Volt Globe,27,,0
+526,Clear Silk,27,,0
+527,Icy Dust,27,,0
+528,Icy Gem,27,,0
+529,Icy Globe,27,,0
+530,Orange Silk,27,,0
+531,Courage Dust,27,,0
+532,Fight Gem,27,,0
+533,Power Globe,27,,0
+534,Pink Silk,27,,0
+535,Poison Dust,27,,0
+536,Poison Gem,27,,0
+537,Poison Globe,27,,0
+538,Brown Silk,27,,0
+539,Ground Dust,27,,0
+540,Earth Gem,27,,0
+541,Terra Globe,27,,0
+542,Sky Silk,27,,0
+543,Sky Dust,27,,0
+544,Sky Gem,27,,0
+545,Sky Globe,27,,0
+546,Gold Silk,27,,0
+547,Psyche Dust,27,,0
+548,Psyche Gem,27,,0
+549,Psyche Globe,27,,0
+550,Green Silk,27,,0
+551,Wonder Dust,27,,0
+552,Guard Gem,27,,0
+553,Defend Globe,27,,0
+554,Gray Silk,27,,0
+555,Rock Dust,27,,0
+556,Stone Gem,27,,0
+557,Rock Globe,27,,0
+558,Purple Silk,27,,0
+559,Shady Dust,27,,0
+560,Shadow Gem,27,,0
+561,Nether Globe,27,,0
+562,Royal Silk,27,,0
+563,Dragon Dust,27,,0
+564,Dragon Gem,27,,0
+565,Dragon Globe,27,,0
+566,Black Silk,27,,0
+567,Dark Dust,27,,0
+568,Dark Gem,27,,0
+569,Dusk Globe,27,,0
+570,Iron Silk,27,,0
+571,Steel Dust,27,,0
+572,Metal Gem,27,,0
+573,Steel Globe,27,,0
+574,Bulba-Claw,27,,0
+575,Bulba-Fang,27,,0
+576,Grass-Guard,27,,0
+577,Leafy Tie,27,,0
+578,Ivy-Claw,27,,0
+579,Ivy-Fang,27,,0
+580,Ivy-Crest,27,,0
+581,Plant Torc,27,,0
+582,Venus-Claw,27,,0
+583,Venus-Fang,27,,0
+584,Venus-Seal,27,,0
+585,Solar Sash,27,,0
+586,Char-Claw,27,,0
+587,Char-Fang,27,,0
+588,Fiery Heart,27,,0
+589,Heat Armlet,27,,0
+590,Charme-Claw,27,,0
+591,Charme-Fang,27,,0
+592,Charme-Crest,27,,0
+593,Kindle Scarf,27,,0
+594,Chariz-Claw,27,,0
+595,Chariz-Fang,27,,0
+596,Chariz-Seal,27,,0
+597,Flame Bangle,27,,0
+598,Squirt-Foam,27,,0
+599,Squirt-Card,27,,0
+600,Water-Guard,27,,0
+601,Aqua Tie,27,,0
+602,Wartor-Claw,27,,0
+603,Wartor-Fang,27,,0
+604,Wartor-Crest,27,,0
+605,BubbleBangle,27,,0
+606,Blasto-Claw,27,,0
+607,Blasto-Card,27,,0
+608,Blasto-Seal,27,,0
+609,Hydro Band,27,,0
+610,Pichu Hair,27,,0
+611,Pichu Card,27,,0
+612,Express Tag,27,,0
+613,Shocker Cape,27,,0
+614,Pikachu Hair,27,,0
+615,Pikachu Card,27,,0
+616,Volt Charm,27,,0
+617,Volt Torc,27,,0
+618,Raichu Hair,27,,0
+619,Raichu Card,27,,0
+620,Raichu Crest,27,,0
+621,Zapper Scarf,27,,0
+622,Meowth Claw,27,,0
+623,Meowth Fang,27,,0
+624,Coin Charm,27,,0
+625,Bling Ruff,27,,0
+626,Persian Claw,27,,0
+627,Persian Fang,27,,0
+628,Insight Rock,27,,0
+629,Noble Scarf,27,,0
+630,Chiko-Claw,27,,0
+631,Chiko-Card,27,,0
+632,Dawn Jewel,27,,0
+633,Fresh Bow,27,,0
+634,Bayleef Claw,27,,0
+635,Bayleef Card,27,,0
+636,Bayleef Seal,27,,0
+637,Spice Bow,27,,0
+638,Megani-Claw,27,,0
+639,Megani-Card,27,,0
+640,Shiny Charm,27,,0
+641,Bright Veil,27,,0
+642,Cynda-Hair,27,,0
+643,Cynda-Claw,27,,0
+644,Blazing Rock,27,,0
+645,Storm Sash,27,,0
+646,Quila-Hair,27,,0
+647,Quila-Card,27,,0
+648,Quila-Crest,27,,0
+649,Volcano Torc,27,,0
+650,Typhlo-Gasp,27,,0
+651,Typhlo-Fang,27,,0
+652,Typhlo-Seal,27,,0
+653,Blast Bangle,27,,0
+654,Totodi-Dew,27,,0
+655,Totodi-Fang,27,,0
+656,Water Heart,27,,0
+657,Wash Bow,27,,0
+658,Croco-Fang,27,,0
+659,Croco-Card,27,,0
+660,Swirl Rock,27,,0
+661,Anger Scarf,27,,0
+662,Feral-Claw,27,,0
+663,Feral-Fang,27,,0
+664,Feral-Crest,27,,0
+665,Hydro Jaw,27,,0
+666,Treeck-Thorn,27,,0
+667,Treeck-Card,27,,0
+668,Forest Ore,27,,0
+669,Guard Ring,27,,0
+670,Grovy-Shoot,27,,0
+671,Grovy-Card,27,,0
+672,Jungle-Tag,27,,0
+673,Grass Blade,27,,0
+674,Scept-Claw,27,,0
+675,Scept-Card,27,,0
+676,Scept-Seal,27,,0
+677,Drain Bangle,27,,0
+678,Torchic Hair,27,,0
+679,Torchic Card,27,,0
+680,Hot Pebble,27,,0
+681,Fire Cape,27,,0
+682,Combus-Sweat,27,,0
+683,Combus-Claw,27,,0
+684,Charge Tag,27,,0
+685,Gutsy Band,27,,0
+686,Blazi-Claw,27,,0
+687,Blazi-Card,27,,0
+688,Blazi-Seal,27,,0
+689,Blaze Torc,27,,0
+690,Mudkip Mud,27,,0
+691,Mudkip Card,27,,0
+692,Mud Jewel,27,,0
+693,Speed Scarf,27,,0
+694,Marsh-Mud,27,,0
+695,Marsh-Card,27,,0
+696,Marsh-Crest,27,,0
+697,Marsh Torc,27,,0
+698,Swamp-Mud,27,,0
+699,Swamp-Card,27,,0
+700,Swamp-Seal,27,,0
+701,Swamp Bangle,27,,0
+702,Skitty Fang,27,,0
+703,Skitty Card,27,,0
+704,Smile Pebble,27,,0
+705,Heal Pendant,27,,0
+706,Delcat-Hair,27,,0
+707,Delcat-Fang,27,,0
+708,Prim Pebble,27,,0
+709,Guard Collar,27,,0
+710,Lucky Leaf,27,,0
+711,Turtwig Card,27,,0
+712,Sprout Rock,27,,0
+713,Leafy Hat,27,,0
+714,Grotle Twig,27,,0
+715,Grotle Claw,27,,0
+716,Grotle Crest,27,,0
+717,Woody Scarf,27,,0
+718,Tort-Claw,27,,0
+719,Tort-Horn,27,,0
+720,Tort-Seal,27,,0
+721,Forest Torc,27,,0
+722,Chim-Hair,27,,0
+723,Chim-Fang,27,,0
+724,Nimble Charm,27,,0
+725,Ember Cap,27,,0
+726,Monfer-Hair,27,,0
+727,Monfer-Fang,27,,0
+728,Monfer-Crest,27,,0
+729,Burst Sash,27,,0
+730,Infern-Hair,27,,0
+731,Infern-Fang,27,,0
+732,Infern-Seal,27,,0
+733,Blazing Ruff,27,,0
+734,Piplup Foam,27,,0
+735,Piplup Card,27,,0
+736,Sea Ore,27,,0
+737,Water Cape,27,,0
+738,Prin-Foam,27,,0
+739,Prin-Card,27,,0
+740,Prin-Crest,27,,0
+741,Aqua Blade,27,,0
+742,Empol-Claw,27,,0
+743,Empol-Horn,27,,0
+744,Empol-Seal,27,,0
+745,Marine Crown,27,,0
+746,Munch-Drool,27,,0
+747,Munch-Claw,27,,0
+748,Tummy Charm,27,,0
+749,Glutton Cape,27,,0
+750,Snorlax Gasp,27,,0
+751,Snorlax Fang,27,,0
+752,Valor Charm,27,,0
+753,Glee Scarf,27,,0
+754,Scyther Fang,27,,0
+755,Scyther Card,27,,0
+756,Ambush Rock,27,,0
+757,Strike Ruff,27,,0
+758,Scizor Wing,27,,0
+759,Scizor Card,27,,0
+760,Steel Charm,27,,0
+761,Red Armlet,27,,0
+762,Lapras Song,27,,0
+763,Lapras Card,27,,0
+764,Wavy Charm,27,,0
+765,Mystic Scarf,27,,0
+766,Eevee Tail,27,,0
+767,Eevee Card,27,,0
+768,Evolve Charm,27,,0
+769,Eevee,0,,0
+770,Cleffa Dew,27,,0
+771,Cleffa Card,27,,0
+772,Starry Ore,27,,0
+773,Comet Ring,27,,0
+774,Clef-Claw,27,,0
+775,Clef-Fang,27,,0
+776,Moon Jewel,27,,0
+777,Moon Scarf,27,,0
+778,Clefa-Claw,27,,0
+779,Clefa-Card,27,,0
+780,Moon Rock,27,,0
+781,Fairy Bow,27,,0
+782,Iggly-Dew,27,,0
+783,Iggly-Card,27,,0
+784,Bouncy Charm,27,,0
+785,Pretty Bow,27,,0
+786,Jiggly-Song,27,,0
+787,Jiggly-Card,27,,0
+788,Slumber Rock,27,,0
+789,Snooze Ring,27,,0
+790,Wiggly-Hair,27,,0
+791,Wiggly-Card,27,,0
+792,Buddy Rock,27,,0
+793,Friend Torc,27,,0
+794,Togepi Dew,27,,0
+795,Togepi Card,27,,0
+796,Pure Heart,27,,0
+797,Angel Scarf,27,,0
+798,Togetic Wing,27,,0
+799,Togetic Card,27,,0
+800,Happy Rock,27,,0
+801,Luck Brooch,27,,0
+802,Togek-Wing,27,,0
+803,Togek-Card,27,,0
+804,Ovation Rock,27,,0
+805,Glitter Robe,27,,0
+806,Sneasel Claw,27,,0
+807,Sneasel Card,27,,0
+808,Dusk Jewel,27,,0
+809,Cruel Ring,27,,0
+810,Weavile Claw,27,,0
+811,Weavile Fang,27,,0
+812,Vile Tag,27,,0
+813,Ruin Armlet,27,,0
+814,Teddi-Claw,27,,0
+815,Teddi-Card,27,,0
+816,Honey Rock,27,,0
+817,Heal Scarf,27,,0
+818,Ursa-Claw,27,,0
+819,Ursa-Fang,27,,0
+820,Calming Rock,27,,0
+821,Hiber Scarf,27,,0
+822,Tyro-Sweat,27,,0
+823,Tyro-Card,27,,0
+824,Muscle Charm,27,,0
+825,Tyrogue,0,,0
+826,Smooch-Song,27,,0
+827,Smooch-Card,27,,0
+828,Kiss Charm,27,,0
+829,Heart Tiara,27,,0
+830,Jynx Song,27,,0
+831,Jynx Card,27,,0
+832,Frozen Ore,27,,0
+833,Ruin Scarf,27,,0
+834,Elekid Claw,27,,0
+835,Elekid Card,27,,0
+836,Jolt Charm,27,,0
+837,Current Ring,27,,0
+838,Electa-Claw,27,,0
+839,Electa-Fang,27,,0
+840,Charge Seal,27,,0
+841,Volt Bangle,27,,0
+842,Electi-Claw,27,,0
+843,Electi-Card,27,,0
+844,Voltaic Rock,27,,0
+845,Voltaic Band,27,,0
+846,Magby Claw,27,,0
+847,Magby Card,27,,0
+848,Ember Jewel,27,,0
+849,Coal Ring,27,,0
+850,Magmar Claw,27,,0
+851,Magmar Card,27,,0
+852,Erupt Ore,27,,0
+853,Magma Scarf,27,,0
+854,Magmor-Claw,27,,0
+855,Magmor-Card,27,,0
+856,Vulcan Rock,27,,0
+857,Burning Torc,27,,0
+858,Azuri-Dew,27,,0
+859,Azuri-Card,27,,0
+860,Fount Charm,27,,0
+861,Water Float,27,,0
+862,Marill Dew,27,,0
+863,Marill Card,27,,0
+864,Surfer Rock,27,,0
+865,Brine Scarf,27,,0
+866,Azuma-Dew,27,,0
+867,Azuma-Card,27,,0
+868,Stream Charm,27,,0
+869,Dotted Scarf,27,,0
+870,Plusle Tail,27,,0
+871,Plusle Card,27,,0
+872,Cheer Rock,27,,0
+873,Pulse Bow,27,,0
+874,Minun Tail,27,,0
+875,Minun Card,27,,0
+876,Volt Heart,27,,0
+877,Spark Tie,27,,0
+878,Cast-Dew,27,,0
+879,Cast-Card,27,,0
+880,Cloud Rock,27,,0
+881,Weather Cape,27,,0
+882,Wynaut Tail,27,,0
+883,Wynaut Card,27,,0
+884,Grin Charm,27,,0
+885,Cheery Scarf,27,,0
+886,Wobbu-Sweat,27,,0
+887,Wobbu-Card,27,,0
+888,Endure Rock,27,,0
+889,Suffer Scarf,27,,0
+890,Bidoof Tooth,27,,0
+891,Bidoof Card,27,,0
+892,Fall Charm,27,,0
+893,Stolid Scarf,27,,0
+894,Biba-Tooth,27,,0
+895,Biba-Card,27,,0
+896,River Charm,27,,0
+897,Dam Scarf,27,,0
+898,Shinx Claw,27,,0
+899,Shinx Fang,27,,0
+900,Flash Tag,27,,0
+901,Energy Scarf,27,,0
+902,Luxio Claw,27,,0
+903,Luxio Fang,27,,0
+904,Spark Tag,27,,0
+905,Spark Scarf,27,,0
+906,Luxray Claw,27,,0
+907,Luxray Fang,27,,0
+908,Glare Tag,27,,0
+909,Glare Sash,27,,0
+910,Pachi-Tooth,27,,0
+911,Pachi-Card,27,,0
+912,Rouse Charm,27,,0
+913,Miracle Bow,27,,0
+914,Buizel Fang,27,,0
+915,Buizel Card,27,,0
+916,Swimmer Rock,27,,0
+917,Screw Torc,27,,0
+918,Float-Fang,27,,0
+919,Float-Card,27,,0
+920,Rescue Rock,27,,0
+921,Float Aid,27,,0
+922,Drifloo-Gasp,27,,0
+923,Drifloo-Card,27,,0
+924,Wind Heart,27,,0
+925,Draft Ring,27,,0
+926,Drifbli-Gasp,27,,0
+927,Drifbli-Card,27,,0
+928,Easy Charm,27,,0
+929,Breeze Scarf,27,,0
+930,Cherubi Seed,27,,0
+931,Cherubi Card,27,,0
+932,Cute Ore,27,,0
+933,Charm Bow,27,,0
+934,Cherrim Dew,27,,0
+935,Cherrim Card,27,,0
+936,Sweet Aroma,27,,0
+937,Petal Dress,27,,0
+938,Bonsly Dew,27,,0
+939,Bonsly Card,27,,0
+940,Arid Tag,27,,0
+941,Teary Cape,27,,0
+942,Sudo-Sweat,27,,0
+943,Sudo-Card,27,,0
+944,Drain Rock,27,,0
+945,Fake Torc,27,,0
+946,Junior Beam,27,,0
+947,Junior Card,27,,0
+948,Mimic Pebble,27,,0
+949,Copy Mask,27,,0
+950,Mime Key,27,,0
+951,Mime Card,27,,0
+952,Bulwark Rock,27,,0
+953,Barrier Bow,27,,0
+954,Happiny Dew,27,,0
+955,Happiny Card,27,,0
+956,Play Tag,27,,0
+957,Nurture Cape,27,,0
+958,Chansey Song,27,,0
+959,Chansey Card,27,,0
+960,Lucky Charm,27,,0
+961,Lucky Scarf,27,,0
+962,Blissey Song,27,,0
+963,Blissey Card,27,,0
+964,Amity Rock,27,,0
+965,Faith Ring,27,,0
+966,Gible Fang,27,,0
+967,Gible Card,27,,0
+968,Dragon Jewel,27,,0
+969,Dragon Tie,27,,0
+970,Gabite Claw,27,,0
+971,Gabite Fang,27,,0
+972,Star Rock,27,,0
+973,Meteor Torc,27,,0
+974,Gar-Claw,27,,0
+975,Gar-Fang,27,,0
+976,Speed Tag,27,,0
+977,Mach Scarf,27,,0
+978,Riolu Tail,27,,0
+979,Riolu Card,27,,0
+980,Valiant Rock,27,,0
+981,Emit Ring,27,,0
+982,Lucario Fang,27,,0
+983,Lucario Card,27,,0
+984,Pledge Rock,27,,0
+985,Ravage Ring,27,,0
+986,Mantyke Beam,27,,0
+987,Mantyke Card,27,,0
+988,Waft Rock,27,,0
+989,Ocean Bow,27,,0
+990,Mantine Foam,27,,0
+991,Mantine Card,27,,0
+992,Sunset Rock,27,,0
+993,Horizon Bow,27,,0
+994,Phione Song,27,,0
+995,Phione Card,27,,0
+996,Wave Jewel,27,,0
+997,Ripple Cape,27,,0
+998,Vulpix Tail,27,,0
+999,Vulpix Card,27,,0
+1000,Vulpix Tag,27,,0
+1001,Glowing Bow,27,,0
+1002,Nine-Hair,27,,0
+1003,Nine-Card,27,,0
+1004,Nine-Seal,27,,0
+1005,Afire Collar,27,,0
+1006,Phanpy Claw,27,,0
+1007,Phanpy Card,27,,0
+1008,Phanpy Tag,27,,0
+1009,Value Ruff,27,,0
+1010,Donphan Fang,27,,0
+1011,Donphan Card,27,,0
+1012,Don-Crest,27,,0
+1013,Armor Scarf,27,,0
+1014,Cater-Belt,27,,0
+1015,Defense Bow,27,,0
+1016,Glittery Bow,27,,0
+1017,Weedle Bow,27,,0
+1018,Kakuna Scarf,27,,0
+1019,Charge Scarf,27,,0
+1020,Pidgey Bow,27,,0
+1021,Pidgeo-Scarf,27,,0
+1022,Pidgeot Torc,27,,0
+1023,Ratta-Scarf,27,,0
+1024,Overcome Bow,27,,0
+1025,Quirky Bow,27,,0
+1026,Wing Scarf,27,,0
+1027,Leash Bow,27,,0
+1028,Shock Ruff,27,,0
+1029,Sand-Scarf,27,,0
+1030,Sandy Torc,27,,0
+1031,Pointy Scarf,27,,0
+1032,Return Scarf,27,,0
+1033,Impact Torc,27,,0
+1034,Halve Scarf,27,,0
+1035,Thorny Scarf,27,,0
+1036,King Sash,27,,0
+1037,Dodge Bow,27,,0
+1038,Absorb Scarf,27,,0
+1039,Odd Bow,27,,0
+1040,Guard Hat,27,,0
+1041,Aroma Scarf,27,,0
+1042,Moving Scarf,27,,0
+1043,Firm Hat,27,,0
+1044,Gaze Goggles,27,,0
+1045,Venomoth Bow,27,,0
+1046,Diglett Hat,27,,0
+1047,Dugtrio Bow,27,,0
+1048,Psyduck Hat,27,,0
+1049,Paddle Scarf,27,,0
+1050,Mankey Torc,27,,0
+1051,Nullify Belt,27,,0
+1052,Growl-Scarf,27,,0
+1053,Legend Bow,27,,0
+1054,Damp Bow,27,,0
+1055,Poli-Bow,27,,0
+1056,Bold Belt,27,,0
+1057,Predict Torc,27,,0
+1058,Psychic Torc,27,,0
+1059,Sparkle Ruff,27,,0
+1060,Impish Band,27,,0
+1061,Strong Belt,27,,0
+1062,Machamp Belt,27,,0
+1063,Bell-Bow,27,,0
+1064,Digest Scarf,27,,0
+1065,Victree-Torc,27,,0
+1066,Tangle Bow,27,,0
+1067,Tenta-Cape,27,,0
+1068,Geodude Torc,27,,0
+1069,Rocky Torc,27,,0
+1070,Rugged Sash,27,,0
+1071,Heated Bow,27,,0
+1072,Sunlight Bow,27,,0
+1073,Slowpoke Hat,27,,0
+1074,Slow-Scarf,27,,0
+1075,Magne-Torc,27,,0
+1076,Magneton Bow,27,,0
+1077,Bullseye Bow,27,,0
+1078,Buddy Torc,27,,0
+1079,Fight Torc,27,,0
+1080,Gentle Bow,27,,0
+1081,North Torc,27,,0
+1082,Grimy Scarf,27,,0
+1083,Slimy Bow,27,,0
+1084,Shell-Torc,27,,0
+1085,Cover Armor,27,,0
+1086,Gastly Veil,27,,0
+1087,Slip Scarf,27,,0
+1088,Sunglasses,27,,0
+1089,Trust Brooch,27,,0
+1090,Drowzee Tie,27,,0
+1091,Dream Coin,27,,0
+1092,Krabby Bow,27,,0
+1093,Super Sash,27,,0
+1094,Ball Scarf,27,,0
+1095,Electro-Bow,27,,0
+1096,Repel Scarf,27,,0
+1097,Exeggu-Sash,27,,0
+1098,Cubone Scarf,27,,0
+1099,Marowak Torc,27,,0
+1100,Licky Scarf,27,,0
+1101,Koffing Bow,27,,0
+1102,Weez-Scarf,27,,0
+1103,Solid Shield,27,,0
+1104,Pierce Drill,27,,0
+1105,Sticky Bow,27,,0
+1106,Kang-Apron,27,,0
+1107,Horsea Bow,27,,0
+1108,Swirl Scarf,27,,0
+1109,Goldeen Bow,27,,0
+1110,Seaking Bow,27,,0
+1111,Recover Torc,27,,0
+1112,Starmie Belt,27,,0
+1113,Pinsir Sash,27,,0
+1114,Rushing Bow,27,,0
+1115,Magikarp Bow,27,,0
+1116,Tempest Sash,27,,0
+1117,Ditto Torc,27,,0
+1118,AI Brooch,27,,0
+1119,Spike Brooch,27,,0
+1120,Aged Scarf,27,,0
+1121,Kabuto Hat,27,,0
+1122,Kabu-Torc,27,,0
+1123,Old Brooch,27,,0
+1124,Dragon Sash,27,,0
+1125,Aloft Mantle,27,,0
+1126,Mirage Cape,27,,0
+1127,Sentret Ruff,27,,0
+1128,Body Collar,27,,0
+1129,Expose Specs,27,,0
+1130,Noctowl Torc,27,,0
+1131,Morning Bow,27,,0
+1132,Ledian Bow,27,,0
+1133,Spina-Scarf,27,,0
+1134,Ariados Bow,27,,0
+1135,Slash Bow,27,,0
+1136,Shine Torc,27,,0
+1137,Lanturn Bow,27,,0
+1138,Lively Scarf,27,,0
+1139,Xatu Bow,27,,0
+1140,Wool Bow,27,,0
+1141,Fluffy Scarf,27,,0
+1142,Sacred Scarf,27,,0
+1143,Bright Tiara,27,,0
+1144,Rain Crown,27,,0
+1145,Zephyr Bow,27,,0
+1146,Skip-Scarf,27,,0
+1147,Cotton Torc,27,,0
+1148,Revenge Ruff,27,,0
+1149,Hasty Bow,27,,0
+1150,Sun Scarf,27,,0
+1151,Chitin Bow,27,,0
+1152,Wooper Bow,27,,0
+1153,Quag-Torc,27,,0
+1154,Murkrow Hat,27,,0
+1155,King Cap,27,,0
+1156,Misdrea-Cape,27,,0
+1157,Cryptic Sash,27,,0
+1158,Reverse Bow,27,,0
+1159,Robust Bow,27,,0
+1160,Dense Poncho,27,,0
+1161,Escape Scarf,27,,0
+1162,Takeoff Ruff,27,,0
+1163,Quartz Torc,27,,0
+1164,Snub-Cape,27,,0
+1165,Stern Sash,27,,0
+1166,Qwilfish Bow,27,,0
+1167,Shuckle Bow,27,,0
+1168,Horn Torc,27,,0
+1169,Lava Bow,27,,0
+1170,Torrid Scarf,27,,0
+1171,Frigid Bow,27,,0
+1172,Frost Torc,27,,0
+1173,Eager Brooch,27,,0
+1174,Reach Bow,27,,0
+1175,Psy Bow,27,,0
+1176,Snow Brooch,27,,0
+1177,Skar-Cape,27,,0
+1178,Dark Choker,27,,0
+1179,Pit Fang,27,,0
+1180,Tornado Bow,27,,0
+1181,Virtual Bow,27,,0
+1182,Delusion Bow,27,,0
+1183,Paint Scarf,27,,0
+1184,Milky Scarf,27,,0
+1185,Larvitar Bow,27,,0
+1186,Pupita-Scarf,27,,0
+1187,Crash Claw,27,,0
+1188,Pooch-Collar,27,,0
+1189,Dark Fang,27,,0
+1190,Merry Scarf,27,,0
+1191,Linoone Ruff,27,,0
+1192,Wurmple Bow,27,,0
+1193,Tough Scarf,27,,0
+1194,Vivid Silk,27,,0
+1195,Guard Bow,27,,0
+1196,Dustox Bow,27,,0
+1197,Kelp Hat,27,,0
+1198,Jolly Scarf,27,,0
+1199,Ludicolo Hat,27,,0
+1200,Seedot Hat,27,,0
+1201,Nuzleaf Bow,27,,0
+1202,Shiftry Belt,27,,0
+1203,Taillow Bow,27,,0
+1204,Midair Scarf,27,,0
+1205,Wingull Bow,27,,0
+1206,Stock Scarf,27,,0
+1207,Sensing Hat,27,,0
+1208,Magical Bow,27,,0
+1209,Caring Scarf,27,,0
+1210,Bliss Scarf,27,,0
+1211,Blocking Bow,27,,0
+1212,Mobile Bow,27,,0
+1213,Thwart Bow,27,,0
+1214,Slak-Scarf,27,,0
+1215,Vigor Sash,27,,0
+1216,Lazy Ruff,27,,0
+1217,Novice Scarf,27,,0
+1218,Ninja Ruff,27,,0
+1219,Awe Mantle,27,,0
+1220,Good Earring,27,,0
+1221,Nice Bangle,27,,0
+1222,Great Torc,27,,0
+1223,Makuhit-Belt,27,,0
+1224,Thrust Belt,27,,0
+1225,Nose-Torc,27,,0
+1226,Sable-Scope,27,,0
+1227,Deceit Mask,27,,0
+1228,Iron Torc,27,,0
+1229,Metal Bangle,27,,0
+1230,Iron Helmet,27,,0
+1231,Intuit Bow,27,,0
+1232,Ponder Sash,27,,0
+1233,Punish Torc,27,,0
+1234,Protect Mask,27,,0
+1235,Neon Scarf,27,,0
+1236,Evening Bow,27,,0
+1237,Thorned Torc,27,,0
+1238,Gulpin Bow,27,,0
+1239,Swalot Belt,27,,0
+1240,Carva-Sash,27,,0
+1241,Vicious Bow,27,,0
+1242,Spout Scarf,27,,0
+1243,Huge Bow,27,,0
+1244,Numel Bow,27,,0
+1245,Erupt Scarf,27,,0
+1246,Sooty Sash,27,,0
+1247,Spring Bow,27,,0
+1248,Scheme Scarf,27,,0
+1249,Hula Bow,27,,0
+1250,Desert Bow,27,,0
+1251,Vibra Scarf,27,,0
+1252,Red Glasses,27,,0
+1253,Desert Sash,27,,0
+1254,Cacturne Hat,27,,0
+1255,Tuft Bow,27,,0
+1256,Cloud Ruff,27,,0
+1257,Strong Sash,27,,0
+1258,Seviper Bow,27,,0
+1259,Lunaton-Torc,27,,0
+1260,Solrock Bow,27,,0
+1261,Soak Scarf,27,,0
+1262,Whiscash Bow,27,,0
+1263,Bossy Scarf,27,,0
+1264,Cower Sash,27,,0
+1265,Bal-Brooch,27,,0
+1266,Claydol Torc,27,,0
+1267,Bind Scarf,27,,0
+1268,Cradily Bow,27,,0
+1269,Guard Claw,27,,0
+1270,Rigid Cape,27,,0
+1271,Admire Scarf,27,,0
+1272,Grace Scarf,27,,0
+1273,Kecleon Torc,27,,0
+1274,Shuppet Cape,27,,0
+1275,Ominous Torc,27,,0
+1276,Duskull Ruff,27,,0
+1277,Illusion Bow,27,,0
+1278,Tropius Bow,27,,0
+1279,Chime-Scarf,27,,0
+1280,Perish Torc,27,,0
+1281,Chilly Hat,27,,0
+1282,Hail Scarf,27,,0
+1283,Sleet Bow,27,,0
+1284,Safe Scarf,27,,0
+1285,Walrein Torc,27,,0
+1286,Clam-Brooch,27,,0
+1287,Deep Torc,27,,0
+1288,Gore-Scarf,27,,0
+1289,Reli-Torc,27,,0
+1290,Luvdisc Torc,27,,0
+1291,Crag Helmet,27,,0
+1292,Outlast Bow,27,,0
+1293,Sala-Cape,27,,0
+1294,Beldum Torc,27,,0
+1295,Metang Scarf,27,,0
+1296,Meta-Torc,27,,0
+1297,Starly Bow,27,,0
+1298,Regret Torc,27,,0
+1299,Guts Sash,27,,0
+1300,Still Bow,27,,0
+1301,Kricke-Torc,27,,0
+1302,Budew Scarf,27,,0
+1303,Bouquet Cape,27,,0
+1304,Hard Helmet,27,,0
+1305,Skull Helmet,27,,0
+1306,Rebound Bow,27,,0
+1307,Block Brooch,27,,0
+1308,Straw Cape,27,,0
+1309,Worma-Bow,27,,0
+1310,Mothim Bow,27,,0
+1311,Nectar Bow,27,,0
+1312,Vespi-Torc,27,,0
+1313,Awake Bow,27,,0
+1314,Gastro-Torc,27,,0
+1315,Ambipom Bow,27,,0
+1316,Defrost Ruff,27,,0
+1317,Allure Coat,27,,0
+1318,Magic Hat,27,,0
+1319,Honch-Cape,27,,0
+1320,Glameow Bow,27,,0
+1321,Scary Belt,27,,0
+1322,Ching-Torc,27,,0
+1323,Stinky Scarf,27,,0
+1324,Stench Sash,27,,0
+1325,Image Brooch,27,,0
+1326,Mirror Torc,27,,0
+1327,Chatot Scarf,27,,0
+1328,Thick Scarf,27,,0
+1329,Grit Veil,27,,0
+1330,Skorupi Bow,27,,0
+1331,Dust Scarf,27,,0
+1332,Croa-Torc,27,,0
+1333,Toxi-Belt,27,,0
+1334,Carni-Bow,27,,0
+1335,Swim Bow,27,,0
+1336,Lumi-Torc,27,,0
+1337,Snowy Torc,27,,0
+1338,Frozen Cape,27,,0
+1339,Builder Sash,27,,0
+1340,Flabby Belt,27,,0
+1341,Rhyperi-Torc,27,,0
+1342,Clinging Bow,27,,0
+1343,Yanmega Bow,27,,0
+1344,Gliscor Cape,27,,0
+1345,Glacier Cape,27,,0
+1346,Best Scarf,27,,0
+1347,Gallant Torc,27,,0
+1348,Probo-Hat,27,,0
+1349,Unlucky Sash,27,,0
+1350,Froslass Bow,27,,0
+1351,Purify Veil,27,,0
+1352,$$$,0,,0
+1353,$$$,0,,0
+1354,$$$,0,,0
+1355,$$$,0,,0
+1356,$$$,0,,0
+1357,$$$,0,,0
+1358,$$$,0,,0
+1359,$$$,0,,0
+1360,$$$,0,,0
+1361,$$$,0,,0
+1362,$$$,0,,0
+1363,$$$,0,,0
+1364,$$$,0,,0
+1365,$$$,0,,0
+1366,$$$,0,,0
+1367,$$$,0,,0
+1368,$$$,0,,0
+1369,$$$,0,,0
+1370,$$$,0,,0
+1371,$$$,0,,0
+1372,$$$,0,,0
+1373,$$$,0,,0
+1374,$$$,0,,0
+1375,$$$,0,,0
+1376,$$$,0,,0
+1377,$$$,0,,0
+1378,$$$,0,,0
+1379,$$$,0,,0
+1380,$$$,0,,0
+1381,$$$,0,,0
+1382,$$$,0,,0
+1383,$$$,0,,0
+1384,$$$,0,,0
+1385,$$$,0,,0
+1386,$$$,0,,0
+1387,$$$,0,,0
+1388,$$$,0,,0
+1389,$$$,0,,0
+1390,$$$,0,,0
+1391,$$$,0,,0
+1392,$$$,0,,0
+1393,$$$,0,,0
+1394,$$$,0,,0
+1395,$$$,0,,0
+1396,$$$,0,,0
+1397,$$$,0,,0
+1398,$$$,0,,0
+1399,$$$,0,,0

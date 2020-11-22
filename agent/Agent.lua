@@ -476,6 +476,11 @@ function Agent:act(state, visible)
                     if self.target.type == TARGET.Item then
                         engageWithEnemy = false
                     else
+                        -- Equip a better held item if there is one
+                        if itemLogic.equipBestItem(availableInfo) then
+                            return
+                        end
+
                         -- If there's nothing else to do, and belly is even somewhat low,
                         -- we might as well eat something (provided we're not being wasteful)
                         if smartactions.eatFoodIfHungry(availableInfo, leader.belly,
@@ -581,6 +586,12 @@ function Agent:act(state, visible)
                 return
             end
         end
+    end
+
+    -- If we're not headed for an item and there's a better item to equip than what
+    -- we currently have, equip it
+    if self.target.type ~= TARGET.Item and itemLogic.equipBestItem(availableInfo) then
+        return
     end
 
     -- If we're standing on the target item but haven't picked it up yet, try to

@@ -21,12 +21,14 @@ local itemCodes = {}
 for id=codes.ITEM.Nothing,codes.ITEM.Unnamed0x577 do
     table.insert(itemCodes, id)
 end
-local priorityLookup = LookupTable:new('agent/logic/item_priority.csv')
+local priorityLookup = LookupTable:new('agent/logic/item_strategy.csv')
 local itemPriorities = {}
+local heldItemPriorities = {}
 local spritePriorities = {}
 local priorityList = {}
 for _, itemWithPriority in ipairs(priorityLookup(itemCodes)) do
     itemPriorities[itemWithPriority.ID] = itemWithPriority.priority
+    heldItemPriorities[itemWithPriority.ID] = itemWithPriority.heldPriority
     table.insert(priorityList, itemWithPriority.priority)
     -- For a given sprite type, color pair, let the priority be the maximum
     -- priority of all items in that group
@@ -58,7 +60,7 @@ for _, priority in ipairs(priorityList) do
     prevPriority = priority
 end
 
--- Resolves an items' priority based on available info
+-- Resolves an item's priority based on available info
 function itemLogic.resolveItemPriority(item)
     -- Default to above the max priority. If an item isn't known, we should
     -- be curious as to what it is before making a decision to reject it
@@ -75,6 +77,16 @@ function itemLogic.resolveItemPriority(item)
         priority = priority - minPriorityDiff / 2
     end
     return priority
+end
+
+-- Resolves an item's holding priority based on available info
+function itemLogic.resolveHeldPriority(item)
+    -- An item must be known to have a held priority
+    -- Sticky items should never be equipped
+    if item.itemType and not item.isSticky then
+        return heldItemPriorities[item.itemType]
+    end
+    return nil
 end
 
 -- Find the index (0-indexed) of the lowest priority item in the bag,
@@ -100,6 +112,48 @@ function itemLogic.idxToSwap(item, bag)
     local worstItemIdx, worstPriority = itemLogic.getLowestPriorityItem(bag)
     if worstItemIdx and itemLogic.resolveItemPriority(item) > worstPriority then
         return worstItemIdx
+    end
+    return nil
+end
+
+-- Find the index (0-indexed) of the highest priority held item in the bag
+-- to equip. Items already held are skipped, as are sticky items and other
+-- items with nil priority. Returns a nil index if no valid held items, the
+-- best item is already equipped, or the current held item is sticky.
+function itemLogic.idxToEquip(bag, teammate)
+    local teammate = teammate or 0  -- 0 for the leader
+    local holder = teammate + 1 -- The internal held index is 1-indexed (0 means no holder)
+
+    local highIdx, highPriority = nil, -math.huge
+    local currentHeldPriority = nil
+    for i, item in ipairs(bag) do
+        if item.heldBy == 0 then
+            -- This is not a held item. Check the priority
+            local priority = itemLogic.resolveHeldPriority(item)
+            if priority and priority > highPriority then
+                highIdx = i - 1 -- Convert to 0-indexing
+                highPriority = priority
+            end
+        elseif item.heldBy == holder then
+            -- This is the current held item
+
+            -- Held item is sticky! We're not going to be able to equip
+            -- anything else, so return nil
+            if item.isSticky then return nil end
+            -- Otherwise, record the priority
+            currentHeldPriority = itemLogic.resolveHeldPriority(item)
+        end
+    end
+
+    -- Only return the best index if it beats the current held item
+    if highPriority then
+        if currentHeldPriority then
+            if highPriority > currentHeldPriority then
+                return highIdx
+            end
+        else
+            return highIdx
+        end
     end
     return nil
 end
@@ -143,6 +197,16 @@ function itemLogic.retrieveItemUnderfoot(state)
     -- If we can just pick it up, no need to bother with the swapping logic
     if smartactions.pickUpItemIfPossible(-1, state, true) then return true end
     return itemLogic.swapItemUnderfoot(state)
+end
+
+-- Equip an item from the bag
+function itemLogic.equipBestItem(state, teammate)
+    -- Proxy default teammate to idxToEquip and giveItemIfPossible
+    local idx = itemLogic.idxToEquip(state.player.bag(), teammate)
+    if idx then
+        return smartactions.giveItemIfPossible(idx, state, teammate, true)
+    end
+    return false
 end
 
 -- Resolves an item's name based on available info
