@@ -146,7 +146,8 @@ Returned in a list by the `items()` and `bag()` fields. Items have the following
 - `inShop`: Flag for whether or not the item is in a Kecleon shop
 - `isSticky`: Flag for whether or not the item is sticky
 - `isSet`: Flag for whether or not the item is set, if in the bag
-- `heldBy`: Index of the party member holding the item, if in the bag
+- `heldBy`: Index of the party member holding the item, if in the bag. For items on the ground, this will always be zero.
+- `droppedBy`: This is a special field that will normally be `nil`. It will only be set if an item previously held by a party member is forcibly dropped due to a Trip Trap, Knock Off, etc. and hasn't yet been picked up again (by the player; an enemy picking the item up will *not* cause an update). The value will be the index of the party member that dropped the item.
 - `amount`: Amount code, if applicable. Note: seems like for Poké this value doesn't correspond to the literal amount.
 - `itemType`: The [item ID](../codes/item.lua)
 - `sprite`: The item sprite when the item is on the floor

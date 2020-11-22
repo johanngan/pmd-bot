@@ -227,6 +227,16 @@ function entityHelpers.readItem(address)
         -- More info at the original address
         item.xPosition = memory.readwordsigned(address + 0x04)
         item.yPosition = memory.readwordsigned(address + 0x06)
+        -- If the item has a position, it must be on the ground, and the heldBy
+        -- property *should* be zero. However, due to a possible oversight in
+        -- programming, if a previously held item is dropped due to a Trip Trap
+        -- or Knock Off, the heldBy property won't be updated to 0 until the item
+        -- is picked up again by the player. If this is the case, explicitly set
+        -- heldBy to 0 and also set a special droppedBy property on the item.
+        if item.heldBy > 0 then
+            item.droppedBy = item.heldBy
+            item.heldBy = 0
+        end
     end
     return item
 end
