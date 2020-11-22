@@ -271,16 +271,11 @@ function Agent:act(state, visible)
         end
         if itemIsGone then self:setTarget(nil) end
     end
-    if self:isTargetPos({leader.xPosition, leader.yPosition}) then
-        -- If the target was an item (if we get in here, the item must still be there),
-        -- Pick it up or swap it out if it makes sense to
-        if self.target.type == TARGET.Item and
-            not smartactions.pickUpItemIfPossible(-1, availableInfo, true) then
-            if itemLogic.swapItemUnderfoot(availableInfo) then
-                -- Swapping uses up the turn
-                return
-            end
-        end
+    -- If the target was an item (if we get in here, the item must still be there),
+    -- defer unsetting the target until we can pick it up (later, after we check
+    -- for enemies nearby)
+    if self:isTargetPos({leader.xPosition, leader.yPosition}) and
+        self.target.type ~= TARGET.Item then
         -- The target has been reached, so clear it
         self:setTarget(nil)
     end
@@ -409,6 +404,14 @@ function Agent:act(state, visible)
                 local pathToTarget = pathfinder.getPath(availableInfo.dungeon.layout(),
                     leader.xPosition, leader.yPosition, self.target.pos[1], self.target.pos[2],
                     nil, mustAvoid, avoidIfPossible)
+                -- Special case: if the bag is full and the target is an item, it'll take
+                -- an extra turn to swap a bag item for it, so we'll need to add 1 to the
+                -- path length
+                local extraTargetSteps = 0
+                if self.target.type == TARGET.Item and
+                    #availableInfo.player.bag() >= availableInfo.player.bagCapacity() then
+                    extraTargetSteps = 1
+                end
                 -- Next, compute the path from the enemy to the target
                 local enemySpecies = nearestEnemy.features.species
                 local enemyPathToTarget = pathfinder.getPath(
@@ -425,7 +428,8 @@ function Agent:act(state, visible)
                 )
                 -- If pathToTarget is nil, the enemy is probably in the way
                 enemyIsClose = pathToTarget == nil or
-                    (enemyPathToTarget ~= nil and #enemyPathToTarget <= #pathToTarget)
+                    (enemyPathToTarget ~= nil and
+                     #enemyPathToTarget <= #pathToTarget + extraTargetSteps)
             end
 
             -- Do a few preparatory checks before engaging with the enemy
@@ -565,7 +569,16 @@ function Agent:act(state, visible)
         end
     end
 
-    -- If we got to this point in the logic, we're on the stairs,
+    -- If we're standing on the target item but haven't picked it up yet, try to
+    if self.target.type == TARGET.Item and
+        self:isTargetPos({leader.xPosition, leader.yPosition}) and
+        itemLogic.retrieveItemUnderfoot(availableInfo) then
+        -- Item was successfully retrieved; clear the target
+        self:setTarget(nil)
+        return
+    end
+
+    -- If we got to this point in the logic, and we're on the stairs,
     -- and it's the current target, climb
     if self.target.type == TARGET.Stairs and
         self:isTargetPos({leader.xPosition, leader.yPosition}) then

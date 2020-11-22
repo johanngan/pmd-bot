@@ -138,6 +138,13 @@ function itemLogic.swapItemUnderfoot(state)
     return false
 end
 
+-- Pick up an item underfoot, or swap it for something lower priority in the bag
+function itemLogic.retrieveItemUnderfoot(state)
+    -- If we can just pick it up, no need to bother with the swapping logic
+    if smartactions.pickUpItemIfPossible(-1, state, true) then return true end
+    return itemLogic.swapItemUnderfoot(state)
+end
+
 -- Resolves an item's name based on available info
 itemLogic.DEFAULT_ITEM_NAME = 'Item'
 
