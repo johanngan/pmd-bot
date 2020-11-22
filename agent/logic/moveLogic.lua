@@ -73,15 +73,18 @@ end
 
 -- Decide how to attack an enemy given the circumstances, and perform the action.
 -- Returns true if the attack was successfully used, or false if not.
--- If you're using different Pokemon, it might be sufficient just to rewrite this
--- method, and leave the main dungeon-crawling logic as is.
 function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
     local teammatesExist = #availableInfo.dungeon.entities.team() > 1
     local movepool = {}
     for i, move in ipairs(leader.moves) do
         if isUsable(move)
             and mechanics.move.isOffensive(move.moveID)
-            and mechanics.move(move.moveID).range < codes.MOVE_RANGE.Room
+            and (
+                -- Try not to save room-clearing moves for special circumstances,
+                -- unless they're the only moves left
+                mechanics.move(move.moveID).range < codes.MOVE_RANGE.Room or
+                moveLogic.onlyAOEOffensiveMoves(leader.moves, false, math.huge)
+            )
             and not (teammatesExist and hitsTeammatesAOE(move.moveID))
             and expectedDamageHeuristic(move, leader, enemy) > 0 then
             table.insert(movepool, {
@@ -141,14 +144,16 @@ end
 -- Gets a list of indexes (1-indexed) for offensive AOE moves that won't
 -- hit teammates if any exist, and also the number of those that have PP left.
 -- The indexes will be in descending order by range, then by base power
-function moveLogic.getOffensiveAOEMoves(moves, teammatesExist)
+function moveLogic.getOffensiveAOEMoves(moves, teammatesExist, AOESize)
     local teammatesExist = teammatesExist or false
+    -- By default, exclude Wide Slash; it's partly directional so the logic would be more complicated
+    local AOESize = AOESize or 8
 
     local AOEMoveIdxs = {}
     local nAOEMovesWithPP = 0
     for i, move in ipairs(moves) do
         -- Exclude Wide Slash; it's partly directional so the logic would be more complicated
-        if mechanics.move.isOffensive(move.moveID) and mechanics.move.isAOE(move.moveID, 8)
+        if mechanics.move.isOffensive(move.moveID) and mechanics.move.isAOE(move.moveID, AOESize)
             and not (teammatesExist and mechanics.move.hasFriendlyFire(move.moveID)) then
             table.insert(AOEMoveIdxs, i)
             if move.PP > 0 then
@@ -164,6 +169,14 @@ function moveLogic.getOffensiveAOEMoves(moves, teammatesExist)
         end)
     end
     return AOEMoveIdxs, nAOEMovesWithPP
+end
+
+-- Checks if the only offensive moves with PP left are AOE
+function moveLogic.onlyAOEOffensiveMoves(moves, teammatesExist, AOESize)
+    local nOffensiveMovesWithPP = moveLogic.checkOffensiveMoves(moves)
+    -- Proxy defaults to getOffensiveAOEMoves
+    local _, nAOEMovesWithPP = moveLogic.getOffensiveAOEMoves(moves, teammatesExist, AOESize)
+    return nOffensiveMovesWithPP <= nAOEMovesWithPP
 end
 
 return moveLogic
