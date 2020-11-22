@@ -58,6 +58,8 @@ function Agent:init(state, visible)
     self.target.name = nil   -- For message reporting
     -- Soft targets will get recomputed at the next turn. Hard targets will be seen through
     self.target.soft = nil
+    -- ID of the last enemy attacked
+    self.lastEnemyAttacked = nil
 
     -- Preload all the mechanics info for the leader's current moves into memory
     local moveIDs = {}
@@ -383,6 +385,15 @@ function Agent:act(state, visible)
     end
     if #nearestEnemiesOnScreen > 0 then
         -- An enemy is in the vicinity and can approach us
+        -- All enemies in the list will be the same distance away. Prioritize attacking
+        -- the same enemy as before if it's in this list, in order to focus on one
+        -- enemy at a time.
+        table.sort(nearestEnemiesOnScreen,
+            function(enemyWithPath1, enemyWithPath2)
+                return self.lastEnemyAttacked and
+                    enemyWithPath1.entity.index == self.lastEnemyAttacked
+            end
+        )
 
         -- Go through enemies one-by-one until an action is taken
         for _, enemyWithPath in ipairs(nearestEnemiesOnScreen) do
@@ -487,6 +498,9 @@ function Agent:act(state, visible)
                 end
                 if not pathfinder.pathIntersects(pathToEnemy, teammatePositions) and
                     self:attackEnemy(nearestEnemy, leader, availableInfo) then
+                    -- Attack sequence was successful; record this enemy so we know to focus
+                    -- on it in subsequent turns
+                    self.lastEnemyAttacked = nearestEnemy.index
                     return
                 end
                 -- If that didn't work, see how to get to the enemy
