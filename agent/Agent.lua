@@ -596,9 +596,12 @@ function Agent:act(state, visible)
 
     -- If we're standing on the target item but haven't picked it up yet, try to
     if self.target.type == TARGET.Item and
-        self:isTargetPos({leader.xPosition, leader.yPosition}) and
-        itemLogic.retrieveItemUnderfoot(availableInfo) then
-        -- Item was successfully retrieved; clear the target
+        self:isTargetPos({leader.xPosition, leader.yPosition}) then
+        -- Clear the target and return regardless of whether retreival is
+        -- successful; if it's unsuccessful, something weird happened (maybe
+        -- an item was Knocked Off and fell underneath the player, but the bag
+        -- is already full), so starting from a fresh target next iteration is safer.
+        itemLogic.retrieveItemUnderfoot(availableInfo)
         self:setTarget(nil)
         return
     end
