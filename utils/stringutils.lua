@@ -6,7 +6,7 @@ stringutils = {}
 function stringutils.split(str, delim)
     local delim = delim or ' '
     substrs = {}
-    for substr in string.gmatch(str, '([^' .. delim .. ']+)') do
+    for substr in string.gmatch(str .. delim, '([^' .. delim .. ']*)' .. delim) do
         table.insert(substrs, substr)
     end
     return substrs
