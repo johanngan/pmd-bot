@@ -95,15 +95,6 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
         end
     end
 
-    -- Out of the selected moves, try the highest-damaging ones first,
-    -- based on a damage heuristic. Break ties by PP.
-    table.sort(movepool, function(a, b)
-        if a.damage == b.damage then return a.pp > b.pp end
-        return a.damage > b.damage
-    end)
-    -- Append an invalid index (basic attack) as a last resort
-    table.insert(movepool, {idx=-1, damage=0})
-
     -- If the enemy is threatening (STAB super effective), attack it with
     -- any move possible, rather than waiting for the best move to be in range.
     -- Otherwise, only try to use the best move; if out of range, do nothing.
@@ -113,6 +104,31 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
         leader.features.primaryType, leader.features.secondaryType) > 1) or
         (mechanics.power.typeEffectiveness(enemy.features.secondaryType,
         leader.features.primaryType, leader.features.secondaryType) > 1)
+
+    -- Out of the selected moves, try the ones that do the most damage and have
+    -- the most PP first, based on a damage heuristic (take the product of the
+    -- two quantities). Break ties with power. This helps balance doing the most
+    -- damage and conserving PP.
+    --
+    -- If threatened, use just the damage heuristic as the primary sorting key,
+    -- only using PP to break ties, since we want to deal with the threat as
+    -- quickly as possible.
+    local sortingFn = function(a, b)
+        local aProd = a.damage*a.pp
+        local bProd = b.damage*b.pp
+        if aProd == bProd then return a.damage > b.damage end
+        return aProd > bProd
+    end
+    if threatened then
+        sortingFn = function(a, b)
+            if a.damage == b.damage then return a.pp > b.pp end
+            return a.damage > b.damage
+        end
+    end
+    table.sort(movepool, sortingFn)
+    -- Append an invalid index (basic attack) as a last resort
+    table.insert(movepool, {idx=-1, damage=0})
+
     local highestDamage = movepool[1].damage
     for _, idxAndDamage in ipairs(movepool) do
         if not threatened and idxAndDamage.damage < highestDamage then break end
