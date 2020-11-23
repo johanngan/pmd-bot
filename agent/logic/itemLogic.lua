@@ -24,15 +24,18 @@ end
 local priorityLookup = LookupTable:new('agent/logic/item_strategy.csv')
 local itemPriorities = {}
 local heldItemPriorities = {}
+local discardItemByUsing = {}
 local spritePriorities = {}
+local spriteCanDiscardByUsing = {}
 local priorityList = {}
-for _, itemWithPriority in ipairs(priorityLookup(itemCodes)) do
-    itemPriorities[itemWithPriority.ID] = itemWithPriority.priority
-    heldItemPriorities[itemWithPriority.ID] = itemWithPriority.heldPriority
-    table.insert(priorityList, itemWithPriority.priority)
+for _, itemWithStrategy in ipairs(priorityLookup(itemCodes)) do
+    itemPriorities[itemWithStrategy.ID] = itemWithStrategy.priority
+    heldItemPriorities[itemWithStrategy.ID] = itemWithStrategy.heldPriority
+    discardItemByUsing[itemWithStrategy.ID] = itemWithStrategy.discardByUsing
+    table.insert(priorityList, itemWithStrategy.priority)
     -- For a given sprite type, color pair, let the priority be the maximum
-    -- priority of all items in that group
-    local sprite = mechanics.item.sprites[itemWithPriority.ID]
+    -- priority of all items in that group.
+    local sprite = mechanics.item.sprites[itemWithStrategy.ID]
     if spritePriorities[sprite.type] == nil then
         spritePriorities[sprite.type] = {}
     end
@@ -40,8 +43,18 @@ for _, itemWithPriority in ipairs(priorityLookup(itemCodes)) do
         spritePriorities[sprite.type][sprite.color] = -math.huge
     end
     spritePriorities[sprite.type][sprite.color] = math.max(
-        spritePriorities[sprite.type][sprite.color], itemWithPriority.priority
+        spritePriorities[sprite.type][sprite.color], itemWithStrategy.priority
     )
+    -- Let the sprite discardByUsing be the OR of all the discardByUsing flags.
+    if spriteCanDiscardByUsing[sprite.type] == nil then
+        spriteCanDiscardByUsing[sprite.type] = {}
+    end
+    if spriteCanDiscardByUsing[sprite.type][sprite.color] == nil then
+        spriteCanDiscardByUsing[sprite.type][sprite.color] = false
+    end
+    spriteCanDiscardByUsing[sprite.type][sprite.color] =
+        spriteCanDiscardByUsing[sprite.type][sprite.color] or
+            itemWithStrategy.discardByUsing
 end
 -- Clear out the cache since we're done with it
 priorityLookup:flushCache()
@@ -77,6 +90,24 @@ function itemLogic.resolveItemPriority(item)
         priority = priority - minPriorityDiff / 2
     end
     return priority
+end
+
+-- Resolves an item's discard by using status based on available info
+function itemLogic.resolveDiscardabilityByUse(item)
+    -- Default to true. If an item isn't known, we should be curious as to
+    -- what it is before making a decision to reject it.
+    local discardByUsing = true
+    if item.itemType then
+        discardByUsing = discardItemByUsing[item.itemType]
+    elseif item.sprite.type then
+        discardByUsing = spriteCanDiscardByUsing[item.sprite.type][item.sprite.color]
+    end
+    -- If an item is known to be sticky or in a shop, we can't actually use it,
+    -- so we shouldn't consider it discardable by use
+    if item.isSticky or item.inShop then
+        discardByUsing = false
+    end
+    return discardByUsing
 end
 
 -- Resolves an item's holding priority based on available info
@@ -197,6 +228,19 @@ function itemLogic.retrieveItemUnderfoot(state)
     -- If we can just pick it up, no need to bother with the swapping logic
     if smartactions.pickUpItemIfPossible(-1, state, true) then return true end
     return itemLogic.swapItemUnderfoot(state)
+end
+
+-- Use an item underfoot if it's discardable by use.
+function itemLogic.useDiscardableItemUnderfoot(state)
+    local leader = state.player.leader()
+    local item = itemLogic.itemAtPos({leader.xPosition, leader.yPosition},
+        state.dungeon.entities.items())
+    if not item then return false end
+
+    if itemLogic.resolveDiscardabilityByUse(item) then
+        return smartactions.useItemIfPossible(-1, state, nil, true)
+    end
+    return false
 end
 
 -- Equip an item from the bag

@@ -291,7 +291,8 @@ function Agent:act(state, visible)
             leader.xPosition, leader.yPosition, availableInfo.dungeon,
             function(item)
                 return itemLogic.shouldPickUp(item, availableInfo.player.bag(),
-                    availableInfo.player.bagCapacity())
+                    availableInfo.player.bagCapacity()) or
+                    itemLogic.resolveDiscardabilityByUse(item)
             end,
             nil, avoidIfPossible)
         if #nearestItems > 0 then
@@ -601,7 +602,12 @@ function Agent:act(state, visible)
         -- successful; if it's unsuccessful, something weird happened (maybe
         -- an item was Knocked Off and fell underneath the player, but the bag
         -- is already full), so starting from a fresh target next iteration is safer.
-        itemLogic.retrieveItemUnderfoot(availableInfo)
+        if not itemLogic.retrieveItemUnderfoot(availableInfo) then
+            -- If retrieving the item failed, as a backup try to use it if it's discardable.
+            -- What probably happened is that the item wasn't worth picking up.
+            -- Again though, don't bother checking if it's successful or not.
+            itemLogic.useDiscardableItemUnderfoot(state)
+        end
         self:setTarget(nil)
         return
     end
