@@ -45,6 +45,7 @@ end
 local TARGET, _ = enum.register({
     'Stairs',
     'Item',
+    'WonderTile',
     'Explore',
 })
 
@@ -139,6 +140,31 @@ local function hasStatus(monster, statusType)
     return false
 end
 
+-- Normal stage for all stats except speed (for which the normal stage is 1)
+local NORMAL_STAT_STAGE = 10
+-- Checks the lowest stat stage of a monster. Returns nil if uncertain
+-- The list of stats defaults to all stats except evasion and speed
+local function lowestStatStage(entity, stats)
+    local stats = stats or {
+        'attack',
+        'specialAttack',
+        'defense',
+        'specialDefense',
+        'accuracy'
+    }
+
+    local modifiers = entity.stats.modifiers
+    local lowestStage = nil
+    for _, stat in ipairs(stats) do
+        local stageField = stat .. 'Stage'
+        if modifiers[stageField] and
+            (lowestStage == nil or modifiers[stageField] < lowestStage) then
+            lowestStage = modifiers[stageField]
+        end
+    end
+    return lowestStage
+end
+
 -- Scan a list of entities and check if any are in visibility range and within
 -- some path length. Return a list of the closest ones and the paths to them, with
 -- the form {entity, path} for each item.
@@ -201,6 +227,9 @@ function Agent:act(state, visible)
     end
 
     local leader = availableInfo.player.leader()
+    -- The largest stat drop out of all stats except evasion (not very important)
+    -- and speed (not affected by Wonder Tiles)
+    local statDeficit = NORMAL_STAT_STAGE - (lowestStatStage(leader) or NORMAL_STAT_STAGE)
 
     -- Health is critically low; try to heal.
     -- "Critically low" means less than 25% HP (add 1 to numerator/denominator)
@@ -321,9 +350,27 @@ function Agent:act(state, visible)
                 self.pathMoves = pathfinder.getMoves(path)
                 explore = false
             end
+        elseif statDeficit >= 2 then
+            -- If any relevant stat is at least 2 stages below normal, and there's a
+            -- Wonder Tile nearby, head towards it.
+            local nearestWTiles = scanNearbyEntities(
+                availableInfo.dungeon.entities.traps(),
+                leader.xPosition, leader.yPosition, availableInfo.dungeon,
+                function(trap) return trap.trapType == codes.TRAP.WonderTile end)
+            if #nearestWTiles > 0 then
+                -- Just pick the first Wonder Tile found if there are multiple equally close ones
+                local nearestWTile, path = nearestWTiles[1].entity, nearestWTiles[1].path
+                -- Set a soft target; if an item or the stairs becomes visible, we'll want to
+                -- target those instead
+                self:setTarget({nearestWTile.xPosition, nearestWTile.yPosition},
+                    TARGET.WonderTile, 'Wonder Tile', true)
+                -- Might as well save the path we just calculated
+                self.pathMoves = pathfinder.getMoves(path)
+                explore = false
+            end
         end
         -- If explore is still true by this point, there are two possibilities:
-        --  1. No items or stairs are visible
+        --  1. No items or stairs are visible, and no Wonder Tile is needed/visible
         --  2. Stairs are visible but unreachable
         if explore then
             -- Target the nearest reachable tile that's unknown
@@ -400,6 +447,8 @@ function Agent:act(state, visible)
         for _, enemyWithPath in ipairs(nearestEnemiesOnScreen) do
             local nearestEnemy, pathToEnemy = enemyWithPath.entity, enemyWithPath.path
 
+            -- Do a few preparatory checks before engaging with the enemy
+            local engageWithEnemy = true
             -- Determine if the enemy is close enough that it needs immediate attention
             local enemyIsClose = false
             local pathMovesToEnemy = pathfinder.getMoves(pathToEnemy)
@@ -442,10 +491,16 @@ function Agent:act(state, visible)
                 enemyIsClose = pathToTarget == nil or
                     (enemyPathToTarget ~= nil and
                      #enemyPathToTarget <= #pathToTarget + extraTargetSteps)
+
+                -- If the stat deficit is really severe (at least 5 stages), and a
+                -- Wonder Tile is currently being targeted and is reachable, ignore the
+                -- enemy regardless of how close it is.
+                -- (But if the enemy is not close then still go through the other prep checks first)
+                if self.target.type == TARGET.WonderTile and pathToTarget and statDeficit >= 5 then
+                    engageWithEnemy = false
+                end
             end
 
-            -- Do a few preparatory checks before engaging with the enemy
-            local engageWithEnemy = true
             -- If the enemy is close by, need to skip the intermediate logic and deal with it now
             if not enemyIsClose then
                 -- If the stairs are here, just make a beeline for them
@@ -473,8 +528,8 @@ function Agent:act(state, visible)
                         return
                     end
 
-                    -- If going for an item, just go for it
-                    if self.target.type == TARGET.Item then
+                    -- If going for an item or a Wonder Tile, just go for it
+                    if self.target.type == TARGET.Item or self.target.type == TARGET.WonderTile then
                         engageWithEnemy = false
                     else
                         -- Equip a better held item if there is one
@@ -618,6 +673,15 @@ function Agent:act(state, visible)
         self:isTargetPos({leader.xPosition, leader.yPosition}) then
         self:setTarget(nil)  -- Clear the target
         basicactions.climbStairs(true)
+        return
+    end
+
+    -- If we're targeting a Wonder Tile and standing on it already,
+    -- trigger it
+    if self.target.type == TARGET.WonderTile and
+        self:isTargetPos({leader.xPosition, leader.yPosition}) then
+        self:setTarget(nil) -- Clear the target
+        basicactions.triggerTile(true)
         return
     end
 
