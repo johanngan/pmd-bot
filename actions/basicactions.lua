@@ -373,6 +373,14 @@ function basicactions.climbStairs(verbose)
     basicactions.makeMenuSelection(0)
 end
 
+-- Triggers a tile when standing on it
+function basicactions.triggerTile(verbose)
+    messages.reportIfVerbose('Triggering tile.', verbose)
+
+    -- Triggering a tile is equivalent to climbing stairs
+    basicactions.climbStairs(false)
+end
+
 -- Pick an option in a Yes/No prompt. 0 for yes, 1 for no. Defaults to no
 function basicactions.selectYesNo(selection, verbose)
     messages.reportIfVerbose('Selecting "' .. ((selection == 0) and 'Yes' or 'No') .. '".', verbose)
