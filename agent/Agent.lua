@@ -9,6 +9,7 @@ require 'utils.messages'
 require 'utils.pathfinder'
 
 require 'codes.menu'
+require 'codes.mobility'
 require 'codes.species'
 require 'codes.status'
 require 'codes.terrain'
@@ -414,12 +415,28 @@ function Agent:act(state, visible)
                 and not hasStatus(enemy, codes.STATUS.Sleep)
         end,
         function(terrain, enemy)
-            -- Fallback if we don't know the species
-            if enemy.features.species == nil then
-                return terrain == codes.TERRAIN.Normal
+            local mobility = enemy.features.species and
+                mechanics.species(enemy.features.species).mobility or
+                codes.MOBILITY.Normal   -- Fallback if we don't know the species
+
+            -- Check the terrain the enemy is currently standing on. If it's not a
+            -- terrain the enemy could normally walk on, there must be some mobility
+            -- modifier at play, such as All-Terrain Hiker, Absolute Mover,
+            -- a Mobile Scarf, or a Mobile Orb.
+            local layout = availableInfo.dungeon.layout()
+            local enemyTerrain = layout[enemy.yPosition][enemy.xPosition].terrain
+            if enemyTerrain and not mechanics.species.walkable[mobility](
+                enemyTerrain, DUNGEON_HAS_LAVA) then
+                if enemyTerrain ~= codes.TERRAIN.Wall then
+                    -- Assume All-Terrain Hiker
+                    mobility = codes.MOBILITY.Hovering
+                else
+                    -- Assume full mobility (e.g. Mobile Scarf)
+                    return true
+                end
             end
-            return mechanics.species.walkable[
-                mechanics.species(enemy.features.species).mobility](terrain, DUNGEON_HAS_LAVA)
+
+            return mechanics.species.walkable[mobility](terrain, DUNGEON_HAS_LAVA)
         end
     )
     -- Only pay attention to enemies if they're on screen
