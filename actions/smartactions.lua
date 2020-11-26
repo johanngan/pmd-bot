@@ -9,6 +9,7 @@ require 'codes.item'
 require 'codes.itemMenuType'
 require 'codes.menu'
 require 'codes.move'
+require 'codes.status'
 require 'codes.terrain'
 
 require 'mechanics.item'
@@ -127,6 +128,12 @@ local function findActionIdx(actionSpecs, actionCode)
     return nil
 end
 
+-- These actions are always prevented when under Embargo
+local preventedByEmbargo = {
+    [ACTION.Use] = true,
+    [ACTION.Throw] = true,
+}
+
 local function isHeld(item)
     return item.heldBy > 0
 end
@@ -154,6 +161,17 @@ local function groundItem(items, x, y)
         end
     end
     return nil
+end
+
+-- Checks if a monster has some status. Returns nil if uncertain
+local function hasStatus(monster, statusType)
+    if monster.statuses == nil then return nil end
+    for _, status in ipairs(monster.statuses) do
+        if status.statusType == statusType then
+            return true
+        end
+    end
+    return false
 end
 
 -- Perform some action with an item if possible.
@@ -210,6 +228,11 @@ local function itemActionIfPossible(actionCode, itemIdx, state, followupIdx, ver
     if action.followup == codes.MENU.ItemSwap then
         assert(not isHeld(bag[followupIdx+1]), 'Cannot swap out held item (' ..
             codes.ITEM_NAMES[bag[followupIdx+1].itemType] .. ').')
+    end
+
+    -- Make sure the action can be done if under Embargo
+    if preventedByEmbargo[actionCode] and hasStatus(leader, codes.STATUS.Embargo) then
+        return false
     end
 
     -- If picking up an item, check that there's space
@@ -455,6 +478,11 @@ end
 -- Use a healing item if health is low (HP <= threshold), and a usable one
 -- exists. Try to use the one that restored the most HP without being wasteful.
 function smartactions.healIfLowHP(state, HP, maxHP, threshold, allowWaste, verbose)
+    -- Check for Heal Block
+    if hasStatus(state.player.leader(), codes.STATUS.HealBlock) then
+        return false
+    end
+
     return useRestoringItemWithThreshold(state, HP, maxHP,
         threshold, allowWaste, mechanics.item.lists.healing, verbose)
 end
