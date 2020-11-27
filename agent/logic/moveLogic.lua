@@ -98,7 +98,7 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
                 -- Try not to save room-clearing moves for special circumstances,
                 -- unless they're the only moves left
                 mechanics.move(move.moveID).range < codes.MOVE_RANGE.Room or
-                moveLogic.onlyAOEOffensiveMoves(leader.moves, false, math.huge)
+                not moveLogic.hasOffensiveNonAOEMoves(leader, math.huge)
             )
             and not (teammatesExist and hitsTeammatesAOE(move.moveID))
             and expectedDamageHeuristic(move, leader, enemy) > 0 then
@@ -183,7 +183,6 @@ function moveLogic.getOffensiveAOEMoves(moves, teammatesExist, AOESize)
     local AOEMoveIdxs = {}
     local nAOEMovesWithPP = 0
     for i, move in ipairs(moves) do
-        -- Exclude Wide Slash; it's partly directional so the logic would be more complicated
         if mechanics.move.isOffensive(move.moveID) and mechanics.move.isAOE(move.moveID, AOESize)
             and not (teammatesExist and mechanics.move.hasFriendlyFire(move.moveID)) then
             table.insert(AOEMoveIdxs, i)
@@ -202,12 +201,15 @@ function moveLogic.getOffensiveAOEMoves(moves, teammatesExist, AOESize)
     return AOEMoveIdxs, nAOEMovesWithPP
 end
 
--- Checks if the only offensive moves with PP left are AOE
-function moveLogic.onlyAOEOffensiveMoves(moves, teammatesExist, AOESize)
-    local nOffensiveMovesWithPP = moveLogic.checkOffensiveMoves(moves)
-    -- Proxy defaults to getOffensiveAOEMoves
-    local _, nAOEMovesWithPP = moveLogic.getOffensiveAOEMoves(moves, teammatesExist, AOESize)
-    return nOffensiveMovesWithPP <= nAOEMovesWithPP
+-- Checks if there are usable non-AOE offensive moves left
+function moveLogic.hasOffensiveNonAOEMoves(user, AOESize)
+    for _, move in ipairs(user.moves) do
+        if mechanics.move.isOffensive(move.moveID) and isUsable(move, user) and
+            not mechanics.move.isAOE(move.moveID, AOESize) then
+            return true
+        end
+    end
+    return false
 end
 
 return moveLogic
