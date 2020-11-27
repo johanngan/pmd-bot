@@ -84,13 +84,18 @@ function statusHelpers.readStatusList(infoTableStart)
         table.insert(statuses, readSingleStatusIndicator(infoTableStart, unpack(args)))
     end
 
-    -- Weird "status" thing(?) where the Moves/Items/Team/Ground menu options are disabled
-    local menuOptionsDisabled = memory.readbyteunsigned(infoTableStart + 0x104)
-    if menuOptionsDisabled ~= 0 then
-        table.insert(statuses, {
-            statusType = codes.STATUS.MenuOptionsDisabled,
-            turnsLeft = memory.readbyteunsigned(infoTableStart + 0x105)
-        })
+    -- Terrified status is a single-status indicator with a turn counter
+    local terrified = memory.readbyteunsigned(infoTableStart + 0x104)
+    if terrified ~= 0 then
+        local turnsLeft = memory.readbyteunsigned(infoTableStart + 0x105)
+        -- Even if the indicator is set, the status won't take effect unless the
+        -- turn counter is also nonzero
+        if turnsLeft > 0 then
+            table.insert(statuses, {
+                statusType = codes.STATUS.Terrified,
+                turnsLeft = turnsLeft
+            })
+        end
     end
 
     -- Perish Song and Stockpile are indicated by a single byte, with 0 meaning inactive
