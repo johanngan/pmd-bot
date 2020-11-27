@@ -2,6 +2,7 @@ require 'table'
 
 require 'codes.item'
 require 'codes.itemCategory'
+require 'codes.status'
 
 require 'mechanics.LookupTable'
 
@@ -87,3 +88,93 @@ mechanics.item.lists.food = {
     [codes.ITEM.Gravelyrock] = 10,
     [codes.ITEM.Unnamed0x08A] = 5,
 }
+
+-- Statuses cured by a Heal Seed
+local healSeedStatuses = {
+    codes.STATUS.Sleep,
+    codes.STATUS.Nightmare,
+    codes.STATUS.Yawning,
+
+    codes.STATUS.Burn,
+    codes.STATUS.Poisoned,
+    codes.STATUS.BadlyPoisoned,
+    codes.STATUS.Paralysis,
+
+    codes.STATUS.Frozen,
+    codes.STATUS.ShadowHold,
+    codes.STATUS.Wrapped,
+    codes.STATUS.Petrified,
+    codes.STATUS.Constriction,
+    codes.STATUS.Famished,
+
+    codes.STATUS.Cringe,
+    codes.STATUS.Confused,
+    codes.STATUS.Paused,
+    codes.STATUS.Cowering,
+    codes.STATUS.Taunted,
+    codes.STATUS.Encore,
+    codes.STATUS.Infatuated,
+
+    codes.STATUS.Cursed,
+    codes.STATUS.Decoy,
+    codes.STATUS.GastroAcid,
+    codes.STATUS.HealBlock,
+    codes.STATUS.Embargo,   -- You won't be able to use the item on yourself though
+
+    codes.STATUS.LeechSeed,
+
+    codes.STATUS.Whiffer,
+
+    codes.STATUS.Blinker,
+    codes.STATUS.CrossEyed,
+    codes.STATUS.Dropeye,
+
+    codes.STATUS.Muzzled,   -- You won't be able to use the item on yourself though
+
+    codes.STATUS.MiracleEye,
+
+    codes.STATUS.Exposed,
+
+    codes.STATUS.PerishSong,
+}
+-- Status-curing items mapped to the statuses they cure
+mechanics.item.lists.statusCuringItems = {
+    [codes.ITEM.HealSeed] = healSeedStatuses,
+    [codes.ITEM.RawstBerry] = {codes.STATUS.Burn},
+    [codes.ITEM.PechaBerry] = {
+        codes.STATUS.Poisoned,
+        codes.STATUS.BadlyPoisoned,
+    },
+    [codes.ITEM.CheriBerry] = {codes.STATUS.Paralysis},
+    [codes.ITEM.ChestoBerry] = {
+        codes.STATUS.Sleep,
+        codes.STATUS.Nightmare,
+        codes.STATUS.Yawning,
+        codes.STATUS.Napping,   -- Note: This is something a Heal Seed can't cure!
+    },
+    [codes.ITEM.GabiteScale] = healSeedStatuses,
+}
+
+-- Invert the statusCuring map so we have a map from each status to its possible cures
+mechanics.item.lists.curesForStatus = {}
+local curableStatuses = {}
+for itemCode, statuses in pairs(mechanics.item.lists.statusCuringItems) do
+    for _, statusCode in ipairs(statuses) do
+        if mechanics.item.lists.curesForStatus[statusCode] == nil then
+            mechanics.item.lists.curesForStatus[statusCode] = {}
+            table.insert(curableStatuses, statusCode)
+        end
+        table.insert(mechanics.item.lists.curesForStatus[statusCode], itemCode)
+    end
+end
+-- Sort each list so that the least versatile items come first
+for _, statusCode in ipairs(curableStatuses) do
+    table.sort(mechanics.item.lists.curesForStatus[statusCode],
+    function(itemCode1, itemCode2)
+        local versatility1 = #mechanics.item.lists.statusCuringItems[itemCode1]
+        local versatility2 = #mechanics.item.lists.statusCuringItems[itemCode2]
+        -- Break ties with item code
+        if versatility1 == versatility2 then return itemCode1 < itemCode2 end
+        return versatility1 < versatility2
+    end)
+end

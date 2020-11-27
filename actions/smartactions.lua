@@ -15,6 +15,7 @@ require 'codes.terrain'
 require 'mechanics.item'
 require 'mechanics.move'
 
+require 'utils.containers'
 require 'utils.enum'
 require 'utils.messages'
 
@@ -496,6 +497,36 @@ function smartactions.healIfLowHP(state, HP, maxHP, threshold, allowWaste, verbo
 
     return useRestoringItemWithThreshold(state, HP, maxHP,
         threshold, allowWaste, mechanics.item.lists.healing, verbose)
+end
+
+-- Use an item to cure status (for the leader), if possible.
+-- Optionally specify a single status code or list of status codes that should be cured
+-- (others will be ignored). If statusesToCure is nil, all statuses will be considered
+function smartactions.cureStatusIfPossible(state, statusesToCure)
+    -- If statusesToCure is a single code, make it into a list
+    if statusesToCure and type(statusesToCure) ~= 'table' then
+        statusesToCure = {statusesToCure}
+    end
+
+    local activeStatuses = state.player.leader().statuses
+    if not activeStatuses then return false end
+
+    -- Go through each status, trying each possible cure until one works
+    for _, status in ipairs(activeStatuses) do
+        if statusesToCure == nil or
+            containers.arrayContains(statusesToCure, status.statusType) then
+            local cures = mechanics.item.lists.curesForStatus[status.statusType]
+            if cures then
+                for _, cure in ipairs(cures) do
+                    if smartactions.useItemTypeIfPossible(cure, state, true) then
+                        return true
+                    end
+                end
+            end
+        end
+    end
+    -- No cures for any statuses
+    return false
 end
 
 function smartactions.giveItemTypeIfPossible(itemType, state, verbose)

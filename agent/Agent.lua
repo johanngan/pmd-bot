@@ -401,6 +401,17 @@ function Agent:act(state, visible)
     -- The target should not be nil by this point
     assert(self.target.pos, 'Could not find target.')
 
+    -- If the stairs aren't in visibility range, then heal any statuses if possible
+    local stairsNearby = false
+    if availableInfo.dungeon.stairs() then
+        local x, y = availableInfo.dungeon.stairs()
+        stairsNearby = rangeutils.inVisibilityRegion(x, y,
+            leader.xPosition, leader.yPosition, availableInfo.dungeon)
+    end
+    if not stairsNearby and smartactions.cureStatusIfPossible(state) then
+        return
+    end
+
     -- Use different decision-making depending on whether there's an enemy in the vicinity.
     -- Don't treat Kecleon and allies as real enemies. For pathfinding, allow whatever
     -- terrains the enemy can walk on.
@@ -566,6 +577,9 @@ function Agent:act(state, visible)
 
             if engageWithEnemy then
                 -- We've decided to engage. Now deal with the enemy
+                -- First heal off any statuses if possible
+                if smartactions.cureStatusIfPossible(state) then return end
+
                 -- If no teammates are in the way, first try to attack with something in-range
                 local teammatePositions = {}
                 for i, teammate in ipairs(availableInfo.dungeon.entities.team()) do
