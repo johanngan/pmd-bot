@@ -230,6 +230,11 @@ local function itemActionIfPossible(actionCode, itemIdx, state, followupIdx, ver
             codes.ITEM_NAMES[bag[followupIdx+1].itemType] .. ').')
     end
 
+    -- Can't access items if Terrified
+    if hasStatus(leader, codes.STATUS.Terrified) then
+        return false
+    end
+
     -- Make sure the action can be done if under Embargo
     if preventedByEmbargo[actionCode] and hasStatus(leader, codes.STATUS.Embargo) then
         return false
@@ -502,7 +507,12 @@ end
 
 -- Use a move at some index (0-indexed) if it has PP, isn't sealed, and isn't
 -- subsequent in a link chain
-function smartactions.useMoveIfPossible(moveIdx, moveList, verbose)
+function smartactions.useMoveIfPossible(moveIdx, moveList, user, verbose)
+    -- Can't use moves if Terrified
+    if hasStatus(user, codes.STATUS.Terrified) then
+        return false
+    end
+
     local move = moveList[moveIdx+1]   -- Access using 1-indexing
     if move and move.PP > 0 and not move.isSealed and not move.isDisabled
         and not move.subsequentInLinkChain then
@@ -520,7 +530,7 @@ function smartactions.useMoveIfInRange(moveIdx, moveList, user, target, layout, 
     local moveID = moveList[moveIdx+1].moveID    -- Access using 1-indexing
     if mechanics.move.inRange(moveID, target.xPosition, target.yPosition,
         user.xPosition, user.yPosition, layout) then
-        return smartactions.useMoveIfPossible(moveIdx, moveList, verbose)
+        return smartactions.useMoveIfPossible(moveIdx, moveList, user, verbose)
     end
     return false
 end

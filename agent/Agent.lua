@@ -272,7 +272,7 @@ function Agent:act(state, visible)
         -- Use the move if possible
         -- Subtract 1 to convert from 1-indexing to 0-indexing
         if nEnemiesInRange >= 3 and
-            smartactions.useMoveIfPossible(idx-1, leader.moves, true) then
+            smartactions.useMoveIfPossible(idx-1, leader.moves, leader, true) then
             return
         end
     end
@@ -605,14 +605,21 @@ function Agent:act(state, visible)
                     text = text .. '.'
                     messages.report(text)
 
-                    -- Use random directional inputs if confused; see more detailed comment
-                    -- near the end of the code
+                    -- Rest if terrified
+                    if hasStatus(leader, codes.STATUS.Terrified) then
+                        messages.report('Terrified. Resting in place.')
+                        basicactions.rest()
+                        return
+                    end
+
+                    -- Rest if confused; see more detailed comment near the end of the code
                     if hasStatus(leader, codes.STATUS.Confused) and
                         #availableInfo.dungeon.entities.team() > 1 then
                         messages.report('Confused. Resting in place.')
                         basicactions.rest()
                         return
                     end
+
                     basicactions.walk(pathfinder.getMoves(pathToEnemy)[1].direction)
                     return
                 end
@@ -664,6 +671,15 @@ function Agent:act(state, visible)
     -- If we're not headed for an item and there's a better item to equip than what
     -- we currently have, equip it
     if self.target.type ~= TARGET.Item and itemLogic.equipBestItem(availableInfo) then
+        return
+    end
+
+    -- If terrified and already on the target, the following actions won't be possible,
+    -- so rest instead
+    if self:isTargetPos({leader.xPosition, leader.yPosition}) and
+        hasStatus(leader, codes.STATUS.Terrified) then
+            messages.report('Terrified. Resting in place.')
+        basicactions.rest()
         return
     end
 

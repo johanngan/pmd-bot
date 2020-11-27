@@ -68,7 +68,7 @@ local function tryAttack(idx, leader, enemy, layout)
         return true
     end
     -- idx-1 to convert 1-indexing to 0-indexing
-    return smartactions.useMoveIfPossible(idx-1, leader.moves, true)
+    return smartactions.useMoveIfPossible(idx-1, leader.moves, leader, true)
 end
 
 -- Decide how to attack an enemy given the circumstances, and perform the action.
