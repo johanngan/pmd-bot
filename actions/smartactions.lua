@@ -240,6 +240,12 @@ local function itemActionIfPossible(actionCode, itemIdx, state, followupIdx, ver
         return false
     end
 
+    -- Can't ingest an item if Muzzled
+    if actionCode == ACTION.Use and hasStatus(leader, codes.STATUS.Muzzled) and
+        mechanics.item.isIngested(item.itemType) then
+        return false
+    end
+
     -- If picking up an item, check that there's space
     if actionCode == ACTION.PickUp and #bag >= state.player.bagCapacity() then
         return false
@@ -514,6 +520,13 @@ function smartactions.useMoveIfPossible(moveIdx, moveList, user, verbose)
     end
 
     local move = moveList[moveIdx+1]   -- Access using 1-indexing
+
+    -- Can't use certain moves if Muzzled
+    if hasStatus(user, codes.STATUS.Muzzled) and
+        mechanics.move(move.moveID).failsWhileMuzzled then
+        return false
+    end
+
     if move and move.PP > 0 and not move.isSealed and not move.isDisabled
         and not move.subsequentInLinkChain then
         messages.reportIfVerbose('Using ' ..

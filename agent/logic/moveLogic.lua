@@ -5,6 +5,7 @@ require 'actions.smartactions'
 
 require 'codes.move'
 require 'codes.moveRange'
+require 'codes.status'
 
 require 'mechanics.move'
 require 'mechanics.power'
@@ -35,9 +36,23 @@ local function expectedDamageHeuristic(move, attacker, defender)
     return damage
 end
 
-local function isUsable(move)
+-- Checks if a monster has some status. Returns nil if uncertain
+local function hasStatus(monster, statusType)
+    if monster.statuses == nil then return nil end
+    for _, status in ipairs(monster.statuses) do
+        if status.statusType == statusType then
+            return true
+        end
+    end
+    return false
+end
+
+local function isUsable(move, user)
     return move.PP > 0 and not move.isSealed and not move.isDisabled
-        and not move.subsequentInLinkChain
+        and not move.subsequentInLinkChain and not (
+            hasStatus(user, codes.STATUS.Muzzled) and
+            mechanics.move(move.moveID).failsWhileMuzzled
+        )
 end
 
 local function hitsTeammatesAOE(moveID)
@@ -77,7 +92,7 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
     local teammatesExist = #availableInfo.dungeon.entities.team() > 1
     local movepool = {}
     for i, move in ipairs(leader.moves) do
-        if isUsable(move)
+        if isUsable(move, leader)
             and mechanics.move.isOffensive(move.moveID)
             and (
                 -- Try not to save room-clearing moves for special circumstances,

@@ -1,6 +1,8 @@
 require 'table'
 
 require 'codes.item'
+require 'codes.itemCategory'
+
 require 'mechanics.LookupTable'
 
 if mechanics == nil then
@@ -31,6 +33,13 @@ if mechanics.item.sprites == nil or mechanics.item.menuTypes == nil then
         mechanics.item.menuTypes[id] = fullItemList[i].menuType
     end
     mechanics.item:flushCache()
+end
+
+-- Checks if an item is used via eating/ingesting
+function mechanics.item.isIngested(itemCode)
+    local category = mechanics.item(itemCode).category
+    return category == codes.ITEM_CATEGORY.EdibleWithEffect
+        or category == codes.ITEM_CATEGORY.Food
 end
 
 -- Subsets of certain classes of items for convenience
