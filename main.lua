@@ -45,8 +45,14 @@ while true do
         visible = visibleinfo.reloadEveryTurn(visible)
         emu.frameadvance()
 
-        -- Perform an action based on the current state
+        -- If this is a new turn, perform setup
+        if not bot.turnOngoing then bot:setupTurn(state, visible) end
+        -- Perform an action based on the current state.
+        -- Assume a turn will be consumed unless explicitly overridden from within act().
+        bot.turnOngoing = false
         bot:act(state, visible)
+        -- If the turn is over, finalize
+        if not bot.turnOngoing then bot:finalizeTurn() end
         emu.frameadvance()
 
         -- Cooldown

@@ -52,6 +52,11 @@ local TARGET, _ = enum.register({
 
 -- This function will be called just once when the bot starts up.
 function Agent:init(state, visible)
+    -- Flag for whether or not a turn is ongoing. Set this in Agent:act() to
+    -- indicate that its return does not indicate the end of a turn, and that
+    -- the next call to Agent:act() is not starting on a fresh turn
+    self.turnOngoing = false
+
     -- If you want your bot to have a state or a memory, initialize stuff here!
     self.pathMoves = nil -- The path moves list, as returned by pathfinder.getMoves()
     self.target = {}
@@ -69,6 +74,17 @@ function Agent:init(state, visible)
         table.insert(moveIDs, move.moveID)
     end
     mechanics.move(moveIDs)
+end
+
+-- This function will be called right before the act() method is called, unless the
+-- turnOngoing flag is set. Change it to reset the bot state at the start of a turn.
+function Agent:setupTurn(state, visible)
+end
+
+-- This function will be called right after the act() method returns, unless the
+-- turnOngoing flag is set. Change it to prepare or record data for the bot to
+-- use in future turns.
+function Agent:finalizeTurn()
 end
 
 -- Checks if a position is the target position
@@ -218,12 +234,14 @@ function Agent:act(state, visible)
     -- If in a Yes/No prompt, try to exit
     if menuinfo.getMenu() == codes.MENU.YesNo then
         basicactions.selectYesNo(1, true)
+        self.turnOngoing = true -- Not turn-ending
         return
     end
 
     -- If trying to learn a new move, don't
     if menuinfo.getMenu() == codes.MENU.NewMove then
         basicactions.selectMoveToForget(4, true)
+        self.turnOngoing = true -- Not turn-ending
         return
     end
 
@@ -700,15 +718,16 @@ function Agent:act(state, visible)
     -- If we're standing on the target item but haven't picked it up yet, try to
     if self.target.type == TARGET.Item and
         self:isTargetPos({leader.xPosition, leader.yPosition}) then
-        -- Clear the target and return regardless of whether retreival is
+        -- Clear the target and return regardless of whether retrieval is
         -- successful; if it's unsuccessful, something weird happened (maybe
         -- an item was Knocked Off and fell underneath the player, but the bag
         -- is already full), so starting from a fresh target next iteration is safer.
         if not itemLogic.retrieveItemUnderfoot(availableInfo) then
             -- If retrieving the item failed, as a backup try to use it if it's discardable.
             -- What probably happened is that the item wasn't worth picking up.
-            -- Again though, don't bother checking if it's successful or not.
-            itemLogic.useDiscardableItemUnderfoot(state)
+            if not itemLogic.useDiscardableItemUnderfoot(state) then
+                self.turnOngoing = true -- Failed to take any action, so a turn hasn't been consumed
+            end
         end
         self:setTarget(nil)
         return

@@ -28,10 +28,26 @@ end
 
 -- This function will be called just once when the bot starts up.
 function Agent:init(state, visible)
+    -- Flag for whether or not a turn is ongoing. Set this in Agent:act() to
+    -- indicate that its return does not indicate the end of a turn, and that
+    -- the next call to Agent:act() is not starting on a fresh turn
+    self.turnOngoing = false
+
     -- If you want your bot to have a state or a memory, initialize stuff here!
     self.path = nil
     self.targetPos = nil
     self.targetName = nil
+end
+
+-- This function will be called right before the act() method is called, unless the
+-- turnOngoing flag is set. Change it to reset the bot state at the start of a turn.
+function Agent:setupTurn(state, visible)
+end
+
+-- This function will be called right after the act() method returns, provided
+-- the return value was nil. Change it to prepare or record data for the bot to
+-- use in future turns.
+function Agent:finalizeTurn()
 end
 
 -- Set the target position, with an optional name
@@ -62,12 +78,14 @@ function Agent:act(state, visible)
     -- If in a Yes/No prompt, try to exit
     if menuinfo.getMenu() == codes.MENU.YesNo then
         basicactions.selectYesNo(1)
+        self.turnOngoing = true -- Not turn-ending
         return
     end
 
     -- If trying to learn a new move, don't
     if menuinfo.getMenu() == codes.MENU.NewMove then
         basicactions.selectMoveToForget(4, true)
+        self.turnOngoing = true -- Not turn-ending
         return
     end
 
