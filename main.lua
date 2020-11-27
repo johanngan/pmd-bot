@@ -5,7 +5,7 @@ require 'utils.messages'
 require 'dynamicinfo.stateinfo'
 require 'dynamicinfo.visibleinfo'
 require 'dynamicinfo.menuinfo'
-require 'agent.Agent'
+local Agent = require 'agent.Agent'
 
 -- Temporarily set the leader's nickname to "Lua"
 nicknames.setLeaderNicknameTemp('Lua')
@@ -45,14 +45,7 @@ while true do
         visible = visibleinfo.reloadEveryTurn(visible)
         emu.frameadvance()
 
-        -- If this is a new turn, perform setup
-        if not bot.turnOngoing then bot:setupTurn(state, visible) end
-        -- Perform an action based on the current state.
-        -- Assume a turn will be consumed unless explicitly overridden from within act().
-        bot.turnOngoing = false
-        bot:act(state, visible)
-        -- If the turn is over, finalize
-        if not bot.turnOngoing then bot:finalizeTurn() end
+        bot:setupActFinalize(state, visible)
         emu.frameadvance()
 
         -- Cooldown

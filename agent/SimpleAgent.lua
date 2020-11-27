@@ -1,4 +1,6 @@
--- Class for deciding on what actions to take based on the current state
+-- Class for deciding on what actions to take based on the current state,
+-- using a relatively simple strategy.
+local BaseAgent = require 'agent.BaseAgent'
 
 require 'table'
 
@@ -14,40 +16,15 @@ require 'actions.smartactions'
 require 'utils.pathfinder'
 require 'utils.messages'
 
-Agent = {}
-Agent.name = 'BasicAgent'
+local Agent = BaseAgent:__instance__()
+Agent.name = 'SimpleAgent'
 
--- This is just boilerplate code for the class
-function Agent:new(state, visible)
-    obj = {}
-    setmetatable(obj, self)
-    self.__index = self
-    self:init(state, visible)
-    return obj
-end
-
--- This function will be called just once when the bot starts up.
+-- This function will be called once at startup. If you want your bot to retain
+-- state or a memory, initialize stuff here!
 function Agent:init(state, visible)
-    -- Flag for whether or not a turn is ongoing. Set this in Agent:act() to
-    -- indicate that its return does not indicate the end of a turn, and that
-    -- the next call to Agent:act() is not starting on a fresh turn
-    self.turnOngoing = false
-
-    -- If you want your bot to have a state or a memory, initialize stuff here!
     self.path = nil
     self.targetPos = nil
     self.targetName = nil
-end
-
--- This function will be called right before the act() method is called, unless the
--- turnOngoing flag is set. Change it to reset the bot state at the start of a turn.
-function Agent:setupTurn(state, visible)
-end
-
--- This function will be called right after the act() method returns, provided
--- the return value was nil. Change it to prepare or record data for the bot to
--- use in future turns.
-function Agent:finalizeTurn()
 end
 
 -- Set the target position, with an optional name
@@ -244,3 +221,5 @@ function Agent:act(state, visible)
         basicactions.walk(direction)
     end
 end
+
+return Agent

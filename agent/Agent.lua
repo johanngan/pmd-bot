@@ -1,4 +1,5 @@
 -- Class for deciding on what actions to take based on the current state
+local BaseAgent = require 'agent.BaseAgent'
 
 require 'math'
 require 'table'
@@ -28,19 +29,11 @@ require 'dynamicinfo.menuinfo'
 local itemLogic = require 'agent.logic.itemLogic'
 local moveLogic = require 'agent.logic.moveLogic'
 
-Agent = {}
+local Agent = BaseAgent:__instance__()
 Agent.name = 'Agent'
+
 -- Set this to false if you want your bot to use only visible information!
 Agent.omniscient = false
-
--- This is just boilerplate code for the class
-function Agent:new(state, visible)
-    obj = {}
-    setmetatable(obj, self)
-    self.__index = self
-    self:init(state, visible)
-    return obj
-end
 
 -- Pathfinding target types
 local TARGET, _ = enum.register({
@@ -52,11 +45,6 @@ local TARGET, _ = enum.register({
 
 -- This function will be called just once when the bot starts up.
 function Agent:init(state, visible)
-    -- Flag for whether or not a turn is ongoing. Set this in Agent:act() to
-    -- indicate that its return does not indicate the end of a turn, and that
-    -- the next call to Agent:act() is not starting on a fresh turn
-    self.turnOngoing = false
-
     -- If you want your bot to have a state or a memory, initialize stuff here!
     self.pathMoves = nil -- The path moves list, as returned by pathfinder.getMoves()
     self.target = {}
@@ -74,17 +62,6 @@ function Agent:init(state, visible)
         table.insert(moveIDs, move.moveID)
     end
     mechanics.move(moveIDs)
-end
-
--- This function will be called right before the act() method is called, unless the
--- turnOngoing flag is set. Change it to reset the bot state at the start of a turn.
-function Agent:setupTurn(state, visible)
-end
-
--- This function will be called right after the act() method returns, unless the
--- turnOngoing flag is set. Change it to prepare or record data for the bot to
--- use in future turns.
-function Agent:finalizeTurn()
 end
 
 -- Checks if a position is the target position
@@ -782,3 +759,5 @@ function Agent:act(state, visible)
         basicactions.walk(direction)
     end
 end
+
+return Agent
