@@ -94,8 +94,7 @@ end
 
 local function multiplierWonderGuard(attackType, targetType1, targetType2)
     if attackType == codes.TYPE.None or
-        (mechanics.power.typeChart(attackType, targetType1) *
-            mechanics.power.typeChart(attackType, targetType2)) > 1 then
+        mechanics.power.typeEffectiveness(attackType, targetType1, targetType2) > 1 then
         return 1
     end
     return 0
@@ -123,8 +122,7 @@ local function multiplierMotorDrive(attackType, targetType1, targetType2)
 end
 
 local function multiplierSolidRock(attackType, targetType1, targetType2)
-    if mechanics.power.typeChart(attackType, targetType1) *
-        mechanics.power.typeChart(attackType, targetType2) > 1 then
+    if mechanics.power.typeEffectiveness(attackType, targetType1, targetType2) > 1 then
         return 0.75
     end
     return 1
