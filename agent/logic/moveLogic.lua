@@ -26,8 +26,9 @@ local function expectedDamageHeuristic(move, attacker, defender, conditions)
     local weather = conditions.weatherIsNullified()
         and codes.WEATHER.Clear
         or conditions.weather()
-    local damage = mechanics.power.calcDamageHeuristic(power, moveInfo.type,
-        attackerTypes, defenderTypes, defenderAbilities, weather)
+    local damage = mechanics.power.calcDamageHeuristic(power,
+        moveInfo.type, attackerTypes, defenderTypes, defenderAbilities,
+        weather, conditions.mudSport(), conditions.waterSport())
     -- Weight the damage heuristic by the move accuracy
     -- "Male" accuracy is the "base" accuracy; "Female" accuracy is higher
     damage = damage * moveInfo.accuracyMale / 100

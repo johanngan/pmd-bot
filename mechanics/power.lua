@@ -197,6 +197,27 @@ function mechanics.power.weatherMultiplier(attackType, weather)
     return multFunction and multFunction(attackType) or 1
 end
 
+-- Functions for calculating a damage multiplier due to *sport conditions
+-- All the functions take the attack type
+local function multiplierMudSport(attackType)
+    return multSpecificType(attackType, codes.TYPE.Electric, 0.5)
+end
+
+local function multiplierWaterSport(attackType)
+    return multSpecificType(attackType, codes.TYPE.Fire, 0.5)
+end
+
+function mechanics.power.sportMultiplier(attackType, mudSport, waterSport)
+    local mult = 1
+    if mudSport then
+        mult = mult * multiplierMudSport(attackType)
+    end
+    if waterSport then
+        mult = mult * multiplierWaterSport(attackType)
+    end
+    return mult
+end
+
 -- Extract a primary/secondary type from a single type/dual type input
 local function extractTypes(typeList)
     local typeList = (type(typeList) == 'table') and typeList or {typeList}
@@ -212,8 +233,9 @@ end
 
 -- Calculate a damage heuristic of (multiplier) * (power) that doesn't only
 -- requires visible information
-function mechanics.power.calcDamageHeuristic(movePower, moveType,
-    attackerTypes, defenderTypes, defenderAbilities, weather, erraticPlayer)
+function mechanics.power.calcDamageHeuristic(movePower,
+    moveType, attackerTypes, defenderTypes, defenderAbilities,
+    weather, mudSport, waterSport, erraticPlayer)
     -- Starting damage heuristic
     local heuristic = movePower
 
@@ -250,6 +272,9 @@ function mechanics.power.calcDamageHeuristic(movePower, moveType,
 
     -- Weather effects
     heuristic = heuristic * mechanics.power.weatherMultiplier(moveType, weather)
+
+    -- Mud/Water Sport effects
+    heuristic = heuristic * mechanics.power.sportMultiplier(moveType, mudSport, waterSport)
 
     return heuristic
 end
