@@ -318,7 +318,10 @@ function Agent:act(state, visible)
     -- and MUST be avoided.
     local mustAvoid = {}
     for _, enemy in ipairs(availableInfo.dungeon.entities.enemies()) do
-        table.insert(mustAvoid, {enemy.xPosition, enemy.yPosition})
+        -- Shopkeepers and allies can be passed through
+        if not enemy.isShopkeeper and not enemy.isAlly then
+            table.insert(mustAvoid, {enemy.xPosition, enemy.yPosition})
+        end
     end
     -- Positions that we know have traps and want to avoid
     local avoidIfPossible = {}
