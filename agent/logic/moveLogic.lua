@@ -6,6 +6,7 @@ require 'actions.smartactions'
 require 'codes.move'
 require 'codes.moveRange'
 require 'codes.status'
+require 'codes.type'
 
 require 'mechanics.move'
 require 'mechanics.power'
@@ -120,9 +121,9 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
     -- Otherwise, only try to use the best move; if out of range, do nothing.
     -- This helps (just a little bit) to mitigate projectile spam.
     local threatened =
-        (mechanics.power.typeEffectiveness(enemy.features.primaryType,
+        (mechanics.power.typeEffectiveness(enemy.features.primaryType or codes.TYPE.None,
         leader.features.primaryType, leader.features.secondaryType) > 1) or
-        (mechanics.power.typeEffectiveness(enemy.features.secondaryType,
+        (mechanics.power.typeEffectiveness(enemy.features.secondaryType or codes.TYPE.None,
         leader.features.primaryType, leader.features.secondaryType) > 1)
 
     -- Out of the selected moves, try the ones that do the most damage and have
