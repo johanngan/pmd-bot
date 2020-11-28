@@ -216,17 +216,18 @@ function mechanics.power.sportMultiplier(attackType, mudSport, waterSport)
     return mult
 end
 
--- Extract a primary/secondary type from a single type/dual type input
+-- Extract a primary/secondary type from a nil/single/dual type input
 local function extractTypes(typeList)
+    local typeList = typeList or codes.TYPE.None
     local typeList = (type(typeList) == 'table') and typeList or {typeList}
-    return typeList[1], typeList[2] or codes.TYPE.None
+    return typeList[1] or codes.TYPE.None, typeList[2] or codes.TYPE.None
 end
 
 -- Extract a primary/secondary ability from a nil/single/dual ability input
 local function extractAbilities(abilityList)
     local abilityList = abilityList or codes.ABILITY.None
     local abilityList = (type(abilityList) == 'table') and abilityList or {abilityList}
-    return abilityList[1], abilityList[2] or codes.ABILITY.None
+    return abilityList[1] or codes.ABILITY.None, abilityList[2] or codes.ABILITY.None
 end
 
 -- Calculate a damage heuristic of (multiplier) * (power) that doesn't only
