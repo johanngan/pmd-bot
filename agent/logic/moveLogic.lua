@@ -15,7 +15,7 @@ require 'utils.pathfinder'
 
 local moveLogic = {}
 
-local function expectedDamageHeuristic(move, attacker, defender, conditions)
+function moveLogic.expectedDamageHeuristic(move, attacker, defender, conditions)
     local attackerTypes = {attacker.features.primaryType, attacker.features.secondaryType}
     local defenderTypes = {defender.features.primaryType, defender.features.secondaryType}
     local defenderAbilities = {defender.features.primaryAbility, defender.features.secondaryAbility}
@@ -107,10 +107,10 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
                 not moveLogic.hasOffensiveNonAOEMoves(leader, math.huge)
             )
             and not (teammatesExist and hitsTeammatesAOE(move.moveID))
-            and expectedDamageHeuristic(move, leader, enemy, conditions) > 0 then
+            and moveLogic.expectedDamageHeuristic(move, leader, enemy, conditions) > 0 then
             table.insert(movepool, {
                 idx=i,
-                damage=expectedDamageHeuristic(move, leader, enemy, conditions),
+                damage=moveLogic.expectedDamageHeuristic(move, leader, enemy, conditions),
                 pp=move.PP,
             })
         end

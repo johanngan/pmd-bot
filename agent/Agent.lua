@@ -316,13 +316,15 @@ function Agent:act(state, visible)
     -- If there are 3 or more enemies in range and the leader has a good offensive AOE
     -- move, use the best one available.
     for _, idx in ipairs(AOEMoveIdxs) do
-        -- Count how many enemies are in range of this move
+        -- Count how many enemies are in range of this move that aren't immune
         local move = leader.moves[idx]
         local nEnemiesInRange = 0
         for _, enemy in ipairs(availableInfo.dungeon.entities.enemies()) do
             if not enemy.isShopkeeper and not enemy.isAlly and
                 mechanics.move.inRange(move.moveID, enemy.xPosition, enemy.yPosition,
-                    leader.xPosition, leader.yPosition, availableInfo.dungeon.layout()) then
+                    leader.xPosition, leader.yPosition, availableInfo.dungeon.layout()) and
+                moveLogic.expectedDamageHeuristic(move, leader, enemy,
+                    availableInfo.dungeon.conditions) > 0 then
                 -- Enemy is within attack range
                 nEnemiesInRange = nEnemiesInRange + 1
             end
