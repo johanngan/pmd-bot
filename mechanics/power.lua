@@ -5,8 +5,10 @@
 --  - Erratic Player section
 require 'math'
 
-require 'codes.type'
 require 'codes.ability'
+require 'codes.type'
+require 'codes.weather'
+
 local typeMatchups = require 'mechanics.typeMatchups'
 
 if mechanics == nil then
@@ -159,6 +161,42 @@ function mechanics.power.abilityMultiplier(attackType, targetType1, targetType2,
     return multFunction and multFunction(attackType, targetType1, targetType2) or 1
 end
 
+-- Functions for calculating a damage multiplier due to certain weather conditions
+-- All the functions take the attack type
+local function multiplierSunny(attackType)
+    return multSpecificType(attackType, codes.TYPE.Fire, 1.5)
+        * multSpecificType(attackType, codes.TYPE.Water, 0.5)
+end
+
+local function multiplierCloudy(attackType)
+    if attackType == codes.TYPE.None or attackType == codes.TYPE.Normal then
+        return 1
+    end
+    return 0.75
+end
+
+local function multiplierRain(attackType)
+    return multSpecificType(attackType, codes.TYPE.Water, 1.5)
+        * multSpecificType(attackType, codes.TYPE.Fire, 0.5)
+end
+
+local function multiplierFog(attackType)
+    return multSpecificType(attackType, codes.TYPE.Electric, 0.5)
+end
+
+local WEATHER_MULTIPLIERS = {
+    [codes.WEATHER.Sunny] = multiplierSunny,
+    [codes.WEATHER.Cloudy] = multiplierCloudy,
+    [codes.WEATHER.Rain] = multiplierRain,
+    [codes.WEATHER.Fog] = multiplierFog,
+}
+
+function mechanics.power.weatherMultiplier(attackType, weather)
+    local weather = weather or codes.WEATHER.Clear
+    local multFunction = WEATHER_MULTIPLIERS[weather]
+    return multFunction and multFunction(attackType) or 1
+end
+
 -- Extract a primary/secondary type from a single type/dual type input
 local function extractTypes(typeList)
     local typeList = (type(typeList) == 'table') and typeList or {typeList}
@@ -175,7 +213,7 @@ end
 -- Calculate a damage heuristic of (multiplier) * (power) that doesn't only
 -- requires visible information
 function mechanics.power.calcDamageHeuristic(movePower, moveType,
-    attackerTypes, defenderTypes, defenderAbilities, erraticPlayer)
+    attackerTypes, defenderTypes, defenderAbilities, weather, erraticPlayer)
     -- Starting damage heuristic
     local heuristic = movePower
 
@@ -209,6 +247,9 @@ function mechanics.power.calcDamageHeuristic(movePower, moveType,
         -- Otherwise, apply both multipliers
         heuristic = heuristic * abilityMult1 * abilityMult2
     end
+
+    -- Weather effects
+    heuristic = heuristic * mechanics.power.weatherMultiplier(moveType, weather)
 
     return heuristic
 end

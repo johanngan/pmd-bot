@@ -14,7 +14,7 @@ require 'utils.pathfinder'
 
 local moveLogic = {}
 
-local function expectedDamageHeuristic(move, attacker, defender)
+local function expectedDamageHeuristic(move, attacker, defender, conditions)
     local attackerTypes = {attacker.features.primaryType, attacker.features.secondaryType}
     local defenderTypes = {defender.features.primaryType, defender.features.secondaryType}
     local defenderAbilities = {defender.features.primaryAbility, defender.features.secondaryAbility}
@@ -23,8 +23,11 @@ local function expectedDamageHeuristic(move, attacker, defender)
     local ginseng = move.ginsengBoost or 0
     ginseng = moveInfo.boostableByGinseng and ginseng or 0
     local power = mechanics.power.applyGinsengBoost(moveInfo.basePower, ginseng)
-    local damage = mechanics.power.calcDamageHeuristic(power,
-        moveInfo.type, attackerTypes, defenderTypes, defenderAbilities)
+    local weather = conditions.weatherIsNullified()
+        and codes.WEATHER.Clear
+        or conditions.weather()
+    local damage = mechanics.power.calcDamageHeuristic(power, moveInfo.type,
+        attackerTypes, defenderTypes, defenderAbilities, weather)
     -- Weight the damage heuristic by the move accuracy
     -- "Male" accuracy is the "base" accuracy; "Female" accuracy is higher
     damage = damage * moveInfo.accuracyMale / 100
@@ -90,6 +93,7 @@ end
 -- Returns true if the attack was successfully used, or false if not.
 function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
     local teammatesExist = #availableInfo.dungeon.entities.team() > 1
+    local conditions = availableInfo.dungeon.conditions
     local movepool = {}
     for i, move in ipairs(leader.moves) do
         if isUsable(move, leader)
@@ -101,10 +105,10 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
                 not moveLogic.hasOffensiveNonAOEMoves(leader, math.huge)
             )
             and not (teammatesExist and hitsTeammatesAOE(move.moveID))
-            and expectedDamageHeuristic(move, leader, enemy) > 0 then
+            and expectedDamageHeuristic(move, leader, enemy, conditions) > 0 then
             table.insert(movepool, {
                 idx=i,
-                damage=expectedDamageHeuristic(move, leader, enemy),
+                damage=expectedDamageHeuristic(move, leader, enemy, conditions),
                 pp=move.PP,
             })
         end
