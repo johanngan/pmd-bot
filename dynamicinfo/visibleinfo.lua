@@ -53,10 +53,14 @@ proxyFields = {
     'dungeon.entities.team',
     'dungeon.conditions.weather',
     'dungeon.conditions.weatherIsNullified',
+    'dungeon.conditions.mudSport',
+    'dungeon.conditions.waterSport',
     'dungeon.conditions.thiefAlert',
     'dungeon.conditions.gravity',
     'dungeon.conditions.luminous',
     'dungeon.conditions.darkness',
+    'dungeon.counters.windWarnings',
+    'dungeon.counters.turnsSinceWeatherDamage',
     'player.team',
     'player.leader',
     'player.money',
@@ -370,48 +374,6 @@ function state.dungeon.entities.hiddenStairs:read()
         end
     end
     return nil
-end
-
--- If Mud Sport is active.
-state.dungeon.conditions.mudSport = StateData:new(false)
-function state.dungeon.conditions.mudSport:read()
-    return stateinfo.state.dungeon.conditions.mudSportTurnsLeft() > 0
-end
--- If Water Sport is active.
-state.dungeon.conditions.waterSport = StateData:new(false)
-function state.dungeon.conditions.waterSport:read()
-    return stateinfo.state.dungeon.conditions.waterSportTurnsLeft() > 0
-end
-
--- Subcontainer for counters. Need to define this explicitly since there
--- weren't any proxy fields within this subcontainer
-state.dungeon.counters = {}
--- Number of warning the player has received about the wind
-state.dungeon.counters.windWarnings = StateData:new(false)
-function state.dungeon.counters.windWarnings:read()
-    local wind = stateinfo.state.dungeon.counters.wind()
-    if wind <= 0 then
-        -- 0: It's right nearby! It's gusting hard!
-        return 4
-    elseif wind <= 49 then
-        -- 49: It's getting closer!
-        return 3
-    elseif wind <= 149 then
-        -- 149: Something's approaching...
-        return 2
-    elseif wind <= 249 then
-        -- 249: Something's stirring...
-        return 1
-    else
-        -- No warnings yet...
-        return 0
-    end
-end
-
--- Turns since the last round of passive damage from bad weather
-state.dungeon.counters.turnsSinceWeatherDamage = StateData:new(false)
-function state.dungeon.counters.turnsSinceWeatherDamage:read()
-    return 9 - stateinfo.state.dungeon.counters.weatherDamage()
 end
 
 --- END NON-PROXY FIELDS ---

@@ -37,14 +37,18 @@ The bot accesses the entire dungeon state as a single object (`stateinfo.state`)
             - `weatherTurnsLeft()`: Turns left for artificial weather, if applicable
             - `weatherIsNullified()`: Flag for whether Cloud Nine/Air Lock is in effect
             - `mudSportTurnsLeft()`: Turns left for the effects of Mud Sport. Will be 0 if Mud Sport is inactive.
+            - `mudSport()`: Whether or not Mud Sport is in effect (convenience field based on `mudSportTurnsLeft()`)
             - `waterSportTurnsLeft()`: Turns left for the effects of Water Sport. Will be 0 if Water Sport is inactive.
+            - `waterSport()`: Whether or not Water Sport is in effect (convenience field based on `waterSportTurnsLeft()`)
             - `thiefAlert()`: Flag for whether you've stolen from Kecleon
             - `gravity()`: Flag for whether gravity is in effect
             - `luminous()`: Flag for whether the floor is luminous (no darkness, with floor layout and enemies visible)
             - `darkness()`: Flag for whether the floor is dark (affects visibility in halls)
         - `counters`: Subcontainer for "dungeon counters" that tick every turn
             - `wind()`: Turns left before the dungeon wind blows you out
+            - `windWarnings()`: Number of warnings the player has received about the approaching wind (convenience field based on `wind()`)
             - `weatherDamage()`: Turns left before getting damaged by weather, if applicable. Counts from 9 to 0, damage occurs when it resets to 9.
+            - `turnsSinceWeatherDamage()`: Number of turns that have passed since the last round of passive damage from inclement weather, or `nil` if the current weather is non-damaging (convenience field based on `weather()` and `weatherDamage()`)
             - `enemySpawn()`: Counter for new enemy spawns in the dungeon.
     - `player`: Subcontainer for "internal" information about the player
         - `team()`: Alias for `state.dungeon.entities.team()`
@@ -174,14 +178,15 @@ The bot can also access the _visible_ dungeon state as a single object (`visible
 Certain fields are completely inaccessible to the player, and as such are removed entirely from the state model in `visibleinfo.state`. Removed fields include:
 - `dungeon.conditions.naturalWeather()`
 - `dungeon.conditions.weatherTurnsLeft()`
+- `dungeon.conditions.mudSportTurnsLeft()`
+    - Note: `dungeon.conditions.mudSport()` is still accessible
+- `dungeon.conditions.waterSportTurnsLeft()`
+    - Note: `dungeon.conditions.waterSport()` is still accessible
+- `dungeon.counters.wind()`
+    - Note: `dungeon.counters.windWarnings()` is still accessible
+- `dungeon.counters.weatherDamage()`
+    - Note: `dungeon.counters.turnsSinceWeatherDamage()` is still accessible
 - `dungeon.counters.enemySpawn()`
-
-### Modified fields
-A few fields are modified from `stateinfo.state` because their full specifications are inaccessible to the player, but it does not make sense to simply remove access to certain fields. Modified fields include:
-- `dungeon.conditions.mudSport()` takes the place of `dungeon.conditions.mudSportTurnsLeft()`. The modified field is a boolean flag for whether or not Mud Sport is active.
-- `dungeon.conditions.waterSport()` takes the place of `dungeon.conditions.waterSportTurnsLeft()`. The modified field is a boolean flag for whether or not Water Sport is active.
-- `dungeon.counters.windWarnings()` takes the place of `dungeon.counters.wind()`. The modified field is the number of warnings the player has received about the approaching wind.
-- `dungeon.counters.turnsSinceWeatherDamage()` takes the place of `dungeon.counters.weatherDamage()`. The modified field is the number of turns that have passed since the last round of passive damage from inclement weather.
 
 ### Variable-length array fields
 Empty tables already have a well-defined meaning with variable-length array fields. As such, they will instead be set to `nil` in `visibleinfo.state` if their values are unknown. The following fields are nullable variable-length arrays:

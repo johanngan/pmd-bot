@@ -2,6 +2,8 @@
 
 require 'table'
 
+require 'codes.weather'
+
 require 'utils.memoryrange'
 require 'dynamicinfo.StateData'
 require 'dynamicinfo.menuinfo'
@@ -145,16 +147,29 @@ state.dungeon.conditions.weatherIsNullified = StateData:new()
 function state.dungeon.conditions.weatherIsNullified:read()
     return memory.readbyteunsigned(0x021C6A91) ~= 0
 end
+
 -- Turns left for Mud Sport. Will be 0 if not in effect
 state.dungeon.conditions.mudSportTurnsLeft = StateData:new()
 function state.dungeon.conditions.mudSportTurnsLeft:read()
     return memory.readbyteunsigned(0x021C6A8F)
 end
+-- If Mud Sport is active. Convenience field.
+state.dungeon.conditions.mudSport = StateData:new(false)
+function state.dungeon.conditions.mudSport:read()
+    return state.dungeon.conditions.mudSportTurnsLeft() > 0
+end
+
 -- Turns left for Water Sport. Will be 0 if not in effect
 state.dungeon.conditions.waterSportTurnsLeft = StateData:new()
 function state.dungeon.conditions.waterSportTurnsLeft:read()
     return memory.readbyteunsigned(0x021C6A90)
 end
+-- If Water Sport is active. Convenience field.
+state.dungeon.conditions.waterSport = StateData:new(false)
+function state.dungeon.conditions.waterSport:read()
+    return state.dungeon.conditions.waterSportTurnsLeft() > 0
+end
+
 -- Stole from Kecleon flag
 state.dungeon.conditions.thiefAlert = StateData:new()
 function state.dungeon.conditions.thiefAlert:read()
@@ -186,12 +201,46 @@ state.dungeon.counters.wind = StateData:new()
 function state.dungeon.counters.wind:read()
     return memory.readwordsigned(0x021BA4B8)
 end
+-- Number of warning the player has received about the wind. Convenience field.
+state.dungeon.counters.windWarnings = StateData:new(false)
+function state.dungeon.counters.windWarnings:read()
+    local wind = state.dungeon.counters.wind()
+    if wind <= 0 then
+        -- 0: It's right nearby! It's gusting hard!
+        return 4
+    elseif wind <= 49 then
+        -- 49: It's getting closer!
+        return 3
+    elseif wind <= 149 then
+        -- 149: Something's approaching...
+        return 2
+    elseif wind <= 249 then
+        -- 249: Something's stirring...
+        return 1
+    else
+        -- No warnings yet...
+        return 0
+    end
+end
+
 -- Counter for passive damage from bad weather
 state.dungeon.counters.weatherDamage = StateData:new()
 function state.dungeon.counters.weatherDamage:read()
     -- Counts down from 9 to 0, damage when it resets to 9
     return memory.readbyteunsigned(0x021C6A8E)
 end
+-- Turns since the last round of passive damage from bad weather.
+-- Will be nil if no damaging weather is in effect. Convenience field.
+state.dungeon.counters.turnsSinceWeatherDamage = StateData:new(false)
+function state.dungeon.counters.turnsSinceWeatherDamage:read()
+    local weather = state.dungeon.conditions.weather()
+    if (weather == codes.WEATHER.Sandstorm or weather == codes.WEATHER.Hail)
+        and not state.dungeon.conditions.weatherIsNullified() then
+        return 9 - state.dungeon.counters.weatherDamage()
+    end
+    return nil
+end
+
 -- Counter for enemy spawns
 state.dungeon.counters.enemySpawn = StateData:new()
 function state.dungeon.counters.enemySpawn:read()
