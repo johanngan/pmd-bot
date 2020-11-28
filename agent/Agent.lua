@@ -620,15 +620,21 @@ function Agent:act(state, visible)
                 -- First heal off any statuses if possible
                 if smartactions.cureStatusIfPossible(state) then return end
 
-                -- If no teammates are in the way, first try to attack with something in-range
-                local teammatePositions = {}
+                -- If no teammates or allies are in the way, first try to attack with something in-range
+                local allyPositions = {}
                 for i, teammate in ipairs(availableInfo.dungeon.entities.team()) do
                     -- Don't include the leader
                     if i > 1 then
-                        table.insert(teammatePositions, {teammate.xPosition, teammate.yPosition})
+                        table.insert(allyPositions, {teammate.xPosition, teammate.yPosition})
                     end
                 end
-                if not pathfinder.pathIntersects(pathToEnemy, teammatePositions) and
+                for _, enemy in ipairs(availableInfo.dungeon.entities.enemies()) do
+                    if enemy.isShopkeeper or enemy.isAlly then
+                        -- Can't shoot through shopkeepers and allies either
+                        table.insert(allyPositions, {enemy.xPosition, enemy.yPosition})
+                    end
+                end
+                if not pathfinder.pathIntersects(pathToEnemy, allyPositions) and
                     self:attackEnemy(nearestEnemy, leader, availableInfo) then
                     -- Attack sequence was successful; record this enemy so we know to focus
                     -- on it in subsequent turns
