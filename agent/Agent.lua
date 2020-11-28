@@ -268,6 +268,8 @@ function Agent:act(state, visible)
     -- The largest stat drop out of all stats except evasion (not very important)
     -- and speed (not affected by Wonder Tiles)
     local statDeficit = NORMAL_STAT_STAGE - (lowestStatStage(leader) or NORMAL_STAT_STAGE)
+    -- Net damage taken since last turn
+    local damageTaken = (self.previousHP or self.currentHP) - self.currentHP
 
     -- Health is critically low; try to heal.
     -- "Critically low" means less than 25% HP (add 1 to numerator/denominator)
@@ -708,12 +710,14 @@ function Agent:act(state, visible)
         if not (self.target.type == TARGET.Item or self.target.type == TARGET.Stairs) or
             self:isTargetPos({leader.xPosition, leader.yPosition}) then
             -- If on the stairs, HP isn't full, and it makes sense to rest (belly isn't empty,
-            -- non-damaging weather, no status), then rest
+            -- non-damaging weather, no status, no damage is actively being taken), then rest
+            -- Allow for damageTaken to up to 1 (e.g. the first turn of an empty belly)
             if self.target.type == TARGET.Stairs and leader.stats.HP < leader.stats.maxHP and
                 leader.belly > 0 and #leader.statuses == 0 and (not (
                     availableInfo.dungeon.conditions.weather() == codes.WEATHER.Sandstorm or
                     availableInfo.dungeon.conditions.weather() == codes.WEATHER.Hail
-                ) or availableInfo.dungeon.conditions.weatherIsNullified()) then
+                ) or availableInfo.dungeon.conditions.weatherIsNullified()) and
+                damageTaken <= 1 then
                 basicactions.rest(true)
                 return
             end
