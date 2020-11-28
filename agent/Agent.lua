@@ -55,6 +55,14 @@ function Agent:init(state, visible)
     self.target.soft = nil
     -- ID of the last enemy attacked
     self.lastEnemyAttacked = nil
+    -- Current HP; will be set at the beginning of each turn
+    self.currentHP = nil
+    -- HP at the start of the previous turn
+    self.previousHP = nil
+    -- Flag for if an HP-restoring item was used this turn
+    self.healedThisTurn = false
+    -- Flag for if an HP-restoring item was used last turn
+    self.healedLastTurn = false
 
     -- Preload all the mechanics info for the leader's current moves into memory
     local moveIDs = {}
@@ -62,6 +70,40 @@ function Agent:init(state, visible)
         table.insert(moveIDs, move.moveID)
     end
     mechanics.move(moveIDs)
+end
+
+-- This function will be called right before the act() method is called, unless the
+-- turnOngoing flag is set. Change it to reset the bot state at the start of a turn.
+function Agent:setupTurn(state, visible)
+    self.currentHP = state.player.leader().stats.HP
+end
+
+-- This function will be called right after the act() method returns, unless the
+-- turnOngoing flag is set. Change it to prepare or record data for the bot to
+-- use in future turns.
+function Agent:finalizeTurn()
+    self.previousHP = self.currentHP
+    self.currentHP = nil
+
+    self.healedLastTurn = self.healedThisTurn
+    self.healedThisTurn = false
+end
+
+-- A wrapper around smartactions.healIfLowHP, with a bit of extra logic
+function Agent:healIfSensible(state, HP, maxHP, threshold, allowWaste, verbose)
+    if self.healedLastTurn and self.currentHP and self.previousHP and
+        self.currentHP <= self.previousHP then
+        -- Forgo healing if we just healed last turn but our HP isn't any higher than it
+        -- was before the heal; this probably means we're under attack from a threatening
+        -- enemy that can outdamage our healing, and it doesn't make sense to heal again
+        -- in this case (it'd be wasting supplies only to take more damage anyway)
+        return false
+    end
+    if smartactions.healIfLowHP(state, HP, maxHP, threshold, allowWaste, verbose) then
+        self.healedThisTurn = true
+        return true
+    end
+    return false
 end
 
 -- Checks if a position is the target position
@@ -232,8 +274,8 @@ function Agent:act(state, visible)
     --      (this roughly coincides with when the UI starts flashing)
     local threshold = 0.25 * (leader.stats.maxHP + 1) - 1
     -- ceil(threshold) - 1 because the parameter is treated as inclusive in this function
-    if smartactions.healIfLowHP(availableInfo, leader.stats.HP,
-        leader.stats.maxHP, math.ceil(threshold) - 1, true, true) then
+    if self:healIfSensible(availableInfo, leader.stats.HP, leader.stats.maxHP,
+        math.ceil(threshold) - 1, true, true) then
         return
     end
 
@@ -535,8 +577,8 @@ function Agent:act(state, visible)
 
                     -- Heal if HP is moderately low and there's healing items in the bag
                     -- "Moderately low" means 37.5% HP or lower
-                    if smartactions.healIfLowHP(availableInfo, leader.stats.HP,
-                        leader.stats.maxHP, 0.375 * leader.stats.maxHP, true, true) then
+                    if self:healIfSensible(availableInfo, leader.stats.HP, leader.stats.maxHP,
+                        0.375 * leader.stats.maxHP, true, true) then
                         return
                     end
 
