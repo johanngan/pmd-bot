@@ -201,6 +201,17 @@ local function lowestStatStage(entity, stats)
     return lowestStage
 end
 
+-- Checks if a path contains a tile that's off screen and out of visibility range;
+-- see the comment by the call in scanNearbyEntities
+local function pathVisibleOrOnScreen(path, x0, y0, dungeon)
+    for _, pos in ipairs(path) do
+        if not rangeutils.visibleOrOnScreen(pos[1], pos[2], x0, y0, dungeon) then
+            return false
+        end
+    end
+    return true
+end
+
 -- Scan a list of entities and check if any are in visibility range and within
 -- some path length. Return a list of the closest ones and the paths to them, with
 -- the form {entity, path} for each item.
@@ -209,10 +220,14 @@ end
 -- for the pathfinder
 local function scanNearbyEntities(entities, x0, y0, dungeon,
     checkValidity, walkableWithEntity, avoidIfPossible, maxSteps)
-    local maxSteps = maxSteps or 10
+    -- By default, allow paths to be of arbitrary length
+    local maxSteps = maxSteps or math.huge
     local nearestEntities = {}
     for _, entity in ipairs(entities) do
-        if rangeutils.inVisibilityRegion(entity.xPosition, entity.yPosition, x0, y0, dungeon)
+        -- Allow the entity to be in visibility range OR on screen; if an entity isn't
+        -- known about, visibleinfo will handle that and the entity won't be included in
+        -- the entities list.
+        if rangeutils.visibleOrOnScreen(entity.xPosition, entity.yPosition, x0, y0, dungeon)
             and (checkValidity == nil or checkValidity(entity)) then
             -- Wrap walkableWithEntity so that the pathfinder can understand it
             local walkable = walkableWithEntity
@@ -221,8 +236,12 @@ local function scanNearbyEntities(entities, x0, y0, dungeon,
             -- Search for a path to the entity
             local path = pathfinder.getPath(dungeon.layout(),
                 x0, y0, entity.xPosition, entity.yPosition, walkable, nil, avoidIfPossible)
+            -- Reject the path if it goes out of visibility range and off screen at all,
+            -- since these are to entities that are technically reachable but only by a
+            -- circuitous path, which is undesirable.
             -- maxSteps + 1 because path includes the starting point
-            if path and #path <= maxSteps + 1 then
+            if path and #path <= maxSteps + 1 and
+                pathVisibleOrOnScreen(path, x0, y0, dungeon) then
                 if #nearestEntities > 0 and #path < #(nearestEntities[1].path) then
                     nearestEntities = {}
                 end

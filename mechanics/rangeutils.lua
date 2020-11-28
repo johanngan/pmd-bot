@@ -64,4 +64,10 @@ function rangeutils.inVisibilityRegion(x, y, x0, y0, dungeon)
     return rangeutils.inRange(x, y, x0, y0, dungeon.visibilityRadius())
 end
 
+-- In the visibility region or on screen
+function rangeutils.visibleOrOnScreen(x, y, x0, y0, dungeon)
+    return rangeutils.inVisibilityRegion(x, y, x0, y0, dungeon) or
+        rangeutils.onScreen(x, y, x0, y0)
+end
+
 return rangeutils
