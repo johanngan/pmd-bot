@@ -455,8 +455,13 @@ function Agent:act(state, visible)
                 -- and enemies, which exploreLayout() doesn't do.
             end
         end
-        -- If the target is off-screen, force it to be soft
-        if self.target.pos and rangeutils.onScreen(self.target.pos[1], self.target.pos[2],
+        -- If the target is off-screen, force it to be soft. This isn't strictly necessary
+        -- with the current targeting code since only items can be hard targets, and they'll
+        -- currently they'll only be targeted either if on screen or in visibility range anyway,
+        -- but there's little harm in setting this. Forcing off-screen targets to be soft
+        -- is a good way to ensure that, e.g., in omniscient mode, stuff that appears on-screen
+        -- is prioritized.
+        if self.target.pos and not rangeutils.onScreen(self.target.pos[1], self.target.pos[2],
             leader.xPosition, leader.yPosition) then
             self.target.soft = true
         end
