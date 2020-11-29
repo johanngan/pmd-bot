@@ -341,6 +341,11 @@ function Agent:act(state, visible)
         end
     end
 
+    -- Try to cure statuses that absolutely need urgent attention and can't wait
+    if smartactions.cureStatusIfPossible(state, itemLogic.urgentStatuses) then
+        return
+    end
+
     -- For certain logic, we need to consider enemies, which are impassable
     -- and MUST be avoided.
     local mustAvoid = {}
@@ -472,17 +477,6 @@ function Agent:act(state, visible)
     end
     -- The target should not be nil by this point
     assert(self.target.pos, 'Could not find target.')
-
-    -- If the stairs aren't in visibility range, then heal any statuses if possible
-    local stairsNearby = false
-    if availableInfo.dungeon.stairs() then
-        local x, y = availableInfo.dungeon.stairs()
-        stairsNearby = rangeutils.inVisibilityRegion(x, y,
-            leader.xPosition, leader.yPosition, availableInfo.dungeon)
-    end
-    if not stairsNearby and smartactions.cureStatusIfPossible(state) then
-        return
-    end
 
     -- Use different decision-making depending on whether there's an enemy in the vicinity.
     -- Don't treat Kecleon and allies as real enemies. For pathfinding, allow whatever
@@ -674,8 +668,10 @@ function Agent:act(state, visible)
 
             if engageWithEnemy then
                 -- We've decided to engage. Now deal with the enemy
-                -- First heal off any statuses if possible
-                if smartactions.cureStatusIfPossible(state) then return end
+                -- First, heal off any debilitating statuses if possible
+                if smartactions.cureStatusIfPossible(state, itemLogic.debilitatingStatuses) then
+                    return
+                end
 
                 -- If no teammates or allies are in the way, first try to attack with something in-range
                 local allyPositions = {}
@@ -835,6 +831,11 @@ function Agent:act(state, visible)
         self:isTargetPos({leader.xPosition, leader.yPosition}) then
         self:setTarget(nil) -- Clear the target
         basicactions.triggerTile(true)
+        return
+    end
+
+    -- If there are any bad persistent status conditions that can be cured, cure them
+    if smartactions.cureStatusIfPossible(state, itemLogic.persistentStatuses) then
         return
     end
 

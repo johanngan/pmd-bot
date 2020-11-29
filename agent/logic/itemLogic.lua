@@ -253,6 +253,53 @@ function itemLogic.equipBestItem(state, teammate)
     return false
 end
 
+-- Statuses that urgently need to be cured, and can't just be waited out
+itemLogic.urgentStatuses = {
+    codes.STATUS.PerishSong,
+}
+-- Statuses that are debilitating or potentially debilitating during combat,
+-- and should be cured ASAP if possible, even while engaged with an enemy
+itemLogic.debilitatingStatuses = {
+    codes.STATUS.Sleep,
+    codes.STATUS.Nightmare,
+    codes.STATUS.Yawning,
+    codes.STATUS.Napping,
+
+    codes.STATUS.Paralysis,
+
+    codes.STATUS.Frozen,
+    codes.STATUS.Wrapped,
+    codes.STATUS.Petrified,
+
+    codes.STATUS.Cringe,
+    codes.STATUS.Confused,
+    codes.STATUS.Paused,
+    codes.STATUS.Cowering,
+    codes.STATUS.Infatuated,
+
+    codes.STATUS.Decoy,
+    codes.STATUS.HealBlock,
+    codes.STATUS.Embargo,
+
+    codes.STATUS.Whiffer,
+
+    codes.STATUS.Blinker,
+
+    codes.STATUS.Muzzled,
+
+    codes.STATUS.PerishSong,
+}
+-- Statuses that don't go away quickly on their own, and whose lingering effects are
+-- quite harmful. These should be healed if there's nothing else more important to do
+itemLogic.persistentStatuses = {
+    codes.STATUS.Burn,
+    codes.STATUS.Poisoned,
+    codes.STATUS.BadlyPoisoned,
+    codes.STATUS.Cursed,
+    codes.STATUS.Decoy,
+    codes.STATUS.PerishSong,
+}
+
 -- Resolves an item's name based on available info
 itemLogic.DEFAULT_ITEM_NAME = 'Item'
 
