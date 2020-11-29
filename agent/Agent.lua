@@ -258,9 +258,9 @@ end
 -- Returns true if the attack was successfully used, or false if not.
 -- If you're using different Pokemon, it might be sufficient just to rewrite this
 -- method, and leave the main dungeon-crawling logic as is.
-function Agent:attackEnemy(enemy, leader, availableInfo)
+function Agent:attackEnemy(enemy, leader, availableInfo, underAttack)
     -- Wrap in an Agent method in case we want to use internal state in the future
-    return moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
+    return moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo, underAttack)
 end
 
 -- Perform some actions based on the current state of the dungeon (and the bot's own state)
@@ -289,6 +289,10 @@ function Agent:act(state, visible)
     local statDeficit = NORMAL_STAT_STAGE - (lowestStatStage(leader) or NORMAL_STAT_STAGE)
     -- Net damage taken since last turn
     local damageTaken = (self.previousHP or self.currentHP) - self.currentHP
+    -- If the damage taken is fairly high, assume there's a threatening attacker
+    -- and make decisions based on that. "A lot" means at least 25% of the player's
+    -- max HP, or at least 30
+    local underAttack = damageTaken >= math.min(leader.stats.maxHP / 4, 30)
 
     -- Health is critically low; try to heal.
     -- "Critically low" means less than 25% HP (add 1 to numerator/denominator)
@@ -518,21 +522,25 @@ function Agent:act(state, visible)
             return mechanics.species.walkable[mobility](terrain, DUNGEON_HAS_LAVA)
         end
     )
-    -- Only pay attention to enemies if they're on screen
-    local nearestEnemiesOnScreen = {}
-    for i, enemyWithPath in ipairs(nearestEnemies) do
-        local enemy = enemyWithPath.entity
-        if rangeutils.onScreen(enemy.xPosition, enemy.yPosition,
-            leader.xPosition, leader.yPosition) then
-            table.insert(nearestEnemiesOnScreen, enemyWithPath)
+    -- Unless actively threatened, only pay attention to enemies if they're on screen
+    local nearestRelevantEnemies = nearestEnemies
+    if not underAttack then
+        nearestRelevantEnemies = {}
+        for i, enemyWithPath in ipairs(nearestEnemies) do
+            local enemy = enemyWithPath.entity
+            if rangeutils.onScreen(enemy.xPosition, enemy.yPosition,
+                leader.xPosition, leader.yPosition) then
+                table.insert(nearestRelevantEnemies, enemyWithPath)
+            end
         end
     end
-    if #nearestEnemiesOnScreen > 0 then
+
+    if #nearestRelevantEnemies > 0 then
         -- An enemy is in the vicinity and can approach us
         -- All enemies in the list will be the same distance away. Prioritize attacking
         -- the same enemy as before if it's in this list, in order to focus on one
         -- enemy at a time.
-        table.sort(nearestEnemiesOnScreen,
+        table.sort(nearestRelevantEnemies,
             function(enemyWithPath1, enemyWithPath2)
                 return self.lastEnemyAttacked and
                     enemyWithPath1.entity.index == self.lastEnemyAttacked
@@ -540,7 +548,7 @@ function Agent:act(state, visible)
         )
 
         -- Go through enemies one-by-one until an action is taken
-        for _, enemyWithPath in ipairs(nearestEnemiesOnScreen) do
+        for _, enemyWithPath in ipairs(nearestRelevantEnemies) do
             local nearestEnemy, pathToEnemy = enemyWithPath.entity, enemyWithPath.path
 
             -- Do a few preparatory checks before engaging with the enemy
@@ -557,36 +565,52 @@ function Agent:act(state, visible)
             else
                 -- Otherwise, "close" means that the enemy is at least as close
                 -- to the target as the leader
+
+                -- Additionally, if we're actively threatened, count the enemy as close if the
+                -- target is off screen; the target is too far away and we should instead focus
+                -- on the imminent threat.
+                if underAttack then
+                    enemyIsClose = not rangeutils.onScreen(self.target.pos[1], self.target.pos[2],
+                        leader.xPosition, leader.yPosition)
+                end
+
                 -- Force recompute the target path first.
                 local pathToTarget = pathfinder.getPath(availableInfo.dungeon.layout(),
                     leader.xPosition, leader.yPosition, self.target.pos[1], self.target.pos[2],
                     nil, mustAvoid, avoidIfPossible)
-                -- Special case: if the bag is full and the target is an item, it'll take
-                -- an extra turn to swap a bag item for it, so we'll need to add 1 to the
-                -- path length
-                local extraTargetSteps = 0
-                if self.target.type == TARGET.Item and
-                    #availableInfo.player.bag() >= availableInfo.player.bagCapacity() then
-                    extraTargetSteps = 1
-                end
-                -- Next, compute the path from the enemy to the target
-                local enemySpecies = nearestEnemy.features.species
-                local enemyPathToTarget = pathfinder.getPath(
-                    availableInfo.dungeon.layout(),
-                    nearestEnemy.xPosition, nearestEnemy.yPosition,
-                    self.target.pos[1], self.target.pos[2],
-                    function(terrain)
-                        -- Fallback if we don't know the species
-                        if enemySpecies == nil then return terrain == codes.TERRAIN.Normal end
-                        return mechanics.species.walkable[mechanics.species(enemySpecies).mobility](
-                            terrain, DUNGEON_HAS_LAVA
-                        )
+
+                -- If we're already treating the enemy as close, we can skip some pathfinding work
+                if not enemyIsClose then
+                    -- Special case: if the bag is full and the target is an item, it'll take
+                    -- an extra turn to swap a bag item for it, so we'll need to add 1 to the
+                    -- path length
+                    local extraTargetSteps = 0
+                    if self.target.type == TARGET.Item and
+                        #availableInfo.player.bag() >= availableInfo.player.bagCapacity() then
+                        extraTargetSteps = 1
                     end
-                )
-                -- If pathToTarget is nil, the enemy is probably in the way
-                enemyIsClose = pathToTarget == nil or
-                    (enemyPathToTarget ~= nil and
-                     #enemyPathToTarget <= #pathToTarget + extraTargetSteps)
+                    -- Next, compute the path from the enemy to the target
+                    local enemySpecies = nearestEnemy.features.species
+                    local enemyPathToTarget = pathfinder.getPath(
+                        availableInfo.dungeon.layout(),
+                        nearestEnemy.xPosition, nearestEnemy.yPosition,
+                        self.target.pos[1], self.target.pos[2],
+                        function(terrain)
+                            -- Fallback if we don't know the species
+                            if enemySpecies == nil then
+                                return terrain == codes.TERRAIN.Normal
+                            end
+                            return mechanics.species.walkable[
+                                mechanics.species(enemySpecies).mobility](
+                                terrain, DUNGEON_HAS_LAVA
+                            )
+                        end
+                    )
+                    -- If pathToTarget is nil, the enemy is probably in the way
+                    enemyIsClose = pathToTarget == nil or
+                        (enemyPathToTarget ~= nil and
+                        #enemyPathToTarget <= #pathToTarget + extraTargetSteps)
+                end
 
                 -- If the stat deficit is really severe (at least 5 stages), and a
                 -- Wonder Tile is currently being targeted and is reachable, ignore the
@@ -619,25 +643,30 @@ function Agent:act(state, visible)
                         return
                     end
 
-                    -- If belly is empty, restore it
-                    if smartactions.eatFoodIfBellyEmpty(availableInfo, leader.belly, true) then
-                        return
-                    end
-
-                    -- If going for an item or a Wonder Tile, just go for it
-                    if self.target.type == TARGET.Item or self.target.type == TARGET.WonderTile then
-                        engageWithEnemy = false
-                    else
-                        -- Equip a better held item if there is one
-                        if itemLogic.equipBestItem(availableInfo) then
+                    -- If we're actively threatened, that's it for prep. Otherwise, try a few
+                    -- more things...
+                    if not underAttack then
+                        -- If belly is empty, restore it
+                        if smartactions.eatFoodIfBellyEmpty(availableInfo, leader.belly, true) then
                             return
                         end
 
-                        -- If there's nothing else to do, and belly is even somewhat low,
-                        -- we might as well eat something (provided we're not being wasteful)
-                        if smartactions.eatFoodIfHungry(availableInfo, leader.belly,
-                            leader.maxBelly, leader.maxBelly - 50, false, true) then
-                            return
+                        -- If going for an item or a Wonder Tile, just go for it
+                        if self.target.type == TARGET.Item or
+                            self.target.type == TARGET.WonderTile then
+                            engageWithEnemy = false
+                        else
+                            -- Equip a better held item if there is one
+                            if itemLogic.equipBestItem(availableInfo) then
+                                return
+                            end
+
+                            -- If there's nothing else to do, and belly is even somewhat low,
+                            -- we might as well eat something (provided we're not being wasteful)
+                            if smartactions.eatFoodIfHungry(availableInfo, leader.belly,
+                                leader.maxBelly, leader.maxBelly - 50, false, true) then
+                                return
+                            end
                         end
                     end
                 end
@@ -663,7 +692,7 @@ function Agent:act(state, visible)
                     end
                 end
                 if not pathfinder.pathIntersects(pathToEnemy, allyPositions) and
-                    self:attackEnemy(nearestEnemy, leader, availableInfo) then
+                    self:attackEnemy(nearestEnemy, leader, availableInfo, underAttack) then
                     -- Attack sequence was successful; record this enemy so we know to focus
                     -- on it in subsequent turns
                     self.lastEnemyAttacked = nearestEnemy.index

@@ -60,6 +60,10 @@ local function isUsable(move, user)
         )
 end
 
+local function isRoomClearing(moveID)
+    return mechanics.move(moveID).range >= codes.MOVE_RANGE.Room
+end
+
 local function hitsTeammatesAOE(moveID)
     return mechanics.move.isAOE(moveID) and mechanics.move.hasFriendlyFire(moveID)
 end
@@ -93,7 +97,8 @@ end
 
 -- Decide how to attack an enemy given the circumstances, and perform the action.
 -- Returns true if the attack was successfully used, or false if not.
-function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
+function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo, underAttack)
+    local underAttack = underAttack or false
     local teammatesExist = #availableInfo.dungeon.entities.team() > 1
     local conditions = availableInfo.dungeon.conditions
     local movepool = {}
@@ -102,8 +107,8 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
             and mechanics.move.isOffensive(move.moveID)
             and (
                 -- Try not to save room-clearing moves for special circumstances,
-                -- unless they're the only moves left
-                mechanics.move(move.moveID).range < codes.MOVE_RANGE.Room or
+                -- unless they're the only moves left, or we're under attack
+                underAttack or not isRoomClearing(move.moveID) or
                 not moveLogic.hasOffensiveNonAOEMoves(leader, math.huge)
             )
             and not (teammatesExist and hitsTeammatesAOE(move.moveID))
@@ -112,6 +117,8 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
                 idx=i,
                 damage=moveLogic.expectedDamageHeuristic(move, leader, enemy, conditions),
                 pp=move.PP,
+                -- Prioritize non-room-clearing moves
+                priority=isRoomClearing(move.moveID) and 0 or 1
             })
         end
     end
@@ -120,7 +127,9 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
     -- any move possible, rather than waiting for the best move to be in range.
     -- Otherwise, only try to use the best move; if out of range, do nothing.
     -- This helps (just a little bit) to mitigate projectile spam.
+    -- If we're under attack, all bets are off
     local threatened =
+        underAttack or
         (mechanics.power.typeEffectiveness(enemy.features.primaryType or codes.TYPE.None,
         leader.features.primaryType, leader.features.secondaryType) > 1) or
         (mechanics.power.typeEffectiveness(enemy.features.secondaryType or codes.TYPE.None,
@@ -134,21 +143,27 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
     -- If threatened, use just the damage heuristic as the primary sorting key,
     -- only using PP to break ties, since we want to deal with the threat as
     -- quickly as possible.
-    local sortingFn = function(a, b)
+    local innerSortingFn = function(a, b)
         local aProd = a.damage*a.pp
         local bProd = b.damage*b.pp
         if aProd == bProd then return a.damage > b.damage end
         return aProd > bProd
     end
     if threatened then
-        sortingFn = function(a, b)
+        innerSortingFn = function(a, b)
             if a.damage == b.damage then return a.pp > b.pp end
             return a.damage > b.damage
         end
     end
+    local function sortingFn(a, b)
+        -- Regardless of the sorting key, always respect the priority group first
+        if a.priority ~= b.priority then return a.priority > b.priority end
+        return innerSortingFn(a, b)
+    end
     table.sort(movepool, sortingFn)
+
     -- Append an invalid index (basic attack) as a last resort
-    table.insert(movepool, {idx=-1, damage=0, pp=0})
+    table.insert(movepool, {idx=-1, damage=0, pp=0, priority=-1})
 
     for _, idxAndDamage in ipairs(movepool) do
         -- If not threatened and the first move is strictly better than the current one,
