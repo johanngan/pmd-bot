@@ -148,11 +148,12 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo)
     end
     table.sort(movepool, sortingFn)
     -- Append an invalid index (basic attack) as a last resort
-    table.insert(movepool, {idx=-1, damage=0})
+    table.insert(movepool, {idx=-1, damage=0, pp=0})
 
-    local highestDamage = movepool[1].damage
     for _, idxAndDamage in ipairs(movepool) do
-        if not threatened and idxAndDamage.damage < highestDamage then break end
+        -- If not threatened and the first move is strictly better than the current one,
+        -- don't try any more moves
+        if not threatened and sortingFn(movepool[1], idxAndDamage) then break end
         if tryAttack(idxAndDamage.idx, leader, enemy, availableInfo.dungeon.layout()) then
             return true
         end
