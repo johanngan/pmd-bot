@@ -291,12 +291,14 @@ function state.dungeon.entities.items:read()
         -- or it's in the visibility region, or it's on a visited tile.
         -- If it's in a wall, always ignore it; it won't be visible even
         -- under full item visibility.
-        local inVisRegion = rangeutils.inVisibilityRegion(x, y, x0, y0, stateinfo.state.dungeon)
-        if (stateinfo.state.player.canSeeItems() or inVisRegion or
-            stateinfo.state.dungeon.layout()[y][x].visited)
+        -- Sprite illuminated doesn't mean it's visible; it just means it WILL be
+        -- visible to the player if it also happens to be on screen
+        local spriteIlluminated = stateinfo.state.player.canSeeItems() or
+            rangeutils.inVisibilityRegion(x, y, x0, y0, stateinfo.state.dungeon)
+        if (spriteIlluminated or stateinfo.state.dungeon.layout()[y][x].visited)
             and stateinfo.state.dungeon.layout()[y][x].terrain ~= codes.TERRAIN.Wall then
             local newItem = {}
-            if infoLevel ~= nil or (inVisRegion and rangeutils.onScreen(x, y, x0, y0)) then
+            if infoLevel ~= nil or (spriteIlluminated and rangeutils.onScreen(x, y, x0, y0)) then
                 -- Note: the item position just being visited isn't enough because
                 -- items can be dropped off-screen, and you won't have seen them before
                 newItem = copy.deepcopySimple(item)
