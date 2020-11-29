@@ -63,6 +63,7 @@ local function getPathFromMap(map, startx, starty, endx, endy, walkable, cuttabl
 end
 
 local AVOID_CODE = -1   -- Mock terrain code for corner-cuttable position to avoid
+local AVOID_CODE_HARD = -2  -- Mock terrain code for non-corner-cuttable position to avoid
 -- Given a layout object (from state.dungeon.layout), find a path.
 -- Optionally provide a "walkable" terrain code or function of the form:
 --     walkable(terrain) -> true/false
@@ -77,23 +78,35 @@ function pathfinder.getPath(layout, startx, starty, endx, endy,
     -- Wrap walkable in a function for consistent calling
     local walkableFn = type(walkable) == 'function' and walkable or
         function(terrain) return terrain == walkable end
-    local function walkFn(terrain) return walkableFn(terrain) and terrain ~= AVOID_CODE end
+    local function walkFn(terrain)
+        return walkableFn(terrain)
+            and terrain ~= AVOID_CODE
+            and terrain ~= AVOID_CODE_HARD
+    end
     local function cutFn(terrain) return cornerCuttable(terrain) or terrain == AVOID_CODE end
 
-    -- Replace the grid spaces that MUST be avoided with the special avoid code
+    -- Replace the grid spaces that MUST be avoided with the special avoid codes
     local baseTerrainMap = layoutToMap(layout)
     if mustAvoid and #mustAvoid > 0 then
         for _, avoid in ipairs(mustAvoid) do
-            baseTerrainMap[avoid[2]][avoid[1]] = AVOID_CODE
+            -- Could use either cornerCuttable or cutFn here; it should make no difference
+            -- since baseTerrainMap shouldn't have any avoid codes yet
+            local origCuttable = cutFn(baseTerrainMap[avoid[2]][avoid[1]])
+            -- If the original terrain is corner-cuttable, use the corner-cuttable avoid code,
+            -- otherwise use the hard (non-corner-cuttable) avoid code
+            baseTerrainMap[avoid[2]][avoid[1]] = origCuttable and AVOID_CODE or AVOID_CODE_HARD
         end
     end
 
     if avoidIfPossible and #avoidIfPossible > 0 then
         -- Replace the specific grid spaces that would be nice to avoid with the
-        -- special avoid code
+        -- special avoid codes
         local terrainMap = copy.deepcopySimple(baseTerrainMap)
         for _, avoid in ipairs(avoidIfPossible) do
-            terrainMap[avoid[2]][avoid[1]] = AVOID_CODE
+            -- Need to use cutFn here since terrainMap might be starting with some avoid
+            -- codes already
+            local origCuttable = cutFn(terrainMap[avoid[2]][avoid[1]])
+            terrainMap[avoid[2]][avoid[1]] = origCuttable and AVOID_CODE or AVOID_CODE_HARD
         end
 
         local path = getPathFromMap(terrainMap, startx, starty, endx, endy, walkFn, cutFn)
