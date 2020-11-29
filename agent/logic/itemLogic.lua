@@ -277,7 +277,6 @@ itemLogic.debilitatingStatuses = {
     codes.STATUS.Cowering,
     codes.STATUS.Infatuated,
 
-    codes.STATUS.Decoy,
     codes.STATUS.HealBlock,
     codes.STATUS.Embargo,
 
@@ -296,7 +295,6 @@ itemLogic.persistentStatuses = {
     codes.STATUS.Poisoned,
     codes.STATUS.BadlyPoisoned,
     codes.STATUS.Cursed,
-    codes.STATUS.Decoy,
     codes.STATUS.PerishSong,
 }
 

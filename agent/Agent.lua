@@ -846,8 +846,15 @@ function Agent:act(state, visible)
         return
     end
 
-    -- If there are any bad persistent status conditions that can be cured, cure them
-    if smartactions.cureStatusIfPossible(state, itemLogic.persistentStatuses) then
+    -- If there are any bad persistent status conditions that can be cured, cure them,
+    -- unless the stairs are nearby (on-screen)
+    local stairsNearby = false
+    if availableInfo.dungeon.stairs() then
+        local x, y = availableInfo.dungeon.stairs()
+        stairsNearby = rangeutils.onScreen(x, y, leader.xPosition, leader.yPosition)
+    end
+    if not stairsNearby and
+        smartactions.cureStatusIfPossible(state, itemLogic.persistentStatuses) then
         return
     end
 
