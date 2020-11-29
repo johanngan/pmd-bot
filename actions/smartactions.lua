@@ -453,10 +453,12 @@ local function useRestoringItemWithThreshold(
     for _, item in ipairs(state.player.bag()) do
         local itemValue = possibleItemsWithRestoreValues[item.itemType]
         if itemValue ~= nil and not item.isSticky then
-            if bestItem == nil and (allowWaste or itemValue <= statDeficit) then
-                -- This is the first usable item we've found
-                bestItem = item
-                bestItemValue = itemValue
+            if bestItem == nil then
+                if allowWaste or itemValue <= statDeficit then
+                    -- This is the first usable item we've found
+                    bestItem = item
+                    bestItemValue = itemValue
+                end
             elseif itemValue <= statDeficit and itemValue > bestItemValue then
                 -- The new item restores more than the current best, and still isn't wasteful
                 bestItem = item
