@@ -45,6 +45,13 @@ local TARGET, _ = enum.register({
 
 -- This function will be called just once when the bot starts up.
 function Agent:init(state, visible)
+    -- A counter for failed pathfinding attempts to the target within a single turn
+    -- (via Agent:findTargetPath).
+    -- After this exceeds a maximum threshold, fail with an error message so that
+    -- we don't get stuck in an infinite loop.
+    self.findTargetPathFailures = 0
+    self.maxFindTargetPathFailures = 1  -- Don't allow more than one failure per turn
+
     -- If you want your bot to have a state or a memory, initialize stuff here!
     self.pathMoves = nil -- The path moves list, as returned by pathfinder.getMoves()
     self.target = {}
@@ -75,6 +82,7 @@ end
 -- This function will be called right before the act() method is called, unless the
 -- turnOngoing flag is set. Change it to reset the bot state at the start of a turn.
 function Agent:setupTurn(state, visible)
+    self.findTargetPathFailures = 0
     self.currentHP = state.player.leader().stats.HP
 end
 
@@ -155,11 +163,15 @@ function Agent:findTargetPath(x0, y0, layout, mustAvoid, avoidIfPossible)
                 pathfinder.pathContainsPosition(mustAvoid, self.pathMoves[1].dest) then
                 mustAvoidMinimal = {self.pathMoves[1].dest}
             end
-            path = assert(
-                pathfinder.getPath(layout, x0, y0, self.target.pos[1], self.target.pos[2],
-                    nil, mustAvoidMinimal, avoidIfPossible),
-                'Something went wrong. Unable to find path.'
-            )
+            path = pathfinder.getPath(layout, x0, y0, self.target.pos[1], self.target.pos[2],
+                nil, mustAvoidMinimal, avoidIfPossible)
+
+            -- If pathfinding failed, increment the internal fail counter and set a nil path.
+            if path == nil then
+                self.pathMoves = nil
+                self.findTargetPathFailures = self.findTargetPathFailures + 1
+                return
+            end
         end
         self.pathMoves = pathfinder.getMoves(path)
     end
@@ -842,6 +854,18 @@ function Agent:act(state, visible)
     -- If no other action was taken, walk towards the target
     self:findTargetPath(leader.xPosition, leader.yPosition,
         availableInfo.dungeon.layout(), mustAvoid, avoidIfPossible)
+    if self.pathMoves == nil then
+        -- Failed to find a path; something weird happened, like a Warp Trap or something.
+        -- If this has happened more than once in the same turn, raise an error.
+        assert(self.findTargetPathFailures <= self.maxFindTargetPathFailures,
+            'Something went wrong. Unable to find path.')
+        -- Otherwise, print a warning, then reset the target and try again
+        -- without consuming a turn.
+        print('WARNING: Failed to find path. Resetting target.')
+        self:setTarget(nil)
+        self.turnOngoing = true
+        return
+    end
     if #self.pathMoves > 0 then
         -- Not already on target
         local text = ''
