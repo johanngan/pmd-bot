@@ -558,6 +558,11 @@ function smartactions.useMoveIfPossible(moveIdx, moveList, user, verbose)
         return false
     end
 
+    -- If Encored, can only use a move if it was the last one used
+    if hasStatus(user, codes.STATUS.Encore) and not move.isLastUsed then
+        return false
+    end
+
     if move and move.PP > 0 and not move.isSealed and not move.isDisabled
         and not move.subsequentInLinkChain then
         messages.reportIfVerbose('Using ' ..
