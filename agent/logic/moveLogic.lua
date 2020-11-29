@@ -58,6 +58,10 @@ local function isUsable(move, user)
             hasStatus(user, codes.STATUS.Muzzled) and
             mechanics.move(move.moveID).failsWhileMuzzled
         ) and (move.isLastUsed or not hasStatus(user, codes.STATUS.Encore))
+        and (
+            not hasStatus(user, codes.STATUS.Taunted) or
+            mechanics.move(move.moveID).usableWhileTaunted
+        )
 end
 
 local function isRoomClearing(moveID)

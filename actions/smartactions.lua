@@ -558,6 +558,12 @@ function smartactions.useMoveIfPossible(moveIdx, moveList, user, verbose)
         return false
     end
 
+    -- Can't use certain moves if Taunted
+    if hasStatus(user, codes.STATUS.Taunted) and
+        not mechanics.move(move.moveID).usableWhileTaunted then
+        return false
+    end
+
     -- If Encored, can only use a move if it was the last one used
     if hasStatus(user, codes.STATUS.Encore) and not move.isLastUsed then
         return false
