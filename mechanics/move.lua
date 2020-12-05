@@ -18,19 +18,20 @@ mechanics.move = LookupTable:new('mechanics/data/move_data.csv')
 
 -- Functions for testing if a target is in range of a move range class.
 -- All the functions take in positions for a target (x, y) and a user (x0, y0),
--- and a floor layout object. They return true if the target is in range,
--- false if the target is out of range, or nil if it's uncertain.
-local function inRangeSpecial(x, y, x0, y0, layout)
+-- a floor layout object, and an optional visibility radius.
+-- They return true if the target is in range, false if the target is out of range,
+-- or nil if it's uncertain.
+local function inRangeSpecial(x, y, x0, y0, layout, visRad)
     -- These moves are special; no way to know the range without more info
     return nil
 end
 
-local function inRangeUser(x, y, x0, y0, layout)
+local function inRangeUser(x, y, x0, y0, layout, visRad)
     -- These moves can be used anywhere
     return true
 end
 
-local function inRangeUnderfoot(x, y, x0, y0, layout)
+local function inRangeUnderfoot(x, y, x0, y0, layout, visRad)
     -- These moves can be used on any open floor tiles within a room,
     -- with the exception of junctions (room exits), stairs, and shops.
     -- (halls, walls, or any other out-of-room-tiles are not allowed)
@@ -45,22 +46,22 @@ local function attackCanPass(terrain)
         or terrain == codes.TERRAIN.WaterOrLava
         or terrain == codes.TERRAIN.Chasm
 end
-local function inRangeFront(x, y, x0, y0, layout)
+local function inRangeFront(x, y, x0, y0, layout, visRad)
     local path = pathfinder.getPath(layout, x0, y0, x, y, attackCanPass)
     -- Path includes starting point; 1 step away gives a path of 2
     return path ~= nil and #path <= 2
 end
 
-local function inRangeFrontWithCornerCutting(x, y, x0, y0, layout)
+local function inRangeFrontWithCornerCutting(x, y, x0, y0, layout, visRad)
     return rangeutils.inRange(x, y, x0, y0, 1) and attackCanPass(layout[y][x].terrain)
 end
 
-local function inRangeFrontSpread(x, y, x0, y0, layout)
+local function inRangeFrontSpread(x, y, x0, y0, layout, visRad)
     -- Wide Slash can hit in walls
     return rangeutils.inRange(x, y, x0, y0, 1)
 end
 
-local function inRangeNearby(x, y, x0, y0, layout)
+local function inRangeNearby(x, y, x0, y0, layout, visRad)
     -- 1-tile AOE moves. These also hit in walls
     return rangeutils.inRange(x, y, x0, y0, 1)
 end
@@ -85,28 +86,29 @@ local function inRangeFrontN(x, y, x0, y0, layout, n)
     end
     return false
 end
-local function inRangeFront2(x, y, x0, y0, layout)
+local function inRangeFront2(x, y, x0, y0, layout, visRad)
     return inRangeFrontN(x, y, x0, y0, layout, 2)
 end
 
-local function inRangeNearby2(x, y, x0, y0, layout)
+local function inRangeNearby2(x, y, x0, y0, layout, visRad)
     -- Just Explosion. 2-tile AOE
     return rangeutils.inRange(x, y, x0, y0, 2)
 end
 
-local function inRangeFront10(x, y, x0, y0, layout)
+local function inRangeFront10(x, y, x0, y0, layout, visRad)
     return inRangeFrontN(x, y, x0, y0, layout, 10)
 end
 
-local function inRangeRoom(x, y, x0, y0, layout)
+local function inRangeRoom(x, y, x0, y0, layout, visRad)
     -- If in room: all tiles in the room + the surrounding boundary
     local roomRange = rangeutils.inRoomRange(x, y, x0, y0, layout)
     if roomRange ~= nil then return roomRange end
-    -- If in hall: within a 2 tile radius
-    return rangeutils.inRange(x, y, x0, y0, 2)
+    -- If in hall: within the visibility radius. This is 2 in most dungeons,
+    -- so use that by default.
+    return rangeutils.inRange(x, y, x0, y0, visRad or 2)
 end
 
-local function inRangeFloor(x, y, x0, y0, layout)
+local function inRangeFloor(x, y, x0, y0, layout, visRad)
     -- Everything is in range
     return true
 end
@@ -126,9 +128,9 @@ mechanics.move.rangeFunctions = {
     [codes.MOVE_RANGE.Floor] = inRangeFloor,
 }
 
-function mechanics.move.inRange(moveID, x, y, x0, y0, layout)
+function mechanics.move.inRange(moveID, x, y, x0, y0, layout, visRad)
     return mechanics.move.rangeFunctions[mechanics.move(moveID).range](
-        x, y, x0, y0, layout)
+        x, y, x0, y0, layout, visRad)
 end
 
 -- Maps moves that can hit multiple targest to the

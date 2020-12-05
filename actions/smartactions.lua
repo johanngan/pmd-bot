@@ -583,10 +583,10 @@ end
 
 -- Use a move at some index (0-indexed) if possible, and if the target is
 -- in range of the user.
-function smartactions.useMoveIfInRange(moveIdx, moveList, user, target, layout, verbose)
+function smartactions.useMoveIfInRange(moveIdx, moveList, user, target, layout, visRad, verbose)
     local moveID = moveList[moveIdx+1].moveID    -- Access using 1-indexing
     if mechanics.move.inRange(moveID, target.xPosition, target.yPosition,
-        user.xPosition, user.yPosition, layout) then
+        user.xPosition, user.yPosition, layout, visRad) then
         return smartactions.useMoveIfPossible(moveIdx, moveList, user, verbose)
     end
     return false

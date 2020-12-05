@@ -74,11 +74,11 @@ end
 
 -- Similar to smartactions.useMoveIfInRange, but turn to face the enemy if
 -- the range check passes. Also falls back to the basic attack if idx is invalid.
-local function tryAttack(idx, leader, enemy, layout)
+local function tryAttack(idx, leader, enemy, layout, visRad)
     local move = leader.moves[idx]
     local moveID = move and move.moveID or codes.MOVE.regularattack
     if not mechanics.move.inRange(moveID, enemy.xPosition, enemy.yPosition,
-        leader.xPosition, leader.yPosition, layout) then
+        leader.xPosition, leader.yPosition, layout, visRad) then
         return false
     end
 
@@ -173,7 +173,8 @@ function moveLogic.attackEnemyWithBestMove(enemy, leader, availableInfo, underAt
         -- If not threatened and the first move is strictly better than the current one,
         -- don't try any more moves
         if not threatened and sortingFn(movepool[1], idxAndDamage) then break end
-        if tryAttack(idxAndDamage.idx, leader, enemy, availableInfo.dungeon.layout()) then
+        if tryAttack(idxAndDamage.idx, leader, enemy, availableInfo.dungeon.layout(),
+            availableInfo.dungeon.visibilityRadius()) then
             return true
         end
     end

@@ -338,7 +338,8 @@ function Agent:act(state, visible)
         for _, enemy in ipairs(availableInfo.dungeon.entities.enemies()) do
             if not enemy.isShopkeeper and not enemy.isAlly and
                 mechanics.move.inRange(move.moveID, enemy.xPosition, enemy.yPosition,
-                    leader.xPosition, leader.yPosition, availableInfo.dungeon.layout()) and
+                    leader.xPosition, leader.yPosition, availableInfo.dungeon.layout(),
+                    availableInfo.dungeon.visibilityRadius()) and
                 moveLogic.expectedDamageHeuristic(move, leader, enemy,
                     availableInfo.dungeon.conditions) > 0 then
                 -- Enemy is within attack range
