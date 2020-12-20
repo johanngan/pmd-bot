@@ -1,5 +1,5 @@
 # pmd-bot
-PMD-Bot is a botting framework for _Pokémon Mystery Dungeon: Explorers of Sky_. You can use it to write fully autonomous dungeon bots! For example, you can write a bot that does runs of Mystery Dungeons without human input. Watch the [showcase video](https://www.youtube.com/watch?v=DqSmy8Cc5Ms)!
+PMD-Bot is a botting framework for _Pokémon Mystery Dungeon: Explorers of Sky_. You can use it to write fully autonomous dungeon bots! For example, you can write a bot that does runs of Mystery Dungeons without human input. Watch the [showcase video](https://www.youtube.com/watch?v=HsasMDBP5_c)! ([Older version](https://www.youtube.com/watch?v=DqSmy8Cc5Ms))
 
 - PMD-Bot is written in [FCEUX Lua](https://tasvideos.github.io/fceux/web/help/fceux.html?LuaScripting.html) and runs on DeSmuME for Windows (Lua scripting is sadly not supported on DeSmuME for Mac/Linux).
 
