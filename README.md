@@ -16,8 +16,16 @@ For a more detailed discussion, see [Writing a bot](#writing-a-bot).
 - [A modified version of the Jumper library](https://github.com/johanngan/Jumper) for pathfinding (included as a submodule of this repository).
 
 ## Installation
+
+You can install PMD-Bot one of two ways: with Git or by downloading. The Git way is easier if you're familiar with Git, but if not you can use the Download method.
+
+### With Git
 1. Retrieve the repository locally with the Jumper submodule (for example, by doing `git clone --recursive https://github.com/johanngan/pmd-bot.git` through the command line).
 2. If you cloned the project but forgot to pull the submodule with the `--recursive` option, run `git submodule update --init` from within the PMD-Bot repository to set up the modified Jumper library.
+
+### By Downloading
+1. Download the [latest release](https://github.com/johanngan/pmd-bot/releases) as a zip file. You can also download the latest version (possibly unreleased) by clicking the green "Code" button on the GitHub repository page, then clicking "Download ZIP".
+2. When downloading the PMD-Bot code this way, the `Jumper` folder will be empty and will need to be installed manually. Download the [custom PMD-Bot Jumper code](https://github.com/johanngan/Jumper/releases/tag/jumper-1.8.1-1-pmd-bot) as a zip file. Unzip the file, and rename the `Jumper-jumper-1.8.1-1-pmd-bot` folder to just `Jumper`. Then replace the `Jumper` subfolder in the PMD-Bot folder with the new `Jumper` folder you just renamed.
 
 ## Usage
 ### Prerequisites
