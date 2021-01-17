@@ -6,7 +6,7 @@ PMD-Bot is a botting framework for _Pokémon Mystery Dungeon: Explorers of Sky_.
 ## How it works
 Broadly, PMD-Bot runs using a three-step process, repeated every turn:
 
-1. Detect what's happening in the dungeon by read state information from RAM.
+1. Detect what's happening in the dungeon by reading state information from RAM.
 2. Make decisions on how to act based on the current state.
 3. Make the necessary inputs (including menu navigation) in order to perform whatever action was decided on.
 

@@ -7,7 +7,7 @@ State information is read directly from RAM. The three primary files are:
 - [`menuinfo.lua`](menuinfo.lua), which reads information related to menuing, such as the current menu open and the position of the menu cursor.
 
 ## The `StateData` class
-The [`StateData` class](StateData.lua) handles caching and lazy reading of dungeon information. These objects form the basis of the dungeon state model used by the bot to access environmental information (through the variables `state` and `visible` in [`Agent:act(state, visible)`](../Agent.lua)). All `StateData` instances behave as follows:
+The [`StateData` class](StateData.lua) handles caching and lazy reading of dungeon information. These objects form the basis of the dungeon state model used by the bot to access environmental information (through the variables `state` and `visible` in [`Agent:act(state, visible)`](../agent/Agent.lua)). All `StateData` instances behave as follows:
 
 - When called, they return the data they represent.
 - Have the field `doesCache` that determines whether or not they should cache their data after the first read. This defaults to true, but can be set in the constructor.
