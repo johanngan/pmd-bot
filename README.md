@@ -57,7 +57,7 @@ Modifying [`Agent.lua`](agent/Agent.lua) should be sufficient for many use cases
 ### Running a bot
 These instructions assume the interface of DeSmuME 0.9.12, but hopefully they won't change much in future versions.
 
-1. Start up _Pokémon Mystery Dungeon: Explorers of Sky (NA)_, and enter a dungeon (this you'll have to do manually).
+1. Start up _Pokémon Mystery Dungeon: Explorers of Sky (NA)_, and enter a dungeon (this you'll have to do manually). Note that you won't be able to run a bot outside of a dungeon.
 2. In the DeSmuME "Tools" menu, select "Lua Scripting" -> "New Lua Script Window..."
 3. In the window that just opened, click "Browse..." and select `main.lua` in the PMD-Bot directory.
 4. The bot should start automatically. If not, start it by clicking "Run".
