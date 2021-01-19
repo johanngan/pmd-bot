@@ -2,10 +2,14 @@
 
 require 'utils.nicknames'
 require 'utils.messages'
+require 'dynamicinfo.versioninfo'
 require 'dynamicinfo.stateinfo'
 require 'dynamicinfo.visibleinfo'
 require 'dynamicinfo.menuinfo'
 local Agent = require 'agent.Agent'
+
+-- Confirm that the version is supported
+versioninfo.validateVersion()
 
 -- Temporarily set the leader's nickname to "Lua"
 nicknames.setLeaderNicknameTemp('Lua')
