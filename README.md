@@ -23,7 +23,7 @@ Once all the prerequsites are satisfied, you can install PMD-Bot one of two ways
 - Have Windows
 - Install DeSmuME
 - PMD-Bot is written for the **North American version of _Pokémon Mystery Dungeon: Explorers of Sky_**. No guarantees that it'll work on other versions.
-- Before you can run any scripts, you'll need to set up Lua on DeSmuME. The [FCEUX Lua](https://tasvideos.github.io/fceux/web/help/fceux.html?LuaScripting.html) documentation is for the FCEUX emulator, not DeSmuME, but is mostly applicable.
+- Before you can run any scripts, you'll need to set up Lua on DeSmuME. The [FCEUX Lua](https://fceux.com/web/help/LuaScripting.html) documentation is for the FCEUX emulator, not DeSmuME, but is mostly applicable.
     - If you need some help and don't want to comb through the documentation, here's a link to the [necessary Lua binaries for 64-bit Windows](https://sourceforge.net/projects/luabinaries/files/5.1.5/Tools%20Executables/lua-5.1.5_Win64_bin.zip/download) ([32-bit version](https://sourceforge.net/projects/luabinaries/files/5.1.5/Tools%20Executables/lua-5.1.5_Win32_bin.zip/download)). Extract the archive and copy `lua5.1.dll` and `lua51.dll` into the same directory as your DeSmuME executable file. After doing this, you should be able to run Lua scripts on DeSmuME.
 
 ### Install with Git
